@@ -69,9 +69,10 @@ plot_schism_bnds(Mobj, [1 1], 'Color', 'k')
 write_schism_hgrid(Mobj)
 ```
 
-<img title="" src="imags/fig_3.1.png" alt="image" width="545" data-align="center">
-
-<p align="center"><strong>Figure 1</strong>. Model domain and mesh grid.</p>
+<div align="center">
+  <img src="imags/fig_3.1.png" alt="Figure 1 Model domain" width="550">
+</div>
+<p align="center"><strong>Figure 1</strong>. Model domain.</p>
 
 <br>
 
