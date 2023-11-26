@@ -18,6 +18,8 @@ Last updated on 24 Nov. 2023 by [Wenfan Wu](https://www.researchgate.net/profile
 
 > Notes: **OceanMesh2D** is required only if you are using the '**mesh2schism.m**' function. M_MAP is only used in **calc_schism_circum.m**; T_TIDE is only used in **add_elevtide.m**
 
+<br>
+
 ## Workflow
 
 The following shows the complete workflow to genearte input files with this toolbox. Refer to the first example (<span style="color:green;">**Exp1_BYS.m**</span>) in the toolbox for more details.
@@ -40,7 +42,7 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate
 > 
 > <span style="color:cornflowerblue;">If your mesh grid is generated from the other softwares (e.g. SMS), just use the '**read_schism_hgrid**' function to create the '**Mobj**' datastruct, and the remaining workflow is the same. Refer to **Exp3_CORIE_LSC2.m** for more details.</span>
 
-
+<br>
 
 **Step-2: Activated modules**  
 This part aims to decide the activated modules in your simulation.
@@ -51,7 +53,7 @@ Mobj = call_schism_tracers(Mobj);
 
 > In this example, only hydrodynamic module is activated and thus there are only two activated tracers (temp & salt). 
 
-
+<br>
 
 **Step-3: Horitonzal grids**  
 This part aims to visualize the horizontal grids and generate hgrid.gr3 and hgrid.ll files.
@@ -71,7 +73,7 @@ write_schism_hgrid(Mobj)
 
 <p align="center"><strong>Figure 1</strong>. Model domain and mesh grid.</p>
 
-
+<br>
 
 **Step-4: Check the grid quality**  
 This part aims to check the inverse CFL constraints and hydrostatic assumption.
@@ -101,7 +103,7 @@ check_schism_hydrostatic(Mobj);
 
 <p align="center"><strong>Figure 4</strong>. The nodes that violate the hydrostatic assumption.</p>
 
-
+<br>
 
 **Step-5: Vertical grids**  
 This part aims to generate the vertical grids (vgrid.in), and check the quality at a given transect.
@@ -139,7 +141,7 @@ write_schism_vgrid(Mobj, 'v5.10');
 
 <p align="center"><strong>Figure 5</strong>. (left) The selected transect; (right) vertical layers along the transect.</p>
 
-
+<br>
 
 **Step-6: River inputs@Element sources**  
 This part aims to add river inputs in the form of element sources (e.g. source.nc).
@@ -167,7 +169,7 @@ write_schism_source_nc(Mobj, D,  tracer_list)
 > 
 > River can also be added in the form of open boundaries but it is not supported in this toolbox so far.
 
-
+<br>
 
 **Step-7: Initial Conditions**
 
@@ -202,7 +204,7 @@ Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);
 
 <p align="center"><strong>Figure 1</strong>. Check the surface and bottom temperature interpolation in the initial field.</p>
 
-
+<br>
 
 **Step-8: Boundary Conditions**  
 
@@ -237,7 +239,7 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
 
 <p align="center"><strong>Figure 3</strong>. Check the consistency of SST in the initial fields and the boundary inputs.</p>
 
-
+<br>
 
 **Step-9: Tide forcing** 
 
@@ -269,7 +271,7 @@ write_schism_bctides(Mobj, TideForc, bc_flags)
 > 
 > It is easy to create another function if you want to change tidal products, just make sure the returned **TidaForc** has the same format for the fields inside.
 
-
+<br>
 
 **Step-10: Bottom friction (drag.gr3, rough.gr3, and manning.gr3 )** 
 
@@ -292,7 +294,7 @@ write_schism_gr3(Mobj, 'rough', fmc)
 
 > The function <span style="color:green;">**write_schism_gr3.m**</span> makes it easy to generate all the input files ending in 'gr3'.
 
-
+<br>
 
 **Step-11: Misc. files ending in gr3 (e.g. shapiro.gr3, albedo.gr3)** 
 
@@ -326,7 +328,7 @@ hdif = calc_schism_hdif(Mobj, 0.25, 5e-5, 'on');
 write_schism_gr3(Mobj, 'hdif', hdif)
 ```
 
-
+<br>
 
 **Step-12: Misc. files ending in prop (e.g. tvd.prop, fluxflag.prop)**
 
@@ -341,7 +343,7 @@ write_schism_prop(Mobj, 'fluxflag', flux_flags)
 
 > The function <span style="color:green;">**write_schism_prop.m**</span> makes it easy to generate all the input files ending in 'prop'.
 
-
+<br>
 
 **Step-13: Atmospheric forcing**  
 
