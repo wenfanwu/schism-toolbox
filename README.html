@@ -1262,7 +1262,7 @@ pre[class*="language-"] {
 
 <h2 class="atx" id="workflow">Workflow</h2>
 <p>The following shows the complete workflow to genearte input files with this toolbox. Refer to the first example (<span style="color:green;"><strong>Exp1_BYS.m</strong></span>) in the toolbox for more details.</p>
-<h4 class="atx" id="step-1-load-the-mesh-grid">Step-1: Load the mesh grid</h4>
+<h3 class="atx" id="step-1-load-the-mesh-grid">Step-1: Load the mesh grid</h3>
 <p>This part aims to load the mesh grid generated from OceanMesh2D, then all the grid info. will be stored in a datastruct named '<strong>Mobj</strong>' (viz. mesh object).</p>
 <pre><code class="fenced-code-block language-Matlab">clc;clearvars
 mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat'; % NEED TO BE CHANGED
@@ -1278,7 +1278,7 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate</code></pre>
 </blockquote>
 <br>
 
-<h4 class="atx" id="step-2-activated-modules">Step-2: Activated modules</h4>
+<h3 class="atx" id="step-2-activated-modules">Step-2: Activated modules</h3>
 <p>This part aims to decide the activated modules in your simulation.</p>
 <pre><code class="fenced-code-block language-Matlab">Mobj = call_schism_tracers(Mobj);</code></pre>
 <blockquote>
@@ -1286,7 +1286,7 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate</code></pre>
 </blockquote>
 <br>
 
-<h4 class="atx" id="step-3-horitonzal-grids">Step-3: Horitonzal grids</h4>
+<h3 class="atx" id="step-3-horitonzal-grids">Step-3: Horitonzal grids</h3>
 <p>This part aims to visualize the horizontal grids and generate hgrid.gr3 and hgrid.ll files.</p>
 <pre><code class="fenced-code-block language-Matlab">figure('Color', 'w')  % see Figure 1
 disp_schism_hgrid(Mobj, [1 0])
@@ -1303,7 +1303,7 @@ write_schism_hgrid(Mobj)</code></pre>
 
 <br>
 
-<h4 class="atx" id="step-4-check-the-grid-quality">Step-4: Check the grid quality</h4>
+<h3 class="atx" id="step-4-check-the-grid-quality">Step-4: Check the grid quality</h3>
 <p>This part aims to check the inverse CFL constraints and hydrostatic assumption.</p>
 <pre><code class="fenced-code-block language-MATLAB">% check the invese CFL constraints
 check_schism_metrics(Mobj);
@@ -1336,7 +1336,7 @@ check_schism_hydrostatic(Mobj);</code></pre>
 
 <br>
 
-<h4 class="atx" id="step-5-vertical-grids">Step-5: Vertical grids</h4>
+<h3 class="atx" id="step-5-vertical-grids">Step-5: Vertical grids</h3>
 <p>This part aims to generate the vertical grids (vgrid.in), and check the quality at a given transect.</p>
 <pre><code class="fenced-code-block language-Matlab">% option-1: LSC2 coordinates
 dep_edges = [10, 20, 30, 45, 55, 65, 75, 90];
@@ -1369,7 +1369,7 @@ write_schism_vgrid(Mobj, 'v5.10');</code></pre>
 
 <br>
 
-<h4 class="atx" id="step-6-river-inputs">Step-6: River inputs</h4>
+<h3 class="atx" id="step-6-river-inputs">Step-6: River inputs</h3>
 <p>This part aims to add river inputs in the form of element sources (e.g. source.nc).</p>
 <pre><code class="fenced-code-block language-Matlab">SS = def_schism_source(Mobj, [1 0], 'load', 'on');
 river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
@@ -1394,7 +1394,7 @@ write_schism_source_nc(Mobj, D,  tracer_list)</code></pre>
 </blockquote>
 <br>
 
-<h4 class="atx" id="step-7-initial-conditions">Step-7: Initial Conditions</h4>
+<h3 class="atx" id="step-7-initial-conditions">Step-7: Initial Conditions</h3>
 <p>This part aims to prepare the inital fields (e.g. elev.ic, temp.ic, and hotstart.nc).</p>
 <pre><code class="fenced-code-block language-Matlab">% DS contains the original initial fields with a fixed format:
 % 1) 'lon', 'lat', 'depth' vectors must be in ascending order;
@@ -1427,7 +1427,7 @@ Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);</code></pre>
 
 <br>
 
-<h4 class="atx" id="step-8-boundary-conditions">Step-8: Boundary Conditions</h4>
+<h3 class="atx" id="step-8-boundary-conditions">Step-8: Boundary Conditions</h3>
 <p>This part aims to prepare the boundary inputs (e.g. elev2d.th.nc, TEM_3D.th.nc).</p>
 <pre><code class="fenced-code-block language-Matlab">% option-1: prepare real-time boundary inputs using hycom data.
 DS = prep_schism_bdry(Mobj, 'hycom_bys');
@@ -1461,7 +1461,7 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)</code></pre>
 
 <br>
 
-<h4 class="atx" id="step-9-tide-forcing">Step-9: Tide forcing</h4>
+<h3 class="atx" id="step-9-tide-forcing">Step-9: Tide forcing</h3>
 <p>This part aims to prepare tidal forcing at the open boundary (e.g. bctides.in).</p>
 <pre><code class="fenced-code-block language-Matlab">% extract tidal forcing
 tideList = {'S2','M2','N2','K2', 'K1','P1','O1','Q1'};
@@ -1488,7 +1488,7 @@ write_schism_bctides(Mobj, TideForc, bc_flags)</code></pre>
 </blockquote>
 <br>
 
-<h4 class="atx" id="step-10-bottom-friction-draggr3-roughgr3-and-manninggr3">Step-10: Bottom friction (drag.gr3, rough.gr3, and manning.gr3)</h4>
+<h3 class="atx" id="step-10-bottom-friction-draggr3-roughgr3-and-manninggr3">Step-10: Bottom friction (drag.gr3, rough.gr3, and manning.gr3)</h3>
 <p>This part aims to prepare the input files related to bottom friction (e.g. drag.gr3).</p>
 <pre><code class="fenced-code-block language-Matlab">% Type-1: roughness
 z0 = 0.001;  % set constant roughness in the model domain
@@ -1507,7 +1507,7 @@ write_schism_gr3(Mobj, 'rough', fmc)</code></pre>
 </blockquote>
 <br>
 
-<h4 class="atx" id="step-11-misc-files-ending-in-gr3-eg-shapirogr3-and-albedogr3">Step-11: Misc. files ending in gr3 (e.g. shapiro.gr3 and albedo.gr3)</h4>
+<h3 class="atx" id="step-11-misc-files-ending-in-gr3-eg-shapirogr3-and-albedogr3">Step-11: Misc. files ending in gr3 (e.g. shapiro.gr3 and albedo.gr3)</h3>
 <pre><code class="fenced-code-block language-Matlab">% shapiro.gr3
 shapiro_val = gen_slope_filter2(Mobj, [0.001, 0.05], 0.5, 'on');
 write_schism_gr3(Mobj, 'shapiro', shapiro_val)
@@ -1537,7 +1537,7 @@ hdif = calc_schism_hdif(Mobj, 0.25, 5e-5, 'on');
 write_schism_gr3(Mobj, 'hdif', hdif)</code></pre>
 <br>
 
-<h4 class="atx" id="step-12-misc-files-ending-in-prop-eg-tvdprop-and-fluxflagprop">Step-12: Misc. files ending in prop (e.g. tvd.prop and fluxflag.prop)</h4>
+<h3 class="atx" id="step-12-misc-files-ending-in-prop-eg-tvdprop-and-fluxflagprop">Step-12: Misc. files ending in prop (e.g. tvd.prop and fluxflag.prop)</h3>
 <pre><code class="fenced-code-block language-Matlab">tvd_flags = ones(Mobj.nElems, 1);
 tvd_flags(Mobj.depthc&lt;5) = 0;
 write_schism_prop(Mobj, 'tvd', tvd_flags)
@@ -1549,7 +1549,7 @@ write_schism_prop(Mobj, 'fluxflag', flux_flags)</code></pre>
 </blockquote>
 <br>
 
-<h4 class="atx" id="step-13-atmospheric-forcing">Step-13: Atmospheric forcing</h4>
+<h3 class="atx" id="step-13-atmospheric-forcing">Step-13: Atmospheric forcing</h3>
 <pre><code class="fenced-code-block language-Matlab">% AtmForc inculdes the extracted atmospheric forcing data with a fixed format:
 % 1) lon/lat matrix (nLons*nLats) are generated from the meshgrid function, and in ascending order
 % 2) variable matrix should be of nLons*nLats*nTimes

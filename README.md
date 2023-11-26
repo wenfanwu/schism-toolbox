@@ -23,7 +23,7 @@ Last updated on 24 Nov. 2023 by [Wenfan Wu](https://www.researchgate.net/profile
 
 The following shows the complete workflow to genearte input files with this toolbox. Refer to the first example (<span style="color:green;">**Exp1_BYS.m**</span>) in the toolbox for more details.
 
-#### Step-1: Load the mesh grid
+### Step-1: Load the mesh grid
 
 This part aims to load the mesh grid generated from OceanMesh2D, then all the grid info. will be stored in a datastruct named '**Mobj**' (viz. mesh object).
 
@@ -44,7 +44,7 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate
 
 <br>
 
-#### Step-2: Activated modules
+### Step-2: Activated modules
 
 This part aims to decide the activated modules in your simulation.
 
@@ -56,7 +56,7 @@ Mobj = call_schism_tracers(Mobj);
 
 <br>
 
-#### Step-3: Horitonzal grids
+### Step-3: Horitonzal grids
 
 This part aims to visualize the horizontal grids and generate hgrid.gr3 and hgrid.ll files.
 
@@ -78,7 +78,7 @@ write_schism_hgrid(Mobj)
 
 <br>
 
-#### Step-4: Check the grid quality
+### Step-4: Check the grid quality
 
 This part aims to check the inverse CFL constraints and hydrostatic assumption.
 
@@ -115,7 +115,7 @@ check_schism_hydrostatic(Mobj);
 
 <br>
 
-#### Step-5: Vertical grids
+### Step-5: Vertical grids
 
 This part aims to generate the vertical grids (vgrid.in), and check the quality at a given transect.
 
@@ -154,7 +154,7 @@ write_schism_vgrid(Mobj, 'v5.10');
 
 <br>
 
-#### Step-6: River inputs@Element sources
+### Step-6: River inputs
 
 This part aims to add river inputs in the form of element sources (e.g. source.nc).
 
@@ -183,7 +183,7 @@ write_schism_source_nc(Mobj, D,  tracer_list)
 
 <br>
 
-#### Step-7: Initial Conditions
+### Step-7: Initial Conditions
 
 This part aims to prepare the inital fields (e.g. elev.ic, temp.ic, and hotstart.nc).
 
@@ -220,7 +220,7 @@ Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);
 
 <br>
 
-#### Step-8: Boundary Conditions
+### Step-8: Boundary Conditions
 
 This part aims to prepare the boundary inputs (e.g. elev2d.th.nc, TEM_3D.th.nc).
 
@@ -259,7 +259,7 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
 
 <br>
 
-#### Step-9: Tide forcing
+### Step-9: Tide forcing
 
 This part aims to prepare tidal forcing at the open boundary (e.g. bctides.in).
 
@@ -291,7 +291,7 @@ write_schism_bctides(Mobj, TideForc, bc_flags)
 
 <br>
 
-#### Step-10: Bottom friction (drag.gr3, rough.gr3, and manning.gr3)
+### Step-10: Bottom friction (drag.gr3, rough.gr3, and manning.gr3)
 
 This part aims to prepare the input files related to bottom friction (e.g. drag.gr3).
 
@@ -314,7 +314,7 @@ write_schism_gr3(Mobj, 'rough', fmc)
 
 <br>
 
-#### Step-11: Misc. files ending in gr3 (e.g. shapiro.gr3 and albedo.gr3)
+### Step-11: Misc. files ending in gr3 (e.g. shapiro.gr3 and albedo.gr3)
 
 ```Matlab
 % shapiro.gr3
@@ -348,7 +348,7 @@ write_schism_gr3(Mobj, 'hdif', hdif)
 
 <br>
 
-#### Step-12: Misc. files ending in prop (e.g. tvd.prop and fluxflag.prop)
+### Step-12: Misc. files ending in prop (e.g. tvd.prop and fluxflag.prop)
 
 ```Matlab
 tvd_flags = ones(Mobj.nElems, 1);
@@ -363,7 +363,7 @@ write_schism_prop(Mobj, 'fluxflag', flux_flags)
 
 <br>
 
-#### Step-13: Atmospheric forcing
+### Step-13: Atmospheric forcing
 
 ```Matlab
 % AtmForc inculdes the extracted atmospheric forcing data with a fixed format:
