@@ -1312,15 +1312,21 @@ check_schism_hydrostatic(Mobj);</code></pre>
 <blockquote>
 <p>For more details about the grid quality, please refer to the SCHISM manual.</p>
 </blockquote>
-<img data-align="center" width="664" alt="image" src="imags/fig_4.1.png" title="">
+<div align="center">
+  <img width="600" alt="image" src="imags/fig_4.1.png">
+</div>
 
 <p align="center"><strong>Figure 2</strong>. Check the consistency of SST in the initial fields and the boundary inputs.</p>
 
-<img data-align="center" width="426" alt="image" src="imags/fig_4.2.png" title="">
+<div align="center">
+  <img width="450" alt="image" src="imags/fig_4.2.png">
+</div>
 
 <p align="center"><strong>Figure 3</strong>. The Max. acceptable resolutions as a function of water depth .</p>
 
-<img data-align="center" width="438" alt="image" src="imags/fig_4.3.png" title="">
+<div align="center">
+  <img width="450" alt="image" src="imags/fig_4.3.png">
+</div>
 
 <p align="center"><strong>Figure 4</strong>. The nodes that violate the hydrostatic assumption.</p>
 
@@ -1407,9 +1413,11 @@ Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);</code></pre>
 <blockquote>
 <p><span style="color:green;"><strong>prep_schism_init.m</strong></span> is a simple packing function, and thus you can easily add more data sources in it according to your needs. Just make sure the format of <strong>DS</strong> meets the requirements given above.</p>
 </blockquote>
-<img data-align="center" width="700" alt="image" src="imags/fig_7.1.png" title="">
+<div align="center">
+  <img width="700" alt="image" src="imags/fig_7.1.png">
+</div>
 
-<p align="center"><strong>Figure 1</strong>. Check the surface and bottom temperature interpolation in the initial field.</p>
+<p align="center"><strong>Figure 6</strong>. Check the surface and bottom temperature interpolation in the initial field.</p>
 
 <br>
 
@@ -1433,13 +1441,17 @@ check_schism_bdry(Mobj, DS, BdryCnd, 'temp', 1)
 
 % check the consistency between initial fields and boundary inputs
 check_schism_icbc(Mobj, 'temp', Mobj.maxLev)</code></pre>
-<img data-align="center" width="485" alt="image" src="imags/fig_8.1.png" title="">
+<div align="center">
+  <img width="500" alt="image" src="imags/fig_8.1.png">
+</div>
 
-<p align="center"><strong>Figure 2</strong>. Check the temperature interpolation along the open boundary at the begining.</p>
+<p align="center"><strong>Figure 7</strong>. Check the temperature interpolation along the open boundary at the begining.</p>
 
-<img data-align="center" width="483" alt="image" src="imags/fig_8.2.png" title="">
+<div align="center">
+  <img width="500" alt="image" src="imags/fig_8.2.png">
+</div>
 
-<p align="center"><strong>Figure 3</strong>. Check the consistency of SST in the initial fields and the boundary inputs.</p>
+<p align="center"><strong>Figure 8</strong>. Check the consistency of SST in the initial fields and the boundary inputs.</p>
 
 <br>
 
