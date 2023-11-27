@@ -1254,14 +1254,14 @@ pre[class*="language-"] {
 <h2 class="atx" id="prerequisites">Prerequisites</h2>
 <p><strong>MATLAB Version: 2014b and above</strong></p>
 <p><strong>Official Add-Ons (Mandatory):</strong><br><code>Image Processing Toolbox</code> (drawpolygon, drawline);<br><code>Mapping Toolbox</code> (ispolycw, distance)   </p>
-<p><strong>Public packages (Recommended):</strong><br><a href="https://github.com/CHLNDDEV/OceanMesh2D"><code>OceanMesh2D</code></a>  <a href="https://www.eoas.ubc.ca/~rich/map.html#10._Tracklines_and_UTM_projection"><code>M_Map</code></a> <a href="https://www.eoas.ubc.ca/~rich/#T_Tide"><code>T_TIDE</code></a></p>
+<p><strong>Public packages (Recommended):</strong><br><a href="https://github.com/CHLNDDEV/OceanMesh2D"><code>OceanMesh2D</code></a>  <a href="https://www.eoas.ubc.ca/~rich/map.html#10._Tracklines_and_UTM_projection"><code>M_Map</code></a> </p>
 <blockquote>
-<p>Notes: <strong>OceanMesh2D</strong> is required only if you are using the '<strong>mesh2schism.m</strong>' function. M_MAP is only used in <strong>calc_schism_circum.m</strong>; T_TIDE is only used in <strong>add_elevtide.m</strong></p>
+<p>Notes: <strong>OceanMesh2D</strong> is only required when you are using <font color="green">mesh2schism.m</font> function; <strong>M_MAP</strong> is only used in <font color="green">calc_schism_circum.m</font>;</p>
 </blockquote>
 <br>
 
 <h2 class="atx" id="workflow">Workflow</h2>
-<p>The following shows the complete workflow to genearte input files with this toolbox. Refer to the first example (<span style="color:green;"><strong>Exp1_BYS.m</strong></span>) in the toolbox for more details.</p>
+<p>The following shows the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green"><strong>Exp1_BYS.m</strong></font>) in the toolbox for more details.</p>
 <h3 class="atx" id="step-1-load-the-mesh-grid">Step-1: Load the mesh grid</h3>
 <p>This part aims to load the mesh grid generated from OceanMesh2D, then all the grid info. will be stored in a datastruct named '<strong>Mobj</strong>' (viz. mesh object).</p>
 <pre><code class="fenced-code-block language-Matlab">clc;clearvars
@@ -1323,13 +1323,13 @@ check_schism_hydrostatic(Mobj);</code></pre>
 <p align="center"><strong>Figure 2</strong>. Check the consistency of SST in the initial fields and the boundary inputs.</p>
 
 <div align="center">
-  <img width="450" alt="image" src="imags/fig_4.2.png">
+  <img width="400" alt="image" src="imags/fig_4.2.png">
 </div>
 
 <p align="center"><strong>Figure 3</strong>. The Max. acceptable resolutions as a function of water depth .</p>
 
 <div align="center">
-  <img width="450" alt="image" src="imags/fig_4.3.png">
+  <img width="400" alt="image" src="imags/fig_4.3.png">
 </div>
 
 <p align="center"><strong>Figure 4</strong>. The nodes that violate the hydrostatic assumption.</p>
@@ -1451,7 +1451,7 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)</code></pre>
   <img width="500" alt="image" src="imags/fig_8.1.png">
 </div>
 
-<p align="center"><strong>Figure 7</strong>. Check the temperature interpolation along the open boundary at the begining.</p>
+<p align="center"><strong>Figure 7</strong>. Check the temperature interpolation along the open boundary at the first day.</p>
 
 <div align="center">
   <img width="500" alt="image" src="imags/fig_8.2.png">
@@ -1507,7 +1507,7 @@ write_schism_gr3(Mobj, 'rough', fmc)</code></pre>
 </blockquote>
 <br>
 
-<h3 class="atx" id="step-11-misc-files-ending-in-gr3-eg-shapirogr3-and-albedogr3">Step-11: Misc. files ending in gr3 (e.g. shapiro.gr3 and albedo.gr3)</h3>
+<h3 class="atx" id="step-11-misc-files-ending-in-gr3">Step-11: Misc. files ending in gr3</h3>
 <pre><code class="fenced-code-block language-Matlab">% shapiro.gr3
 shapiro_val = gen_slope_filter2(Mobj, [0.001, 0.05], 0.5, 'on');
 write_schism_gr3(Mobj, 'shapiro', shapiro_val)
@@ -1537,7 +1537,7 @@ hdif = calc_schism_hdif(Mobj, 0.25, 5e-5, 'on');
 write_schism_gr3(Mobj, 'hdif', hdif)</code></pre>
 <br>
 
-<h3 class="atx" id="step-12-misc-files-ending-in-prop-eg-tvdprop-and-fluxflagprop">Step-12: Misc. files ending in prop (e.g. tvd.prop and fluxflag.prop)</h3>
+<h3 class="atx" id="step-12-misc-files-ending-in-prop">Step-12: Misc. files ending in prop</h3>
 <pre><code class="fenced-code-block language-Matlab">tvd_flags = ones(Mobj.nElems, 1);
 tvd_flags(Mobj.depthc&lt;5) = 0;
 write_schism_prop(Mobj, 'tvd', tvd_flags)

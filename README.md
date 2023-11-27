@@ -13,15 +13,15 @@ Last updated on 24 Nov. 2023 by [Wenfan Wu](https://www.researchgate.net/profile
 `Mapping Toolbox` (ispolycw, distance)   
 
 **Public packages (Recommended):**   
-[`OceanMesh2D`](https://github.com/CHLNDDEV/OceanMesh2D)  [`M_Map`](https://www.eoas.ubc.ca/~rich/map.html#10._Tracklines_and_UTM_projection) [`T_TIDE`](https://www.eoas.ubc.ca/~rich/#T_Tide)
+[`OceanMesh2D`](https://github.com/CHLNDDEV/OceanMesh2D)  [`M_Map`](https://www.eoas.ubc.ca/~rich/map.html#10._Tracklines_and_UTM_projection) 
 
-> Notes: **OceanMesh2D** is required only if you are using the '**mesh2schism.m**' function. M_MAP is only used in **calc_schism_circum.m**; T_TIDE is only used in **add_elevtide.m**
+> Notes: **OceanMesh2D** is only required when you are using <font color="green">mesh2schism.m</font> function; **M_MAP** is only used in <font color="green">calc_schism_circum.m</font>;
 
 <br>
 
 ## Workflow
 
-The following shows the complete workflow to genearte input files with this toolbox. Refer to the first example (<span style="color:green;">**Exp1_BYS.m**</span>) in the toolbox for more details.
+The following shows the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green">**Exp1_BYS.m**</font>) in the toolbox for more details.
 
 ### Step-1: Load the mesh grid
 
@@ -102,13 +102,13 @@ check_schism_hydrostatic(Mobj);
 <p align="center"><strong>Figure 2</strong>. Check the consistency of SST in the initial fields and the boundary inputs.</p>
 
 <div align="center">
-  <img src="imags/fig_4.2.png" alt="image" width="450">
+  <img src="imags/fig_4.2.png" alt="image" width="400">
 </div>
 
 <p align="center"><strong>Figure 3</strong>. The Max. acceptable resolutions as a function of water depth .</p>
 
 <div align="center">
-  <img src="imags/fig_4.3.png" alt="image" width="450">
+  <img src="imags/fig_4.3.png" alt="image" width="400">
 </div>
 
 <p align="center"><strong>Figure 4</strong>. The nodes that violate the hydrostatic assumption.</p>
@@ -249,7 +249,7 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
   <img src="imags/fig_8.1.png" alt="image" width="500">
 </div>
 
-<p align="center"><strong>Figure 7</strong>. Check the temperature interpolation along the open boundary at the begining.</p>
+<p align="center"><strong>Figure 7</strong>. Check the temperature interpolation along the open boundary at the first day.</p>
 
 <div align="center">
   <img src="imags/fig_8.2.png" alt="image" width="500">
@@ -314,7 +314,7 @@ write_schism_gr3(Mobj, 'rough', fmc)
 
 <br>
 
-### Step-11: Misc. files ending in gr3 (e.g. shapiro.gr3 and albedo.gr3)
+### Step-11: Misc. files ending in gr3
 
 ```Matlab
 % shapiro.gr3
@@ -348,7 +348,7 @@ write_schism_gr3(Mobj, 'hdif', hdif)
 
 <br>
 
-### Step-12: Misc. files ending in prop (e.g. tvd.prop and fluxflag.prop)
+### Step-12: Misc. files ending in prop
 
 ```Matlab
 tvd_flags = ones(Mobj.nElems, 1);
