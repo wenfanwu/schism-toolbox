@@ -15,17 +15,17 @@ Last updated on 24 Nov. 2023 by [Wenfan Wu](https://www.researchgate.net/profile
 **Public packages (Recommended):**   
 [`OceanMesh2D`](https://github.com/CHLNDDEV/OceanMesh2D)  [`M_Map`](https://www.eoas.ubc.ca/~rich/map.html#10._Tracklines_and_UTM_projection) 
 
-> Notes: **OceanMesh2D** is only required when you are using <font color="green">mesh2schism.m</font> function; **M_MAP** is only used in <font color="green">calc_schism_circum.m</font>;
+> Notes: **OceanMesh2D** is only required when you are using <font color="green">**mesh2schism.m**</font> function; **M_MAP** is only used in <font color="green">**calc_schism_cradius.m**</font>;
 
 <br>
 
 ## Workflow
 
-The following shows the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green">**Exp1_BYS.m**</font>) in the toolbox for more details.
+The following steps show the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green">**Exp1_BYS.m**</font>) in the toolbox for more details.
 
 ### Step-1: Load the mesh grid
 
-This part aims to load the mesh grid generated from OceanMesh2D, then all the grid info. will be stored in a datastruct named '**Mobj**' (viz. mesh object).
+This part aims to load the mesh grid generated from OceanMesh2D, and then all the grid info. will be stored in a datastruct named '**Mobj**' (viz. mesh object).
 
 ```Matlab
 clc;clearvars
@@ -46,22 +46,24 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate
 
 ### Step-2: Activated modules
 
-This part aims to decide the activated modules in your simulation.
+This part aims to select the activated modules in your simulation.
 
 ```Matlab
 Mobj = call_schism_tracers(Mobj);
 ```
 
 > In this example, only hydrodynamic module is activated and thus there are only two activated tracers (temp & salt). 
+> 
+> This step is reserved for future extension to other modules
 
 <br>
 
-### Step-3: Horitonzal grids
+### Step-3: Horizontal grids
 
 This part aims to visualize the horizontal grids and generate hgrid.gr3 and hgrid.ll files.
 
 ```Matlab
-figure('Color', 'w')  % see Figure 1
+figure('Color', 'w')
 disp_schism_hgrid(Mobj, [1 0])
 axis image
 hold on
@@ -99,7 +101,7 @@ check_schism_hydrostatic(Mobj);
   <img src="imags/fig_4.1.png" alt="image" width="600">
 </div>
 
-<p align="center"><strong>Figure 2</strong>. Check the consistency of SST in the initial fields and the boundary inputs.</p>
+<p align="center"><strong>Figure 2</strong>. Check the interse CFL constraints for horizontal grids.</p>
 
 <div align="center">
   <img src="imags/fig_4.2.png" alt="image" width="400">
@@ -117,7 +119,7 @@ check_schism_hydrostatic(Mobj);
 
 ### Step-5: Vertical grids
 
-This part aims to generate the vertical grids (vgrid.in), and check the quality at a given transect.
+This part aims to generate the vertical grids (vgrid.in), and visualize the vertical layers at a given transect.
 
 ```Matlab
 % option-1: LSC2 coordinates
@@ -135,18 +137,20 @@ Mobj = gen_schism_SZ(Mobj, s_consts, zcors);
 figure('Color', 'w')
 disp_schism_hgrid(Mobj, [1 0], 'EdgeAlpha', 0.05, 'LineWidth', 0.5);
 auto_center
-SectNodes = def_schism_transect(Mobj, -1, 0.01);
+sect_info = def_schism_transect(Mobj, -1, 0.01);
 
 % display the vertical layers on your selected transect
-disp_schism_vgrid(Mobj, SectNodes)
+disp_schism_vgrid(Mobj, sect_info)
 
 % Write the vgrid.in file. 
 write_schism_vgrid(Mobj, 'v5.10');
 ```
 
-> The format of vgrid.in has changed since v5.10, and thus you need to specify the version number here (v5.10 or v5.9). v5.10 is default.
+> Draw a line on the map and press **ENTER**, this part will visualize the vertical layers of selected transect. 
 > 
-> Draw a line on the map and press **ENTER**, this part will return the vertical layers of selected transect. The function <span style="color:green;">**def_schism_transet.m**</span> provides a variety of methods to define the transect (e.g. straight line, dashed line, single points), see the usage of this function for more details.
+> The format of vgrid.in has changed since v5.10, and thus you need to specify the version number here (v5.10 or v5.9). v5.10 is the default.
+> 
+> The function <span style="color:green;">**def_schism_transet.m**</span> provides a variety of methods to define the transect (e.g. straight line, dashed line, single points), see the usage of this function for more details.
 
 <img title="" src="imags/fig_5.1.png" alt="图像1" width="369"> <img title="" src="imags/fig_5.2.png" alt="图像2" width="367">
 
@@ -171,7 +175,7 @@ D = prep_river_source(river_info, tracer_list);
 write_schism_source_nc(Mobj, D,  tracer_list)
 ```
 
-> Left-click the points at the center of elements to select river sources, and press **SHIFT** to select multiple points simultaneously. The selected river sources will be saved as a MAT file named <span style="color:blue;">**source_sink.mat**</span>.
+> Left-click the points at the center of elements to select river sources (avtivate the datatips mode first), and press **SHIFT** to select multiple points simultaneously. The selected river sources will be saved as a MAT file named <span style="color:blue;">**source_sink.mat**</span>.
 > 
 > Two things should be done before preparing your own application.
 > 
@@ -193,7 +197,15 @@ This part aims to prepare the inital fields (e.g. elev.ic, temp.ic, and hotstart
 % 2) 'depth' vector must be positive; and ensure the range of lon/lat covers you model domain
 % 3) 'var' must in the dimension of lon*lat or lon*lat*depth above.
 
+% option-1: real-time initial field from hycom.
 DS = prep_schism_init(Mobj, 'hycom_bys'); 
+
+% option-2: monthly clim. initial field from hycom.
+% DS = prep_schism_init(Mobj, 'hycom_clim'); 
+
+% option-3: directly download the real-time hycom data from the internet
+% DS = prep_schism_init(Mobj, 'hycom_online'); 
+
 varList = {'ssh', 'temp', 'salt'};  % it can be changed if you only want to interpolate for partial variables.
 InitCnd = interp_schism_init(Mobj, DS, varList);
 
@@ -222,14 +234,14 @@ Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);
 
 ### Step-8: Boundary Conditions
 
-This part aims to prepare the boundary inputs (e.g. elev2d.th.nc, TEM_3D.th.nc).
+This part aims to prepare the boundary inputs (e.g. elev2d.th.nc and TEM_3D.th.nc).
 
 ```Matlab
 % option-1: prepare real-time boundary inputs using hycom data.
 DS = prep_schism_bdry(Mobj, 'hycom_bys');
 
 % option-2: prepare monthly clim. boundary inputs using hycom data.
-DS = prep_schism_bdry(Mobj, 'hycom_clim');
+% DS = prep_schism_bdry(Mobj, 'hycom_clim');
 
 BdryCnd = interp_schism_bdry(Mobj, DS);
 
@@ -245,6 +257,8 @@ check_schism_bdry(Mobj, DS, BdryCnd, 'temp', 1)
 check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
 ```
 
+> This step can be quite time-consuming if you choose real-time boundary inputs with a high time resolution, especially when the model timespan is long.
+
 <div align="center">
   <img src="imags/fig_8.1.png" alt="image" width="500">
 </div>
@@ -255,13 +269,13 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
   <img src="imags/fig_8.2.png" alt="image" width="500">
 </div>
 
-<p align="center"><strong>Figure 8</strong>. Check the consistency of SST in the initial fields and the boundary inputs.</p>
+<p align="center"><strong>Figure 8</strong>. Check the consistency of SST in the initial field and the boundary input.</p>
 
 <br>
 
-### Step-9: Tide forcing
+### Step-9: Tidal forcing
 
-This part aims to prepare tidal forcing at the open boundary (e.g. bctides.in).
+This part aims to implement tidal forcing at the open boundary (e.g. bctides.in).
 
 ```Matlab
 % extract tidal forcing
@@ -285,13 +299,13 @@ TideForc.nf_salt = 0.8;
 write_schism_bctides(Mobj, TideForc, bc_flags)
 ```
 
-> Download the fes2014 tidal products first, and change the directory in the function <span style="color:green;">**get_fes2014_tide.m**</span>(Lines 40-42).
+> Download the fes2014 tidal products first, and change the directory in the function <span style="color:green;">**get_fes2014_tide.m**</span> (Lines 40–42).
 > 
-> It is easy to create another function if you want to change tidal products, just make sure the returned **TidaForc** has the same format for the fields inside.
+> It is easy to create another function if you want to change tide products, just make sure the returned **TidaForc** has the same format for the fields inside.
 
 <br>
 
-### Step-10: Bottom friction (drag.gr3, rough.gr3, and manning.gr3)
+### Step-10: Bottom friction
 
 This part aims to prepare the input files related to bottom friction (e.g. drag.gr3).
 
@@ -381,7 +395,7 @@ write_schism_sflux(AtmForc, 'air', nFiles)
 
 > nFiles is the estimated # of sflux_prc/air/rad_*.nc files. Note that the nFiles can not be two small, since the **time_steps** of each sflux nc file can not exceed 1000 by default. In addition, <span style="color:green;">**write_schism_sflux.m**</span> will slightly adjust this value to ensure that each file starts at 0 o'clock in certain day, since the 'hour' component of 'base_date' property is unused in each nc file.
 > 
-> Considering that the raw data of atmospheric forcing is too large, this toolbox did not offer the function to create 'AtmForc' according to the raw data, but directly uploads the result.
+> Considering that the raw data of atmospheric forcing is too large, this toolbox does not offer the function to create 'AtmForc', but directly uploads the result.
 > 
 > You need to prepare the AtmForc variable according to the required format, and then use 'write_schism_sflux.m' to create the nc files.
 
@@ -391,13 +405,13 @@ This toolbox was written with reference to the [fvcom-toolbox](https://github.co
 
 ## Limitations (To-do List)
 
-* only for purely triangular grid so far, although SCHISM supports mixed triangular/quadrangular grid.
+* The toolbox can only be used for purely triangular grid so far, although SCHISM supports mixed triangular/quadrangular grids.
 * only for geographical grids so far.
-* primarily for the input files related to hydrological part, while the other modules such as CoSiNE, ICM are not supported. However, the toolbox has reserved interfaces for additional modules.
-* the river can only be added as source points, although the river can also be added as boudary inflow in SCHISM.
+* primarily for the input files related to hydrological part so far, while the other modules such as CoSiNE, ICM are not fully supported. However, many interfaces have been reserved for additional modules.
+* rivers can only be added as source points so far, although the river can also be added as boudary inflow in SCHISM.
 
 ## Copyright
 
 This toolbox is distributed under the MIT license. It is free to use and no profit making is allowed. 
 
-If you encounter any problems/bugs when using this toolbox, or if you have any suggestions, please contact [wenfanwu@stu.ouc.edu.cn](mailto:wenfanwu@stu.ouc.edu.cn)
+If you encounter any problems/bugs when using this toolbox, or if you have any suggestions, please contact [wenfanwu@stu.ouc.edu.cn](mailto:wenfanwu@stu.ouc.edu.cn). Any potential co-developers are highly welcome.
