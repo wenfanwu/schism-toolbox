@@ -2,7 +2,7 @@
 
 This is a MATLAB toolbox desgined for the Semi-implicit Cross-scale Hydroscience Integrated System Model ([SCHISM](http://ccrm.vims.edu/schismweb/)).
 
-Last updated on 24 Nov. 2023 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), COAS, Ocean University of China
+Last updated on 27 Nov. 2023 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), COAS, Ocean University of China
 
 ## Prerequisites
 
