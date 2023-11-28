@@ -10,8 +10,8 @@
 % ================================================================
 %% Step-1: Load the mesh grid
 % Load mesh grid from the MAT file, in this example, the mesh grid is
-% generated from the OceanMesh2D. If your grid is from SMS or other
-% softwares, please use 'read_schism_hgrid.m' and refer to Exp3_CORIE.
+% generated from OceanMesh2D. If your grid is from SMS or other softwares,
+% please use 'read_schism_hgrid.m' and refer to Exp3_CORIE_LSC2.
 clc;clearvars
 mesh_file = 'E:\Code-repository\Matlab-codes\functions-test\schism-toolbox-v1.0-beta\examples\Exp1_BYS\BYS_20814.mat';  % NEED TO BE CHANGED!!!
 
@@ -20,14 +20,14 @@ Mobj.expname = 'Exp1_BYS';
 Mobj.time = (datetime(2020,6,1):hours(1):datetime(2020,6,10))';
 Mobj.rundays = days(Mobj.time(end)-Mobj.time(1)); 
 Mobj.dt = 150; % dt (secs), the same as in param.nml
-Mobj.coord = 'geographic'; % geographic or Cartesian coordinate
+Mobj.coord = 'geographic'; % geographic or Cartesian coordinates
 
 % All the input files generated afterwards wiil be placed in the directory
 % where the meshfile is located (Exp1_BYS\inputs).
 %% Step-2: Activated modules 
 % in this case, only hydrological module is activated and thus there are
 % only two activated tracers (TEM&SAL).
-% This step is reserved for future extension to other modules
+% This step is reserved for future extension to other modules.
 Mobj = call_schism_tracers(Mobj);
 
 %% Step-3: Horizontal grids
@@ -70,7 +70,7 @@ sect_info = def_schism_transect(Mobj, -1, 0.01);
 
 disp_schism_vgrid(Mobj, sect_info) % display the vertical layers on your selected transect
 
-% Write the vgrid.in file. Note that the format of vgrid.in has changed
+% write the vgrid.in file. Note that the format of vgrid.in has changed
 % since v5.10, and thus you need to specify the version number here (v5.10
 % or v5.9). v5.10 is default. This option is invalid for SZ coordinate.
 write_schism_vgrid(Mobj, 'v5.10');
@@ -139,7 +139,7 @@ start_time = Mobj.time(1);
 hst_data = write_schism_hotstart(Mobj, InitCnd, start_time);
 %% Step-8: Boundary Conditions (elev/temp/salinity/velocity/module-tracers)
 % This step can be quite time-consuming if you choose real-time boundary
-% inputs with a high time resolution, especially when the model timespan is long.
+% inputs with a high time resolution, especially when the timespan is long.
 % option-1: real-time boundary inputs from hycom.
 DS = prep_schism_bdry(Mobj, 'hycom_bys'); 
 
@@ -256,11 +256,11 @@ write_schism_sflux(AtmForc, 'air', nFiles)
 % unused in each nc file.     
 
 % Considering that the raw data of atmospheric forcing is too large, this
-% toolbox did not offer the function to create 'AtmForc', but directly
-% uploads the result. 
+% toolbox does not offer the function to create 'AtmForc', but directly
+% uploads the result.
 
-% You need to prepare the AtmForc variable by yourself according to the
-% required format, and then use 'write_schism_sflux.m' to create the nc files. 
+% You need to prepare the AtmForc variable by yourself based on the
+% required format, and then use 'write_schism_sflux.m' to create the nc files.
 
 %% END
 
