@@ -173,7 +173,7 @@ D = prep_river_source(river_info, tracer_list);
 write_schism_source_nc(Mobj, D,  tracer_list)
 ```
 
-> Left-click the points at the center of elements to select river sources (avtivate the datatips mode first), and press **SHIFT** to select multiple points simultaneously. The selected river sources will be saved as a MAT file named <span style="color:blue;">**source_sink.mat**</span>.
+> Left-click the points at the center of elements to select river sources (activate the datatips mode first), and press **SHIFT** to select multiple points simultaneously. The selected river sources will be saved as a MAT file named <span style="color:blue;">**source_sink.mat**</span>.
 > 
 > Two things should be done before preparing your own application.
 > 
