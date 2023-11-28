@@ -1249,8 +1249,8 @@ pre[class*="language-"] {
 </head>
 <body>
   <article class="markdown-body"><h1 class="atx" id="schism-toolbox-v10-beta">SCHISM-toolbox (v1.0-beta)</h1>
-<p>This is a MATLAB toolbox desgined for the Semi-implicit Cross-scale Hydroscience Integrated System Model (<a href="http://ccrm.vims.edu/schismweb/">SCHISM</a>).</p>
-<p>Last updated on 24 Nov. 2023 by <a href="https://www.researchgate.net/profile/Wenfan-Wu/research">Wenfan Wu</a>, COAS, Ocean University of China</p>
+<p>This is a MATLAB toolbox designed for the Semi-implicit Cross-scale Hydroscience Integrated System Model (<a href="http://ccrm.vims.edu/schismweb/">SCHISM</a>).</p>
+<p>Last updated on 28 Nov. 2023 by <a href="https://www.researchgate.net/profile/Wenfan-Wu/research">Wenfan Wu</a>, COAS, Ocean University of China</p>
 <h2 class="atx" id="prerequisites">Prerequisites</h2>
 <p><strong>MATLAB Version: 2014b and above</strong></p>
 <p><strong>Official Add-Ons (Mandatory):</strong><br><code>Image Processing Toolbox</code> (drawpolygon, drawline);<br><code>Mapping Toolbox</code> (ispolycw, distance)   </p>
@@ -1261,7 +1261,7 @@ pre[class*="language-"] {
 <br>
 
 <h2 class="atx" id="workflow">Workflow</h2>
-<p>The following steps show the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green"><strong>Exp1_BYS.m</strong></font>) in the toolbox for more details.</p>
+<p>The following steps show the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green"><strong>Exp1_BYS_main.m</strong></font>) in the toolbox for more details.</p>
 <h3 class="atx" id="step-1-load-the-mesh-grid">Step-1: Load the mesh grid</h3>
 <p>This part aims to load the mesh grid generated from OceanMesh2D, and then all the grid info. will be stored in a datastruct named '<strong>Mobj</strong>' (viz. mesh object).</p>
 <pre><code class="fenced-code-block language-Matlab">clc;clearvars
@@ -1274,7 +1274,7 @@ Mobj.dt = 150;  % dt (secs), the same as in param.nml
 Mobj.coord = 'geographic';  % geographic or Cartesian coordinate</code></pre>
 <blockquote>
 <p>All input files generated afterwards will be placed in the directory where the <strong>mesh_file</strong> is located; </p>
-<p><span style="color:cornflowerblue;">If your mesh grid is generated from the other softwares (e.g. SMS), just use the '<strong>read_schism_hgrid</strong>' function to create the '<strong>Mobj</strong>' datastruct, and the remaining workflow is the same. Refer to <strong>Exp3_CORIE_LSC2.m</strong> for more details.</span></p>
+<p><span style="color:cornflowerblue;">If your mesh grid is generated from the other softwares (e.g. SMS), just use the '<strong>read_schism_hgrid.m</strong>' function to create the '<strong>Mobj</strong>' datastruct, and the remaining workflow is the same. Refer to <strong>Exp3_CORIE_LSC2.m</strong> for more details.</span></p>
 </blockquote>
 <br>
 
@@ -1282,8 +1282,7 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate</code></pre>
 <p>This part aims to select the activated modules in your simulation.</p>
 <pre><code class="fenced-code-block language-Matlab">Mobj = call_schism_tracers(Mobj);</code></pre>
 <blockquote>
-<p>In this example, only hydrodynamic module is activated and thus there are only two activated tracers (temp &amp; salt). </p>
-<p>This step is reserved for future extension to other modules</p>
+<p>This is a purely hydrodynamic case and thus there are only two activated tracers (temp &amp; salt). </p>
 </blockquote>
 <br>
 
@@ -1364,7 +1363,7 @@ write_schism_vgrid(Mobj, 'v5.10');</code></pre>
 <blockquote>
 <p>Draw a line on the map and press <strong>ENTER</strong>, this part will visualize the vertical layers of selected transect. </p>
 <p>The format of vgrid.in has changed since v5.10, and thus you need to specify the version number here (v5.10 or v5.9). v5.10 is the default.</p>
-<p>The function <span style="color:green;"><strong>def_schism_transet.m</strong></span> provides a variety of methods to define the transect (e.g. straight line, dashed line, single points), see the usage of this function for more details.</p>
+<p>The function <span style="color:green;"><strong>def_schism_transect.m</strong></span> provides a variety of methods to define the transect (e.g. straight line, dashed line, single points), see the usage of this function for more details.</p>
 </blockquote>
 <p><img width="369" alt="图像1" src="imags/fig_5.1.png" title=""> <img width="367" alt="图像2" src="imags/fig_5.2.png" title=""></p>
 <p align="center"><strong>Figure 5</strong>. (left) The selected transect; (right) vertical layers along the transect.</p>
@@ -1458,13 +1457,13 @@ check_schism_bdry(Mobj, DS, BdryCnd, 'temp', 1)
 % check the consistency between initial fields and boundary inputs
 check_schism_icbc(Mobj, 'temp', Mobj.maxLev)</code></pre>
 <blockquote>
-<p>This step can be quite time-consuming if you choose real-time boundary inputs with a high time resolution, especially when the model timespan is long.</p>
+<p>This step can be quite time-consuming if you choose real-time boundary inputs with a high time resolution, especially when the timespan is long.</p>
 </blockquote>
 <div align="center">
   <img width="500" alt="image" src="imags/fig_8.1.png">
 </div>
 
-<p align="center"><strong>Figure 7</strong>. Check the temperature interpolation along the open boundary at the first day.</p>
+<p align="center"><strong>Figure 7</strong>. Check the temperature interpolation along the open boundary on the first day.</p>
 
 <div align="center">
   <img width="500" alt="image" src="imags/fig_8.2.png">
