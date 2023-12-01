@@ -62,7 +62,7 @@ river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
 river_info = add_river_runoff(river_info, Mobj.time, 'real_time');
 
 % There are 13 bgc tracers in the CoSiNE module
-tracer_list = {'temp', 'salt', 'no3', 'po4', 'sio4', 'nh4', 's1', 's2', 'z1', 'z2', 'dn', 'dsi',  'dox', 'co2', 'alk'};  
+tracer_list = {'temp', 'salt', 'no3', 'sio4', 'nh4', 's1', 's2', 'z1', 'z2', 'dn', 'dsi',  'po4', 'dox', 'co2', 'alk'};  % NOTE the order!!!
 river_info = add_river_tracer(river_info, tracer_list, 'real_time');
 
 D = prep_river_source(river_info, tracer_list);

@@ -1320,7 +1320,7 @@ check_schism_hydrostatic(Mobj);</code></pre>
   <img width="600" alt="image" src="imags/fig_4.1.png">
 </div>
 
-<p align="center"><strong>Figure 2</strong>. Check the interse CFL constraints for horizontal grids.</p>
+<p align="center"><strong>Figure 2</strong>. Check the inverse CFL constraints for horizontal grids.</p>
 
 <div align="center">
   <img width="400" alt="image" src="imags/fig_4.2.png">
@@ -1383,7 +1383,7 @@ river_info = add_river_tracer(river_info, tracer_list, 'real_time');
 D = prep_river_source(river_info, tracer_list);
 write_schism_source_nc(Mobj, D,  tracer_list)</code></pre>
 <blockquote>
-<p>Left-click the points at the center of elements to select river sources (avtivate the datatips mode first), and press <strong>SHIFT</strong> to select multiple points simultaneously. The selected river sources will be saved as a MAT file named <span style="color:blue;"><strong>source_sink.mat</strong></span>.</p>
+<p>Left-click the points at the center of elements to select river sources (activate the datatips mode first), and press <strong>SHIFT</strong> to select multiple points simultaneously. The selected river sources will be saved as a MAT file named <span style="color:blue;"><strong>source_sink.mat</strong></span>.</p>
 <p>Two things should be done before preparing your own application.</p>
 <ol>
 <li><p>prepare your own <span style="color:blue;"><strong>example_river_data.mat</strong></span> file according to your needs.</p>
@@ -1574,12 +1574,12 @@ write_schism_sflux(AtmForc, 'prc', nFiles)
 write_schism_sflux(AtmForc, 'rad', nFiles)
 write_schism_sflux(AtmForc, 'air', nFiles)</code></pre>
 <blockquote>
-<p>nFiles is the estimated # of sflux_prc/air/rad_*.nc files. Note that the nFiles can not be two small, since the <strong>time_steps</strong> of each sflux nc file can not exceed 1000 by default. In addition, <span style="color:green;"><strong>write_schism_sflux.m</strong></span> will slightly adjust this value to ensure that each file starts at 0 o'clock in certain day, since the 'hour' component of 'base_date' property is unused in each nc file.</p>
+<p>nFiles is the estimated # of sflux_prc/air/rad_*.nc files. Note that the nFiles can not be too small, since the <strong>time_steps</strong> of each sflux nc file can not exceed 1000 by default. In addition, <span style="color:green;"><strong>write_schism_sflux.m</strong></span> will slightly adjust this value to ensure that each file starts at 0 o'clock in certain day, since the 'hour' component of 'base_date' property is unused in each nc file.</p>
 <p>Considering that the raw data of atmospheric forcing is too large, this toolbox does not offer the function to create 'AtmForc', but directly uploads the result.</p>
 <p>You need to prepare the AtmForc variable according to the required format, and then use 'write_schism_sflux.m' to create the nc files.</p>
 </blockquote>
 <h2 class="atx" id="notes">Notes</h2>
-<p>This toolbox was written with reference to the <a href="https://github.com/pwcazenave/fvcom-toolbox">fvcom-toolbox</a> developed by Dr. Cazenave.</p>
+<p>This toolbox was written with reference to the <a href="https://github.com/pwcazenave/fvcom-toolbox">fvcom-toolbox</a> developed by Dr. Geoff Cowles et al.</p>
 <h2 class="atx" id="limitations-to-do-list">Limitations (To-do List)</h2>
 <ul>
 <li>The toolbox can only be used for purely triangular grid so far, although SCHISM supports mixed triangular/quadrangular grids.</li>

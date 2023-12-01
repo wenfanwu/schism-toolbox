@@ -36,12 +36,17 @@ function write_schism_source_nc(Mobj, D, tracer_list)
 if nargin < 2
     tracer_list = {'temp', 'salt'};
 end
+tracer_list = lower(tracer_list);
 
-fileName = fullfile(Mobj.aimpath, 'source.nc');
-if exist(fileName,'file')==2
-    delete(fileName);
+% check the tracer order
+ind_tracers = arrayfun(@(x) find(contains(lower(Mobj.active_tracers), x)), tracer_list);
+if ~issorted(ind_tracers)
+    error('the tracer order is not right, please check!')
+else
+    disp('the tracer order is correct')
 end
-
+%% Load data 
+% nsources, nsinks, ntracers
 ntracers = numel(tracer_list);
 nsources = max(1, length(D.source_elems));
 nsinks = max(1,length(D.sink_elems));
@@ -72,8 +77,12 @@ msource = permute(msource, [2 3 1]);
 vsource = D.vsource.runoff';
 vsink = D.vsink.runoff(:,1)'; % Cautions
 
-%% source.nc 
-% nsources, nsinks, ntracers
+%% Begin to write (source.nc )
+
+fileName = fullfile(Mobj.aimpath, 'source.nc');
+if exist(fileName,'file')==2
+    delete(fileName);
+end
 
 nccreate(fileName,'time_step_vsource','Datatype','double','Format','netcdf4')
 ncwrite(fileName,'time_step_vsource', time_step_vsource);

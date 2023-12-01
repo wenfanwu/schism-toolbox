@@ -99,7 +99,7 @@ check_schism_hydrostatic(Mobj);
   <img src="imags/fig_4.1.png" alt="image" width="600">
 </div>
 
-<p align="center"><strong>Figure 2</strong>. Check the interse CFL constraints for horizontal grids.</p>
+<p align="center"><strong>Figure 2</strong>. Check the inverse CFL constraints for horizontal grids.</p>
 
 <div align="center">
   <img src="imags/fig_4.2.png" alt="image" width="400">
@@ -391,7 +391,7 @@ write_schism_sflux(AtmForc, 'rad', nFiles)
 write_schism_sflux(AtmForc, 'air', nFiles)
 ```
 
-> nFiles is the estimated # of sflux_prc/air/rad_*.nc files. Note that the nFiles can not be two small, since the **time_steps** of each sflux nc file can not exceed 1000 by default. In addition, <span style="color:green;">**write_schism_sflux.m**</span> will slightly adjust this value to ensure that each file starts at 0 o'clock in certain day, since the 'hour' component of 'base_date' property is unused in each nc file.
+> nFiles is the estimated # of sflux_prc/air/rad_*.nc files. Note that the nFiles can not be too small, since the **time_steps** of each sflux nc file can not exceed 1000 by default. In addition, <span style="color:green;">**write_schism_sflux.m**</span> will slightly adjust this value to ensure that each file starts at 0 o'clock in certain day, since the 'hour' component of 'base_date' property is unused in each nc file.
 > 
 > Considering that the raw data of atmospheric forcing is too large, this toolbox does not offer the function to create 'AtmForc', but directly uploads the result.
 > 
@@ -399,7 +399,7 @@ write_schism_sflux(AtmForc, 'air', nFiles)
 
 ## Notes
 
-This toolbox was written with reference to the [fvcom-toolbox](https://github.com/pwcazenave/fvcom-toolbox) developed by Dr. Cazenave.
+This toolbox was written with reference to the [fvcom-toolbox](https://github.com/pwcazenave/fvcom-toolbox) developed by Dr. Geoff Cowles et al.
 
 ## Limitations (To-do List)
 
