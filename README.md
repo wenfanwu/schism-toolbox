@@ -148,7 +148,7 @@ write_schism_vgrid(Mobj, 'v5.10');
 > 
 > The format of vgrid.in has changed since v5.10, and thus you need to specify the version number here (v5.10 or v5.9). v5.10 is the default.
 > 
-> The function <span style="color:green;">**def_schism_transect.m**</span> provides a variety of methods to define the transect (e.g. straight line, dashed line, single points), see the usage of this function for more details.
+> The function <span style="color:green;">**def_schism_transect.m**</span> provides a variety of methods to define the transect (e.g. straight line, broken line, single points), see the usage of this function for more details.
 
 <img title="" src="imags/fig_5.1.png" alt="图像1" width="369"> <img title="" src="imags/fig_5.2.png" alt="图像2" width="367">
 
@@ -314,15 +314,12 @@ write_schism_gr3(Mobj, 'rough', z0)
 
 % Type-2: drag
 Cd = calc_schism_bfric(Mobj, 1, [0.07 3], 'on');
-
 write_schism_gr3(Mobj, 'drag', Cd)
 
 % Type-3: manning
 fmc = 0.025;
 write_schism_gr3(Mobj, 'rough', fmc)
 ```
-
-> The function <span style="color:green;">**write_schism_gr3.m**</span> makes it easy to generate all the input files ending in 'gr3'.
 
 <br>
 
@@ -357,6 +354,8 @@ write_schism_gr3(Mobj, 'bdef', bdef_factor)
 hdif = calc_schism_hdif(Mobj, 0.25, 5e-5, 'on');
 write_schism_gr3(Mobj, 'hdif', hdif)
 ```
+
+> The function <span style="color:green;">**write_schism_gr3.m**</span> makes it easy to generate all the input files ending in 'gr3'.
 
 <br>
 
