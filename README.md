@@ -2,7 +2,7 @@
 
 This is a MATLAB toolbox designed for the Semi-implicit Cross-scale Hydroscience Integrated System Model ([SCHISM](http://ccrm.vims.edu/schismweb/)).
 
-Last updated on 28 Nov. 2023 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), COAS, Ocean University of China
+Last updated on 1 Dec. 2023 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), COAS, Ocean University of China
 
 ## Prerequisites
 
@@ -409,6 +409,6 @@ This toolbox was written with reference to the [fvcom-toolbox](https://github.co
 
 ## Copyright
 
-This toolbox is distributed under the MIT license. It is free to use and no profit making is allowed. 
+This toolbox is distributed under the Apache-2.0 license. It is free to use and no profit making is allowed. 
 
 If you encounter any problems/bugs when using this toolbox, or if you have any suggestions, please contact [wenfanwu@stu.ouc.edu.cn](mailto:wenfanwu@stu.ouc.edu.cn). Any potential co-developers are highly welcome.
