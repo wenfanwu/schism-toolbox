@@ -91,7 +91,7 @@ ind_nans = sum(~isnan(z_mas), 2)==0;
 z_mas(ind_nans,:) = [];
 
 vtype = 'SZ';
-sz_mas = [s_mas; -z_mas];
+sz_mas = [s_mas; -z_mas(2:end, :)];
 if h_s > max(Mobj.depth)
     disp('Purely-S coordinate is adopted')
     sz_mas = s_mas;
