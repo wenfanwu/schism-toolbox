@@ -2,15 +2,16 @@ function Mobj = read_schism_hgrid(Mobj, hgrid_file)
 % Read the horizontal grids from hgrid.gr3                             Not Yet Work Now!
 % 
 %% Syntax
-% Mobj = read_schism_hgrid(hgrid_file)
+% Mobj = read_schism_hgrid(Mobj, hgrid_file)
 % 
 %% Description 
-% Mobj = read_schism_hgrid(hgrid_file) reads horizontal grid 
+% Mobj = read_schism_hgrid(Mobj, hgrid_file) reads horizontal grid 
 % information from the hgrid.gr3 file 
 % 
 %% Example
+% Mobj.expName = 'test';
 % hgrid_file = 'E:/Exp1/inputs/hgrid.gr3';
-% Mobj = read_schism_hgrid(hgrid_file)
+% Mobj = read_schism_hgrid(Mobj, hgrid_file)
 %
 %% Input Arguments
 % Mobj --- the mesh object
@@ -21,14 +22,15 @@ function Mobj = read_schism_hgrid(Mobj, hgrid_file)
 % 
 %% Author Info
 % Created by Wenfan Wu, Ocean Univ. of China in 2021. 
-% Last Updated on 9 Nov. 2021. 
+% Last Updated on 2023-12-08. 
 % Email: wenfanwu@stu.ouc.edu.cn
 % 
 % See also: read_schism_vgrid and importdata
 
 %% Parse inputs
 Mobj.aimpath = fileparts(hgrid_file);
-D = importdata(hgrid_file, '%/s',inf);
+D = importdata(hgrid_file, '%/s', inf);
+D = cellfun(@(x) strtrim(x), D, 'UniformOutput',false);  % Adapt to earlier versions of MATLAB
 
 %% Basic mesh info.
 head_info = strsplit(D{2});
@@ -160,7 +162,6 @@ tmp = Mobj.land_nodes(:);
 tmp(tmp==0) = [];
 Mobj.land_nodes_tot = tmp;
 Mobj.nNodes_land = sum(Mobj.land_lens);
-
 
 end
 
