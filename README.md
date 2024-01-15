@@ -220,7 +220,7 @@ start_time = Mobj.time(1);
 Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);
 ```
 
-> <span style="color:green;">**prep_schism_init.m**</span> is a simple packing function, and thus you can easily add more data sources in it according to your needs. Just make sure the format of **DS** meets the requirements given above.
+> <span style="color:green;">**prep_schism_init.m**</span> is a simple wrapper function, and thus you can easily add more data sources in it according to your needs. Just make sure the format of **DS** meets the requirements given above.
 
 <div align="center">
   <img src="imags/fig_7.1.png" alt="image" width="700">

@@ -5,7 +5,7 @@
 %% Model verision: SCHISM v5.10
 %% Author: Wenfan Wu, COAS, Ocean Univ. of China. 2023
 % ================================================================
-% ======== This is a purely hydrological simulation on the lon/lat coordinate =======
+% ======== This is a biogeochemical simulation on the lon/lat coordinate =======
 % ======== in the Bohai, Yellow Seas (BYS) ===============================
 % ================================================================
 %% Step-1: Load the mesh grid
