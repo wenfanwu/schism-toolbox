@@ -41,16 +41,6 @@ if size(bc_flags,1)~=1 && size(bc_flags,1)~=Mobj.obc_counts
 end
 
 used_mods = check_tracer_module(Mobj);
-
-ntrs = numel(used_mods);  % not strict, as the tracers can exceed the number of module
-if ntrs~=0
-    err_mods = '';
-    for ii = 1:ntrs
-        err_mods = [err_mods, '+', used_mods{ii}]; %#ok<AGROW> 
-    end
-    error(['please specify B.C. flags for the tracer modules (',err_mods(2:end),')'])
-end
-
 %% Define some default values
 if isfield(TideForc, 'cutoff_depth')
     cutoff_depth = TideForc.cutoff_depth;
