@@ -1,15 +1,18 @@
-function write_schism_sflux(AtmForc, suffix_name, nFiles, nDataset)
+function write_schism_sflux(AtmForc, suffix_name, nFiles, begNum, nDataset)
 % Write sflux nc files for SCHISM
 %
 %% Syntax 
 % write_schism_sflux(AtmForc, suffixName, nFiles)
-% write_schism_sflux(AtmForc, suffixName, nFiles, nDataset)
+% write_schism_sflux(AtmForc, suffixName, nFiles, begNum)
+% write_schism_sflux(AtmForc, suffixName, nFiles, begNum, nDataset)
 %
 %% Description
 % write_schism_sflux(AtmForc, suffixName, nFiles) writes the sflux
 % NetCDF files for SCHISM model.
-% write_schism_sflux(AtmForc, suffixName, nFiles, nDataset) specifies the
-% serial # of data set.
+% write_schism_sflux(AtmForc, suffixName, nFiles, begNum) specifies the
+% beginning index for the NetCDF files.
+% write_schism_sflux(AtmForc, suffixName, nFiles, begNum, nDataset)
+% specifies the numbering of dataset.
 % 
 %% Example
 % write_schism_sflux(AtmForc, 'rad', 30)
@@ -22,10 +25,14 @@ function write_schism_sflux(AtmForc, suffix_name, nFiles, nDataset)
 % slightly adjuct the nFiles to ensures that each file starts at 0 o 'clock
 % in the day.
 % 
-%% Ouput Arguments
+%% Output Arguments
 % None
-% 
+%
 %% Notes
+% If the simulation period is too long, it is recommended to prepare the
+% netcdf files in multiple temporal segments, just speficy "depNum"
+% greater than 1.
+% 
 % Change 'max_files' and 'max_times' in 'sfux_9c.F90' if needed.
 %
 %% Author Info
@@ -37,6 +44,9 @@ function write_schism_sflux(AtmForc, suffix_name, nFiles, nDataset)
 
 %% Parse inputs
 if nargin < 4
+    begNum = 1;
+end
+if nargin < 5
     nDataset = 1;
 end
 %% Check-1
@@ -109,7 +119,7 @@ for iFile = 1:nFiles
     nTimes = length(time);
     starttime_str = datestr(sub_time(1), 'yyyy-mm-dd');
     
-    fileName = [sflux_path, 'sflux_', suffix_name, '_',num2str(nDataset),'.',num2str(iFile, '%04d'),'.nc'];
+    fileName = [sflux_path, 'sflux_', suffix_name, '_',num2str(nDataset),'.',num2str(begNum-1+iFile, '%04d'),'.nc'];
     if exist(fileName,'file')==2; delete(fileName); end
     
     %---------TIME PART
