@@ -1,5 +1,5 @@
 function Mobj = read_schism_hgrid(Mobj, hgrid_file)
-% Read the horizontal grids from hgrid.gr3                             Not Yet Work Now!
+% Read the horizontal grids from hgrid.gr3                            
 % 
 %% Syntax
 % Mobj = read_schism_hgrid(Mobj, hgrid_file)

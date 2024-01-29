@@ -1,5 +1,5 @@
 function Mobj = read_schism_vgrid(Mobj, vgrid_file, version_num)
-% Read the vertical grids
+% Read the vertical grids from vgrid.in
 %
 %% Syntax
 % Mobj = read_schism_vgrid(Mobj, vgrid_file, version_num)
