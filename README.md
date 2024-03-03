@@ -27,7 +27,7 @@ The following steps show the complete workflow to genearte input files with this
 
 This part aims to load the mesh grid generated from OceanMesh2D, and then all the grid info. will be stored in a datastruct named '**Mobj**' (viz. mesh object).
 
-```Matlab
+```matlab
 clc;clearvars
 mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat'; % NEED TO BE CHANGED
 Mobj = mesh2schism(mesh_file); 
@@ -48,7 +48,7 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate
 
 This part aims to select the activated modules in your simulation.
 
-```Matlab
+```matlab
 Mobj = call_schism_tracers(Mobj);
 ```
 
@@ -60,7 +60,7 @@ Mobj = call_schism_tracers(Mobj);
 
 This part aims to visualize the horizontal grids and generate hgrid.gr3 and hgrid.ll files.
 
-```Matlab
+```matlab
 figure('Color', 'w')
 disp_schism_hgrid(Mobj, [1 0])
 axis image
@@ -82,7 +82,7 @@ write_schism_hgrid(Mobj)
 
 This part aims to check the inverse CFL constraints and hydrostatic assumption.
 
-```MATLAB
+```matlab
 % check the invese CFL constraints
 check_schism_metrics(Mobj);
 
@@ -119,7 +119,7 @@ check_schism_hydrostatic(Mobj);
 
 This part aims to generate the vertical grids (vgrid.in), and visualize the vertical layers at a given transect.
 
-```Matlab
+```matlab
 % option-1: LSC2 coordinates
 dep_edges = [10, 20, 30, 45, 55, 65, 75, 90];
 dep_nums =  [20 21 22 23 24 25 27 28];
@@ -160,7 +160,7 @@ write_schism_vgrid(Mobj, 'v5.10');
 
 This part aims to add river inputs in the form of element sources (e.g. source.nc).
 
-```Matlab
+```matlab
 SS = def_schism_source(Mobj, [1 0], 'load', 'on');
 river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
 
@@ -189,7 +189,7 @@ write_schism_source_nc(Mobj, D,  tracer_list)
 
 This part aims to prepare the inital fields (e.g. elev.ic, temp.ic, and hotstart.nc).
 
-```Matlab
+```matlab
 % DS contains the original initial fields with a fixed format:
 % 1) 'lon', 'lat', 'depth' vectors must be in ascending order;
 % 2) 'depth' vector must be positive; and ensure the range of lon/lat covers you model domain
@@ -234,7 +234,7 @@ Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);
 
 This part aims to prepare the boundary inputs (e.g. elev2d.th.nc and TEM_3D.th.nc).
 
-```Matlab
+```matlab
 % option-1: prepare real-time boundary inputs using hycom data.
 DS = prep_schism_bdry(Mobj, 'hycom_bys');
 
@@ -275,7 +275,7 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
 
 This part aims to implement tidal forcing at the open boundary (e.g. bctides.in).
 
-```Matlab
+```matlab
 % extract tidal forcing
 tideList = {'S2','M2','N2','K2', 'K1','P1','O1','Q1'};
 TideForc = get_fes2014_tide(Mobj, tideList);   
@@ -307,7 +307,7 @@ write_schism_bctides(Mobj, TideForc, bc_flags)
 
 This part aims to prepare the input files related to bottom friction (e.g. drag.gr3).
 
-```Matlab
+```matlab
 % Type-1: roughness
 z0 = 0.001;  % set constant roughness in the model domain
 write_schism_gr3(Mobj, 'rough', z0)
@@ -325,7 +325,7 @@ write_schism_gr3(Mobj, 'rough', fmc)
 
 ### Step-11: Misc. files ending in gr3
 
-```Matlab
+```matlab
 % shapiro.gr3
 shapiro_val = gen_slope_filter2(Mobj, [0.001, 0.05], 0.5, 'on');
 write_schism_gr3(Mobj, 'shapiro', shapiro_val)
@@ -361,7 +361,7 @@ write_schism_gr3(Mobj, 'hdif', hdif)
 
 ### Step-12: Misc. files ending in prop
 
-```Matlab
+```matlab
 tvd_flags = ones(Mobj.nElems, 1);
 tvd_flags(Mobj.depthc<5) = 0;
 write_schism_prop(Mobj, 'tvd', tvd_flags)
@@ -376,7 +376,7 @@ write_schism_prop(Mobj, 'fluxflag', flux_flags)
 
 ### Step-13: Atmospheric forcing
 
-```Matlab
+```matlab
 % AtmForc inculdes the extracted atmospheric forcing data with a fixed format:
 % 1) lon/lat matrix (nLons*nLats) are generated from the meshgrid function, and in ascending order
 % 2) variable matrix should be of nLons*nLats*nTimes

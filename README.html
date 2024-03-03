@@ -1264,14 +1264,14 @@ pre[class*="language-"] {
 <p>The following steps show the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green"><strong>Exp1_BYS_main.m</strong></font>) in the toolbox for more details.</p>
 <h3 class="atx" id="step-1-load-the-mesh-grid">Step-1: Load the mesh grid</h3>
 <p>This part aims to load the mesh grid generated from OceanMesh2D, and then all the grid info. will be stored in a datastruct named '<strong>Mobj</strong>' (viz. mesh object).</p>
-<pre><code class="fenced-code-block language-Matlab">clc;clearvars
-mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat'; % NEED TO BE CHANGED
-Mobj = mesh2schism(mesh_file); 
-Mobj.expname = 'Exp1_BYS';      
-Mobj.time = (datetime(2020,6,1):hours(1):datetime(2020,6,10))'; 
-Mobj.rundays = days(Mobj.time(end)-Mobj.time(1)+1); 
-Mobj.dt = 150;  % dt (secs), the same as in param.nml
-Mobj.coord = 'geographic';  % geographic or Cartesian coordinate</code></pre>
+<pre><code class="fenced-code-block language-matlab">clc<span class="token punctuation">;</span>clearvars
+mesh_file <span class="token operator">=</span> <span class="token string">'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat'</span><span class="token punctuation">;</span> <span class="token comment">% NEED TO BE CHANGED</span>
+Mobj <span class="token operator">=</span> <span class="token function">mesh2schism</span><span class="token punctuation">(</span>mesh_file<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+Mobj<span class="token punctuation">.</span>expname <span class="token operator">=</span> <span class="token string">'Exp1_BYS'</span><span class="token punctuation">;</span>      
+Mobj<span class="token punctuation">.</span>time <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token function">datetime</span><span class="token punctuation">(</span><span class="token number">2020</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">:</span><span class="token function">hours</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">:</span><span class="token function">datetime</span><span class="token punctuation">(</span><span class="token number">2020</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">'</span><span class="token punctuation">;</span> 
+Mobj<span class="token punctuation">.</span>rundays <span class="token operator">=</span> <span class="token function">days</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span><span class="token function">time</span><span class="token punctuation">(</span><span class="token keyword">end</span><span class="token punctuation">)</span><span class="token operator">-</span>Mobj<span class="token punctuation">.</span><span class="token function">time</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+Mobj<span class="token punctuation">.</span>dt <span class="token operator">=</span> <span class="token number">150</span><span class="token punctuation">;</span>  <span class="token comment">% dt (secs), the same as in param.nml</span>
+Mobj<span class="token punctuation">.</span>coord <span class="token operator">=</span> <span class="token string">'geographic'</span><span class="token punctuation">;</span>  <span class="token comment">% geographic or Cartesian coordinate</span></code></pre>
 <blockquote>
 <p>All input files generated afterwards will be placed in the directory where the <strong>mesh_file</strong> is located; </p>
 <p><span style="color:cornflowerblue;">If your mesh grid is generated from the other softwares (e.g. SMS), just use the '<strong>read_schism_hgrid.m</strong>' function to create the '<strong>Mobj</strong>' datastruct, and the remaining workflow is the same. Refer to <strong>Exp3_CORIE_LSC2.m</strong> for more details.</span></p>
@@ -1280,7 +1280,7 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate</code></pre>
 
 <h3 class="atx" id="step-2-activated-modules">Step-2: Activated modules</h3>
 <p>This part aims to select the activated modules in your simulation.</p>
-<pre><code class="fenced-code-block language-Matlab">Mobj = call_schism_tracers(Mobj);</code></pre>
+<pre><code class="fenced-code-block language-matlab">Mobj <span class="token operator">=</span> <span class="token function">call_schism_tracers</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 <blockquote>
 <p>This is a purely hydrodynamic case and thus there are only two activated tracers (temp &amp; salt). </p>
 </blockquote>
@@ -1288,14 +1288,14 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate</code></pre>
 
 <h3 class="atx" id="step-3-horizontal-grids">Step-3: Horizontal grids</h3>
 <p>This part aims to visualize the horizontal grids and generate hgrid.gr3 and hgrid.ll files.</p>
-<pre><code class="fenced-code-block language-Matlab">figure('Color', 'w')
-disp_schism_hgrid(Mobj, [1 0])
+<pre><code class="fenced-code-block language-matlab"><span class="token function">figure</span><span class="token punctuation">(</span><span class="token string">'Color'</span><span class="token punctuation">,</span> <span class="token string">'w'</span><span class="token punctuation">)</span>
+<span class="token function">disp_schism_hgrid</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
 axis image
 hold on
-plot_schism_bnds(Mobj, [1 1], 'Color', 'k')
+<span class="token function">plot_schism_bnds</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'Color'</span><span class="token punctuation">,</span> <span class="token string">'k'</span><span class="token punctuation">)</span>
 
-% write the hgrid.gr3 and hgrid.ll files 
-write_schism_hgrid(Mobj)</code></pre>
+<span class="token comment">% write the hgrid.gr3 and hgrid.ll files </span>
+<span class="token function">write_schism_hgrid</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">)</span></code></pre>
 <div align="center">
   <img width="550" alt="Figure 1 Model domain" src="imags/fig_3.1.png">
 </div>
@@ -1305,14 +1305,14 @@ write_schism_hgrid(Mobj)</code></pre>
 
 <h3 class="atx" id="step-4-check-the-grid-quality">Step-4: Check the grid quality</h3>
 <p>This part aims to check the inverse CFL constraints and hydrostatic assumption.</p>
-<pre><code class="fenced-code-block language-MATLAB">% check the invese CFL constraints
-check_schism_metrics(Mobj);
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% check the invese CFL constraints</span>
+<span class="token function">check_schism_metrics</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-% display the Max. acceptable resolutions as a function of water depth 
-calc_schism_CFL(Mobj)
+<span class="token comment">% display the Max. acceptable resolutions as a function of water depth </span>
+<span class="token function">calc_schism_CFL</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">)</span>
 
-% check the hydrostatic assumption
-check_schism_hydrostatic(Mobj);</code></pre>
+<span class="token comment">% check the hydrostatic assumption</span>
+<span class="token function">check_schism_hydrostatic</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 <blockquote>
 <p>For more details about the grid quality, please refer to the SCHISM manual.</p>
 </blockquote>
@@ -1338,28 +1338,28 @@ check_schism_hydrostatic(Mobj);</code></pre>
 
 <h3 class="atx" id="step-5-vertical-grids">Step-5: Vertical grids</h3>
 <p>This part aims to generate the vertical grids (vgrid.in), and visualize the vertical layers at a given transect.</p>
-<pre><code class="fenced-code-block language-Matlab">% option-1: LSC2 coordinates
-dep_edges = [10, 20, 30, 45, 55, 65, 75, 90];
-dep_nums =  [20 21 22 23 24 25 27 28];
-Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_nums, [4 5 3 5], 0.25);
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% option-1: LSC2 coordinates</span>
+dep_edges <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">,</span> <span class="token number">30</span><span class="token punctuation">,</span> <span class="token number">45</span><span class="token punctuation">,</span> <span class="token number">55</span><span class="token punctuation">,</span> <span class="token number">65</span><span class="token punctuation">,</span> <span class="token number">75</span><span class="token punctuation">,</span> <span class="token number">90</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+dep_nums <span class="token operator">=</span>  <span class="token punctuation">[</span><span class="token number">20</span> <span class="token number">21</span> <span class="token number">22</span> <span class="token number">23</span> <span class="token number">24</span> <span class="token number">25</span> <span class="token number">27</span> <span class="token number">28</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+Mobj <span class="token operator">=</span> <span class="token function">gen_schism_LSC2</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> dep_edges<span class="token punctuation">,</span> dep_nums<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">4</span> <span class="token number">5</span> <span class="token number">3</span> <span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">0.25</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-% option-2: SZ coordinates
-s_consts = [10, 0.7, 5, 20];
-zcors = 20:2:(fix(max(Mobj.depth))+10);
-Mobj = gen_schism_SZ(Mobj, s_consts, zcors);
+<span class="token comment">% option-2: SZ coordinates</span>
+s_consts <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">0.7</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+zcors <span class="token operator">=</span> <span class="token number">20</span><span class="token operator">:</span><span class="token number">2</span><span class="token operator">:</span><span class="token punctuation">(</span><span class="token function">fix</span><span class="token punctuation">(</span><span class="token function">max</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span>depth<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Mobj <span class="token operator">=</span> <span class="token function">gen_schism_SZ</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> s_consts<span class="token punctuation">,</span> zcors<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-% check the quality of vertical grids
-% draw a line on the map and press ENTER
-figure('Color', 'w')
-disp_schism_hgrid(Mobj, [1 0], 'EdgeAlpha', 0.05, 'LineWidth', 0.5);
+<span class="token comment">% check the quality of vertical grids</span>
+<span class="token comment">% draw a line on the map and press ENTER</span>
+<span class="token function">figure</span><span class="token punctuation">(</span><span class="token string">'Color'</span><span class="token punctuation">,</span> <span class="token string">'w'</span><span class="token punctuation">)</span>
+<span class="token function">disp_schism_hgrid</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'EdgeAlpha'</span><span class="token punctuation">,</span> <span class="token number">0.05</span><span class="token punctuation">,</span> <span class="token string">'LineWidth'</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 auto_center
-sect_info = def_schism_transect(Mobj, -1, 0.01);
+sect_info <span class="token operator">=</span> <span class="token function">def_schism_transect</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0.01</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-% display the vertical layers on your selected transect
-disp_schism_vgrid(Mobj, sect_info)
+<span class="token comment">% display the vertical layers on your selected transect</span>
+<span class="token function">disp_schism_vgrid</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> sect_info<span class="token punctuation">)</span>
 
-% Write the vgrid.in file. 
-write_schism_vgrid(Mobj, 'v5.10');</code></pre>
+<span class="token comment">% Write the vgrid.in file. </span>
+<span class="token function">write_schism_vgrid</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'v5.10'</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 <blockquote>
 <p>Draw a line on the map and press <strong>ENTER</strong>, this part will visualize the vertical layers of selected transect. </p>
 <p>The format of vgrid.in has changed since v5.10, and thus you need to specify the version number here (v5.10 or v5.9). v5.10 is the default.</p>
@@ -1372,16 +1372,16 @@ write_schism_vgrid(Mobj, 'v5.10');</code></pre>
 
 <h3 class="atx" id="step-6-river-inputs">Step-6: River inputs</h3>
 <p>This part aims to add river inputs in the form of element sources (e.g. source.nc).</p>
-<pre><code class="fenced-code-block language-Matlab">SS = def_schism_source(Mobj, [1 0], 'load', 'on');
-river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
+<pre><code class="fenced-code-block language-matlab">SS <span class="token operator">=</span> <span class="token function">def_schism_source</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'load'</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+river_info <span class="token operator">=</span> <span class="token function">match_rivers</span><span class="token punctuation">(</span>SS<span class="token punctuation">.</span>source<span class="token punctuation">.</span>lonc<span class="token punctuation">,</span> SS<span class="token punctuation">.</span>source<span class="token punctuation">.</span>latc<span class="token punctuation">,</span> SS<span class="token punctuation">.</span>source<span class="token punctuation">.</span>elems<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-river_info = add_river_runoff(river_info, Mobj.time, 'real_time');
+river_info <span class="token operator">=</span> <span class="token function">add_river_runoff</span><span class="token punctuation">(</span>river_info<span class="token punctuation">,</span> Mobj<span class="token punctuation">.</span>time<span class="token punctuation">,</span> <span class="token string">'real_time'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-tracer_list = {'temp', 'salt'};
-river_info = add_river_tracer(river_info, tracer_list, 'real_time');
+tracer_list <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">'temp'</span><span class="token punctuation">,</span> <span class="token string">'salt'</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+river_info <span class="token operator">=</span> <span class="token function">add_river_tracer</span><span class="token punctuation">(</span>river_info<span class="token punctuation">,</span> tracer_list<span class="token punctuation">,</span> <span class="token string">'real_time'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-D = prep_river_source(river_info, tracer_list);
-write_schism_source_nc(Mobj, D,  tracer_list)</code></pre>
+D <span class="token operator">=</span> <span class="token function">prep_river_source</span><span class="token punctuation">(</span>river_info<span class="token punctuation">,</span> tracer_list<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">write_schism_source_nc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> D<span class="token punctuation">,</span>  tracer_list<span class="token punctuation">)</span></code></pre>
 <blockquote>
 <p>Left-click the points at the center of elements to select river sources (activate the datatips mode first), and press <strong>SHIFT</strong> to select multiple points simultaneously. The selected river sources will be saved as a MAT file named <span style="color:blue;"><strong>source_sink.mat</strong></span>.</p>
 <p>Two things should be done before preparing your own application.</p>
@@ -1397,34 +1397,34 @@ write_schism_source_nc(Mobj, D,  tracer_list)</code></pre>
 
 <h3 class="atx" id="step-7-initial-conditions">Step-7: Initial Conditions</h3>
 <p>This part aims to prepare the inital fields (e.g. elev.ic, temp.ic, and hotstart.nc).</p>
-<pre><code class="fenced-code-block language-Matlab">% DS contains the original initial fields with a fixed format:
-% 1) 'lon', 'lat', 'depth' vectors must be in ascending order;
-% 2) 'depth' vector must be positive; and ensure the range of lon/lat covers you model domain
-% 3) 'var' must in the dimension of lon*lat or lon*lat*depth above.
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% DS contains the original initial fields with a fixed format:</span>
+<span class="token comment">% 1) 'lon', 'lat', 'depth' vectors must be in ascending order;</span>
+<span class="token comment">% 2) 'depth' vector must be positive; and ensure the range of lon/lat covers you model domain</span>
+<span class="token comment">% 3) 'var' must in the dimension of lon*lat or lon*lat*depth above.</span>
 
-% option-1: real-time initial field from hycom.
-DS = prep_schism_init(Mobj, 'hycom_bys'); 
+<span class="token comment">% option-1: real-time initial field from hycom.</span>
+DS <span class="token operator">=</span> <span class="token function">prep_schism_init</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'hycom_bys'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
 
-% option-2: monthly clim. initial field from hycom.
-% DS = prep_schism_init(Mobj, 'hycom_clim'); 
+<span class="token comment">% option-2: monthly clim. initial field from hycom.</span>
+<span class="token comment">% DS = prep_schism_init(Mobj, 'hycom_clim'); </span>
 
-% option-3: directly download the real-time hycom data from the internet
-% DS = prep_schism_init(Mobj, 'hycom_online'); 
+<span class="token comment">% option-3: directly download the real-time hycom data from the internet</span>
+<span class="token comment">% DS = prep_schism_init(Mobj, 'hycom_online'); </span>
 
-varList = {'ssh', 'temp', 'salt'};  % it can be changed if you only want to interpolate for partial variables.
-InitCnd = interp_schism_init(Mobj, DS, varList);
+varList <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">'ssh'</span><span class="token punctuation">,</span> <span class="token string">'temp'</span><span class="token punctuation">,</span> <span class="token string">'salt'</span><span class="token punctuation">}</span><span class="token punctuation">;</span>  <span class="token comment">% it can be changed if you only want to interpolate for partial variables.</span>
+InitCnd <span class="token operator">=</span> <span class="token function">interp_schism_init</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> DS<span class="token punctuation">,</span> varList<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-% check the interpolation
-check_schism_init(Mobj, DS, InitCnd, 'temp')
+<span class="token comment">% check the interpolation</span>
+<span class="token function">check_schism_init</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> DS<span class="token punctuation">,</span> InitCnd<span class="token punctuation">,</span> <span class="token string">'temp'</span><span class="token punctuation">)</span>
 
-% option-1: space-varying but vertically uniform initial field (temp.ic&amp;salt.ic)
-write_schism_ic(Mobj, 'elev', InitCnd.ssh)
-write_schism_ic(Mobj, 'temp', InitCnd.temp(:,1))
-write_schism_ic(Mobj, 'salt', InitCnd.salt(:,1))
+<span class="token comment">% option-1: space-varying but vertically uniform initial field (temp.ic&amp;salt.ic)</span>
+<span class="token function">write_schism_ic</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'elev'</span><span class="token punctuation">,</span> InitCnd<span class="token punctuation">.</span>ssh<span class="token punctuation">)</span>
+<span class="token function">write_schism_ic</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'temp'</span><span class="token punctuation">,</span> InitCnd<span class="token punctuation">.</span><span class="token function">temp</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token function">write_schism_ic</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'salt'</span><span class="token punctuation">,</span> InitCnd<span class="token punctuation">.</span><span class="token function">salt</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
 
-% option-2: 3D initial fields (hotstart.nc)
-start_time = Mobj.time(1);
-Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);</code></pre>
+<span class="token comment">% option-2: 3D initial fields (hotstart.nc)</span>
+start_time <span class="token operator">=</span> Mobj<span class="token punctuation">.</span><span class="token function">time</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Hotstart <span class="token operator">=</span> <span class="token function">write_schism_hotstart</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> InitCnd<span class="token punctuation">,</span> start_time<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 <blockquote>
 <p><span style="color:green;"><strong>prep_schism_init.m</strong></span> is a simple wrapper function, and thus you can easily add more data sources in it according to your needs. Just make sure the format of <strong>DS</strong> meets the requirements given above.</p>
 </blockquote>
@@ -1438,24 +1438,24 @@ Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);</code></pre>
 
 <h3 class="atx" id="step-8-boundary-conditions">Step-8: Boundary Conditions</h3>
 <p>This part aims to prepare the boundary inputs (e.g. elev2d.th.nc and TEM_3D.th.nc).</p>
-<pre><code class="fenced-code-block language-Matlab">% option-1: prepare real-time boundary inputs using hycom data.
-DS = prep_schism_bdry(Mobj, 'hycom_bys');
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% option-1: prepare real-time boundary inputs using hycom data.</span>
+DS <span class="token operator">=</span> <span class="token function">prep_schism_bdry</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'hycom_bys'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-% option-2: prepare monthly clim. boundary inputs using hycom data.
-% DS = prep_schism_bdry(Mobj, 'hycom_clim');
+<span class="token comment">% option-2: prepare monthly clim. boundary inputs using hycom data.</span>
+<span class="token comment">% DS = prep_schism_bdry(Mobj, 'hycom_clim');</span>
 
-BdryCnd = interp_schism_bdry(Mobj, DS);
+BdryCnd <span class="token operator">=</span> <span class="token function">interp_schism_bdry</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> DS<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-write_schism_th_nc(Mobj, BdryCnd, 'elev2D')
-write_schism_th_nc(Mobj, BdryCnd, 'TEM_3D')
-write_schism_th_nc(Mobj, BdryCnd, 'SAL_3D')
-write_schism_th_nc(Mobj, BdryCnd, 'uv3D')
+<span class="token function">write_schism_th_nc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> BdryCnd<span class="token punctuation">,</span> <span class="token string">'elev2D'</span><span class="token punctuation">)</span>
+<span class="token function">write_schism_th_nc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> BdryCnd<span class="token punctuation">,</span> <span class="token string">'TEM_3D'</span><span class="token punctuation">)</span>
+<span class="token function">write_schism_th_nc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> BdryCnd<span class="token punctuation">,</span> <span class="token string">'SAL_3D'</span><span class="token punctuation">)</span>
+<span class="token function">write_schism_th_nc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> BdryCnd<span class="token punctuation">,</span> <span class="token string">'uv3D'</span><span class="token punctuation">)</span>
 
-% check the temperature interpolation at the begining
-check_schism_bdry(Mobj, DS, BdryCnd, 'temp', 1)
+<span class="token comment">% check the temperature interpolation at the begining</span>
+<span class="token function">check_schism_bdry</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> DS<span class="token punctuation">,</span> BdryCnd<span class="token punctuation">,</span> <span class="token string">'temp'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
 
-% check the consistency between initial fields and boundary inputs
-check_schism_icbc(Mobj, 'temp', Mobj.maxLev)</code></pre>
+<span class="token comment">% check the consistency between initial fields and boundary inputs</span>
+<span class="token function">check_schism_icbc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'temp'</span><span class="token punctuation">,</span> Mobj<span class="token punctuation">.</span>maxLev<span class="token punctuation">)</span></code></pre>
 <blockquote>
 <p>This step can be quite time-consuming if you choose real-time boundary inputs with a high time resolution, especially when the timespan is long.</p>
 </blockquote>
@@ -1475,25 +1475,25 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)</code></pre>
 
 <h3 class="atx" id="step-9-tidal-forcing">Step-9: Tidal forcing</h3>
 <p>This part aims to implement tidal forcing at the open boundary (e.g. bctides.in).</p>
-<pre><code class="fenced-code-block language-Matlab">% extract tidal forcing
-tideList = {'S2','M2','N2','K2', 'K1','P1','O1','Q1'};
-TideForc = get_fes2014_tide(Mobj, tideList);   
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% extract tidal forcing</span>
+tideList <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">'S2'</span><span class="token punctuation">,</span><span class="token string">'M2'</span><span class="token punctuation">,</span><span class="token string">'N2'</span><span class="token punctuation">,</span><span class="token string">'K2'</span><span class="token punctuation">,</span> <span class="token string">'K1'</span><span class="token punctuation">,</span><span class="token string">'P1'</span><span class="token punctuation">,</span><span class="token string">'O1'</span><span class="token punctuation">,</span><span class="token string">'Q1'</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+TideForc <span class="token operator">=</span> <span class="token function">get_fes2014_tide</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> tideList<span class="token punctuation">)</span><span class="token punctuation">;</span>   
 
-% kill the potential NaN values adjacent to the coast
-field_list = fieldnames(TideForc);
-for ii = 2:numel(field_list)
-    tide_var = field_list{ii};
-    TideForc.(tide_var) = fillmissing(TideForc.(tide_var), 'previous', 1);
-end
+<span class="token comment">% kill the potential NaN values adjacent to the coast</span>
+field_list <span class="token operator">=</span> <span class="token function">fieldnames</span><span class="token punctuation">(</span>TideForc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">for</span> ii <span class="token operator">=</span> <span class="token number">2</span><span class="token operator">:</span><span class="token function">numel</span><span class="token punctuation">(</span>field_list<span class="token punctuation">)</span>
+    tide_var <span class="token operator">=</span> field_list<span class="token punctuation">{</span>ii<span class="token punctuation">}</span><span class="token punctuation">;</span>
+    TideForc<span class="token punctuation">.</span><span class="token punctuation">(</span>tide_var<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token function">fillmissing</span><span class="token punctuation">(</span>TideForc<span class="token punctuation">.</span><span class="token punctuation">(</span>tide_var<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">'previous'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
 
-TideForc = add_nodal_factors(Mobj, TideForc);
-TideForc.cutoff_depth = 10;
+TideForc <span class="token operator">=</span> <span class="token function">add_nodal_factors</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> TideForc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+TideForc<span class="token punctuation">.</span>cutoff_depth <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
 
-bc_flags = [5 5 4 4];
-TideForc.nf_temp = 0.8;
-TideForc.nf_salt = 0.8;
+bc_flags <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">5</span> <span class="token number">5</span> <span class="token number">4</span> <span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+TideForc<span class="token punctuation">.</span>nf_temp <span class="token operator">=</span> <span class="token number">0.8</span><span class="token punctuation">;</span>
+TideForc<span class="token punctuation">.</span>nf_salt <span class="token operator">=</span> <span class="token number">0.8</span><span class="token punctuation">;</span>
 
-write_schism_bctides(Mobj, TideForc, bc_flags)</code></pre>
+<span class="token function">write_schism_bctides</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> TideForc<span class="token punctuation">,</span> bc_flags<span class="token punctuation">)</span></code></pre>
 <blockquote>
 <p>Download the fes2014 tidal products first, and change the directory in the function <span style="color:green;"><strong>get_fes2014_tide.m</strong></span> (Lines 40–42).</p>
 <p>It is easy to create another function if you want to change tide products, just make sure the returned <strong>TidaForc</strong> has the same format for the fields inside.</p>
@@ -1502,76 +1502,76 @@ write_schism_bctides(Mobj, TideForc, bc_flags)</code></pre>
 
 <h3 class="atx" id="step-10-bottom-friction">Step-10: Bottom friction</h3>
 <p>This part aims to prepare the input files related to bottom friction (e.g. drag.gr3).</p>
-<pre><code class="fenced-code-block language-Matlab">% Type-1: roughness
-z0 = 0.001;  % set constant roughness in the model domain
-write_schism_gr3(Mobj, 'rough', z0)
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% Type-1: roughness</span>
+z0 <span class="token operator">=</span> <span class="token number">0.001</span><span class="token punctuation">;</span>  <span class="token comment">% set constant roughness in the model domain</span>
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'rough'</span><span class="token punctuation">,</span> z0<span class="token punctuation">)</span>
 
-% Type-2: drag
-Cd = calc_schism_bfric(Mobj, 1, [0.07 3], 'on');
-write_schism_gr3(Mobj, 'drag', Cd)
+<span class="token comment">% Type-2: drag</span>
+Cd <span class="token operator">=</span> <span class="token function">calc_schism_bfric</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">0.07</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'drag'</span><span class="token punctuation">,</span> Cd<span class="token punctuation">)</span>
 
-% Type-3: manning
-fmc = 0.025;
-write_schism_gr3(Mobj, 'rough', fmc)</code></pre>
+<span class="token comment">% Type-3: manning</span>
+fmc <span class="token operator">=</span> <span class="token number">0.025</span><span class="token punctuation">;</span>
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'rough'</span><span class="token punctuation">,</span> fmc<span class="token punctuation">)</span></code></pre>
 <br>
 
 <h3 class="atx" id="step-11-misc-files-ending-in-gr3">Step-11: Misc. files ending in gr3</h3>
-<pre><code class="fenced-code-block language-Matlab">% shapiro.gr3
-shapiro_val = gen_slope_filter2(Mobj, [0.001, 0.05], 0.5, 'on');
-write_schism_gr3(Mobj, 'shapiro', shapiro_val)
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% shapiro.gr3</span>
+shapiro_val <span class="token operator">=</span> <span class="token function">gen_slope_filter2</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">0.001</span><span class="token punctuation">,</span> <span class="token number">0.05</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'shapiro'</span><span class="token punctuation">,</span> shapiro_val<span class="token punctuation">)</span>
 
-% windrot_geo2proj.gr3
-write_schism_gr3(Mobj, 'windrot_geo2proj', 0)
+<span class="token comment">% windrot_geo2proj.gr3</span>
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'windrot_geo2proj'</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
 
-% albedo.gr3
-albedo_val = calc_schism_albedo(Mobj, 1, 'on');
-write_schism_gr3(Mobj, 'albedo', albedo_val)
+<span class="token comment">% albedo.gr3</span>
+albedo_val <span class="token operator">=</span> <span class="token function">calc_schism_albedo</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'albedo'</span><span class="token punctuation">,</span> albedo_val<span class="token punctuation">)</span>
 
-% watertype.gr3
-wtypes = 5;
-write_schism_gr3(Mobj, 'watertype', wtypes)
+<span class="token comment">% watertype.gr3</span>
+wtypes <span class="token operator">=</span> <span class="token number">5</span><span class="token punctuation">;</span>
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'watertype'</span><span class="token punctuation">,</span> wtypes<span class="token punctuation">)</span>
 
-% diffmax.gr3 &amp; diffmin.gr3
-write_schism_gr3(Mobj, 'diffmax', 1)
-write_schism_gr3(Mobj, 'diffmin', 1.0e-6)
+<span class="token comment">% diffmax.gr3 &amp; diffmin.gr3</span>
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'diffmax'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'diffmin'</span><span class="token punctuation">,</span> <span class="token number">1.0e-6</span><span class="token punctuation">)</span>
 
-% bdef.gr3
-bdef_factor = zeros(size(Mobj.depth));
-bdef_factor(Mobj.depth&lt;5) = -2;
-write_schism_gr3(Mobj, 'bdef', bdef_factor)
+<span class="token comment">% bdef.gr3</span>
+bdef_factor <span class="token operator">=</span> <span class="token function">zeros</span><span class="token punctuation">(</span><span class="token function">size</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span>depth<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">bdef_factor</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span>depth<span class="token operator">&lt;</span><span class="token number">5</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">;</span>
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'bdef'</span><span class="token punctuation">,</span> bdef_factor<span class="token punctuation">)</span>
 
-% hdif.gr3
-hdif = calc_schism_hdif(Mobj, 0.25, 5e-5, 'on');
-write_schism_gr3(Mobj, 'hdif', hdif)</code></pre>
+<span class="token comment">% hdif.gr3</span>
+hdif <span class="token operator">=</span> <span class="token function">calc_schism_hdif</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token number">0.25</span><span class="token punctuation">,</span> <span class="token number">5e-5</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'hdif'</span><span class="token punctuation">,</span> hdif<span class="token punctuation">)</span></code></pre>
 <blockquote>
 <p>The function <span style="color:green;"><strong>write_schism_gr3.m</strong></span> makes it easy to generate all the input files ending in 'gr3'.</p>
 </blockquote>
 <br>
 
 <h3 class="atx" id="step-12-misc-files-ending-in-prop">Step-12: Misc. files ending in prop</h3>
-<pre><code class="fenced-code-block language-Matlab">tvd_flags = ones(Mobj.nElems, 1);
-tvd_flags(Mobj.depthc&lt;5) = 0;
-write_schism_prop(Mobj, 'tvd', tvd_flags)
+<pre><code class="fenced-code-block language-matlab">tvd_flags <span class="token operator">=</span> <span class="token function">ones</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span>nElems<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">tvd_flags</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span>depthc<span class="token operator">&lt;</span><span class="token number">5</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token function">write_schism_prop</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'tvd'</span><span class="token punctuation">,</span> tvd_flags<span class="token punctuation">)</span>
 
-flux_flags = def_schism_fluxflag(Mobj, 2);
-write_schism_prop(Mobj, 'fluxflag', flux_flags)</code></pre>
+flux_flags <span class="token operator">=</span> <span class="token function">def_schism_fluxflag</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">write_schism_prop</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'fluxflag'</span><span class="token punctuation">,</span> flux_flags<span class="token punctuation">)</span></code></pre>
 <blockquote>
 <p>The function <span style="color:green;"><strong>write_schism_prop.m</strong></span> makes it easy to generate all the input files ending in 'prop'.</p>
 </blockquote>
 <br>
 
 <h3 class="atx" id="step-13-atmospheric-forcing">Step-13: Atmospheric forcing</h3>
-<pre><code class="fenced-code-block language-Matlab">% AtmForc inculdes the extracted atmospheric forcing data with a fixed format:
-% 1) lon/lat matrix (nLons*nLats) are generated from the meshgrid function, and in ascending order
-% 2) variable matrix should be of nLons*nLats*nTimes
-% 3) the 'region' and 'time' fields must cover your simulation period, model domain, respectively.
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% AtmForc inculdes the extracted atmospheric forcing data with a fixed format:</span>
+<span class="token comment">% 1) lon/lat matrix (nLons*nLats) are generated from the meshgrid function, and in ascending order</span>
+<span class="token comment">% 2) variable matrix should be of nLons*nLats*nTimes</span>
+<span class="token comment">% 3) the 'region' and 'time' fields must cover your simulation period, model domain, respectively.</span>
 
-nFiles = 5; 
+nFiles <span class="token operator">=</span> <span class="token number">5</span><span class="token punctuation">;</span> 
 
-load('test_era5_AtmForc.mat')
-write_schism_sflux(AtmForc, 'prc', nFiles)
-write_schism_sflux(AtmForc, 'rad', nFiles)
-write_schism_sflux(AtmForc, 'air', nFiles)</code></pre>
+<span class="token function">load</span><span class="token punctuation">(</span><span class="token string">'test_era5_AtmForc.mat'</span><span class="token punctuation">)</span>
+<span class="token function">write_schism_sflux</span><span class="token punctuation">(</span>AtmForc<span class="token punctuation">,</span> <span class="token string">'prc'</span><span class="token punctuation">,</span> nFiles<span class="token punctuation">)</span>
+<span class="token function">write_schism_sflux</span><span class="token punctuation">(</span>AtmForc<span class="token punctuation">,</span> <span class="token string">'rad'</span><span class="token punctuation">,</span> nFiles<span class="token punctuation">)</span>
+<span class="token function">write_schism_sflux</span><span class="token punctuation">(</span>AtmForc<span class="token punctuation">,</span> <span class="token string">'air'</span><span class="token punctuation">,</span> nFiles<span class="token punctuation">)</span></code></pre>
 <blockquote>
 <p>nFiles is the estimated # of sflux_prc/air/rad_*.nc files. Note that the nFiles can not be too small, since the <strong>time_steps</strong> of each sflux nc file can not exceed 1000 by default. In addition, <span style="color:green;"><strong>write_schism_sflux.m</strong></span> will slightly adjust this value to ensure that each file starts at 0 o'clock in certain day, since the 'hour' component of 'base_date' property is unused in each nc file.</p>
 <p>Considering that the raw data of atmospheric forcing is too large, this toolbox does not offer the function to create 'AtmForc', but directly uploads the result.</p>
