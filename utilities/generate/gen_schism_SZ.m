@@ -49,11 +49,11 @@ end
 %% Parse inputs
 if nargin<2
     s_consts = [10, 0.7, 5, 20];
-    zcors = 20:2:(fix(max(Mobj.depth))+10);
+    zcors = 20:2:(ceil(max(Mobj.depth))+10);
 end
 
 if nargin<3
-    zcors = 20:2:(fix(max(Mobj.depth))+10);
+    zcors = 20:2:(ceil(max(Mobj.depth))+10);
 end
 
 h_c = s_consts(1);
@@ -64,7 +64,7 @@ eta = 0;
 %% SZ
 zcors = sort(abs(zcors(:)));
 if max(zcors)<max(Mobj.depth)
-error('Max. zcors must be greater than max. model depth!')
+    error('Max. zcors must be greater than Max. model depth!')
 end
 
 h_s = min(zcors);
@@ -109,7 +109,7 @@ end
 Mobj.vtype = vtype;
 Mobj.s_conts = s_consts;
 Mobj.sigma = sigma;
-Mobj.zcors = -zcors;
+Mobj.zcors = -zcors(~ind_nans); % to avoid wrong # of layers when you have nans in z coordinates (Special thanks to Dr. Marcio Cintra for pointing this out)
 Mobj.nLevs = sum(~isnan(sz_mas));
 Mobj.maxLev = max(Mobj.nLevs);
 Mobj.depLayers = sz_mas;
