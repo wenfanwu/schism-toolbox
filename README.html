@@ -1250,7 +1250,7 @@ pre[class*="language-"] {
 <body>
   <article class="markdown-body"><h1 class="atx" id="schism-toolbox-v10-beta">SCHISM-toolbox (v1.0-beta)</h1>
 <p>This is a MATLAB toolbox designed for the Semi-implicit Cross-scale Hydroscience Integrated System Model (<a href="http://ccrm.vims.edu/schismweb/">SCHISM</a>).</p>
-<p>Last updated on 8 Dec. 2023 by <a href="https://www.researchgate.net/profile/Wenfan-Wu/research">Wenfan Wu</a>, COAS, Ocean University of China</p>
+<p>Last updated on 27 Aug 2023 by <a href="https://www.researchgate.net/profile/Wenfan-Wu/research">Wenfan Wu</a>, CCRM, Virginia Institute of Marine Science.</p>
 <h2 class="atx" id="prerequisites">Prerequisites</h2>
 <p><strong>MATLAB Version: 2014b and above</strong></p>
 <p><strong>Official Add-Ons (Mandatory):</strong><br><code>Image Processing Toolbox</code> (drawpolygon, drawline);<br><code>Mapping Toolbox</code> (ispolycw, distance)   </p>
@@ -1261,7 +1261,7 @@ pre[class*="language-"] {
 <br>
 
 <h2 class="atx" id="workflow">Workflow</h2>
-<p>The following steps show the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green"><strong>Exp1_BYS_main.m</strong></font>) in the toolbox for more details.</p>
+<p>The following steps show the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green"><strong>Exp1_BYS_main.m</strong></font>) in this toolbox for more details.</p>
 <h3 class="atx" id="step-1-load-the-mesh-grid">Step-1: Load the mesh grid</h3>
 <p>This part aims to load the mesh grid generated from OceanMesh2D, and then all the grid info. will be stored in a datastruct named '<strong>Mobj</strong>' (viz. mesh object).</p>
 <pre><code class="fenced-code-block language-matlab">clc<span class="token punctuation">;</span>clearvars
@@ -1279,7 +1279,7 @@ Mobj<span class="token punctuation">.</span>coord <span class="token operator">=
 <br>
 
 <h3 class="atx" id="step-2-activated-modules">Step-2: Activated modules</h3>
-<p>This part aims to select the activated modules in your simulation.</p>
+<p>This part aims to select activated modules for your simulation.</p>
 <pre><code class="fenced-code-block language-matlab">Mobj <span class="token operator">=</span> <span class="token function">call_schism_tracers</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 <blockquote>
 <p>This is a purely hydrodynamic case and thus there are only two activated tracers (temp &amp; salt). </p>
@@ -1578,7 +1578,7 @@ nFiles <span class="token operator">=</span> <span class="token number">5</span>
 <p>You need to prepare the AtmForc variable according to the required format, and then use 'write_schism_sflux.m' to create the nc files.</p>
 </blockquote>
 <h2 class="atx" id="notes">Notes</h2>
-<p>This toolbox was written with reference to the <a href="https://github.com/pwcazenave/fvcom-toolbox">fvcom-toolbox</a> developed by Dr. Geoff Cowles et al.</p>
+<p>This toolbox was written referring to the <a href="https://github.com/pwcazenave/fvcom-toolbox">fvcom-toolbox</a> developed by Dr. Geoff Cowles et al.</p>
 <h2 class="atx" id="limitations-to-do-list">Limitations (To-do List)</h2>
 <ul>
 <li>The toolbox can only be used for purely triangular grid so far, although SCHISM supports mixed triangular/quadrangular grids.</li>
@@ -1588,7 +1588,7 @@ nFiles <span class="token operator">=</span> <span class="token number">5</span>
 </ul>
 <h2 class="atx" id="copyright">Copyright</h2>
 <p>This toolbox is distributed under the Apache-2.0 license. It is free to use and no profit making is allowed. </p>
-<p>If you encounter any problems/bugs when using this toolbox, or if you have any suggestions, please contact&nbsp;<a href="mailto:wenfanwu@stu.ouc.edu.cn">wenfanwu@stu.ouc.edu.cn</a>. Any potential co-developers are highly welcome.</p>
+<p>If you encounter any problems/bugs when using this toolbox, or if you have any suggestions, please contact&nbsp;<a href="mailto:wwu@vims.edu">wwu@vims.edu</a>. Any potential co-developers are highly welcome.</p>
 </article>
 </body>
 </html>

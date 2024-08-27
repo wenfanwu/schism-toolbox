@@ -2,7 +2,7 @@
 
 This is a MATLAB toolbox designed for the Semi-implicit Cross-scale Hydroscience Integrated System Model ([SCHISM](http://ccrm.vims.edu/schismweb/)).
 
-Last updated on 8 Dec. 2023 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), COAS, Ocean University of China
+Last updated on 27 Aug 2023 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), CCRM, Virginia Institute of Marine Science.
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ Last updated on 8 Dec. 2023 by [Wenfan Wu](https://www.researchgate.net/profile/
 
 ## Workflow
 
-The following steps show the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green">**Exp1_BYS_main.m**</font>) in the toolbox for more details.
+The following steps show the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green">**Exp1_BYS_main.m**</font>) in this toolbox for more details.
 
 ### Step-1: Load the mesh grid
 
@@ -46,7 +46,7 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate
 
 ### Step-2: Activated modules
 
-This part aims to select the activated modules in your simulation.
+This part aims to select activated modules for your simulation.
 
 ```matlab
 Mobj = call_schism_tracers(Mobj);
@@ -398,7 +398,7 @@ write_schism_sflux(AtmForc, 'air', nFiles)
 
 ## Notes
 
-This toolbox was written with reference to the [fvcom-toolbox](https://github.com/pwcazenave/fvcom-toolbox) developed by Dr. Geoff Cowles et al.
+This toolbox was written referring to the [fvcom-toolbox](https://github.com/pwcazenave/fvcom-toolbox) developed by Dr. Geoff Cowles et al.
 
 ## Limitations (To-do List)
 
@@ -411,4 +411,4 @@ This toolbox was written with reference to the [fvcom-toolbox](https://github.co
 
 This toolbox is distributed under the Apache-2.0 license. It is free to use and no profit making is allowed. 
 
-If you encounter any problems/bugs when using this toolbox, or if you have any suggestions, please contact [wenfanwu@stu.ouc.edu.cn](mailto:wenfanwu@stu.ouc.edu.cn). Any potential co-developers are highly welcome.
+If you encounter any problems/bugs when using this toolbox, or if you have any suggestions, please contact [wwu@vims.edu](mailto:wwu@vims.edu). Any potential co-developers are highly welcome.
