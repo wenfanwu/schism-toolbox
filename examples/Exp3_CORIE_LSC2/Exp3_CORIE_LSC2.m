@@ -16,9 +16,6 @@ Mobj.rundays = days(Mobj.time(end)-Mobj.time(1));
 Mobj.dt = 150;           % dt (secs), the same as in param.nml
 Mobj.coord = 'geographic';             % geographic or Cartesian coordinate
 
-% hgrid_file = 'Exp3_CORIE_LSC2\inputs\hgrid.gr3';  % NEED TO BE CHANGED
-% vgrid_file = 'Exp3_CORIE_LSC2\inputs\vgrid.in';     % NEED TO BE CHANGED
-
 hgrid_file = 'Exp3_CORIE_LSC2\inputs\hgrid.gr3';  % NEED TO BE CHANGED
 vgrid_file = 'Exp3_CORIE_LSC2\inputs\vgrid.in';     % NEED TO BE CHANGED
 

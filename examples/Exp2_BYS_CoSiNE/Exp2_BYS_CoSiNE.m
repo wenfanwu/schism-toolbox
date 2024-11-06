@@ -15,9 +15,7 @@
 % modules in a smiliar vein.
 clc;clearvars
 workpath = pwd; 
-% mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat';  % NEED TO BE CHANGED
-
-mesh_file = 'C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\test_env\schism-toolbox\examples\Exp2_BYS_CoSiNE\inputs\BYS_20814.mat';
+mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat';  % NEED TO BE CHANGED
 
 Mobj = mesh2schism(mesh_file); 
 Mobj.expname = 'Exp2_BYS_CoSiNE';      

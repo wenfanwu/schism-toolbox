@@ -6,7 +6,7 @@
 %% Author: Wenfan Wu, CCRM, Virginia Institute of Marine Science. 2024
 %% Load the mesh grid
 clc;clearvars
-mesh_file = '.\examples\Exp1_BYS\BYS_20814.mat';  % NEED TO BE CHANGED!!!
+mesh_file = 'Exp1_BYS\BYS_20814.mat';  % NEED TO BE CHANGED!!!
 
 Mobj = mesh2schism(mesh_file); 
 Mobj.expname = 'Exp1_BYS';      

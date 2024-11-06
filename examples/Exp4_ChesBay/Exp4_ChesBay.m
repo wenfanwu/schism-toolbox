@@ -15,11 +15,8 @@ Mobj.rundays = days(Mobj.time(end)-Mobj.time(1));
 Mobj.dt = 150;           
 Mobj.coord = 'geographic';          
 
-% hgrid_file = 'Exp4_ChesBay\inputs\hgrid.ll';  % NEED TO BE CHANGED
-% vgrid_file = 'Exp4_ChesBay\inputs\vgrid.in';     % NEED TO BE CHANGED
-
-hgrid_file = 'C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\test_env\schism-toolbox\examples\Exp4_ChesBay\inputs\hgrid.ll';  % NEED TO BE CHANGED
-vgrid_file = 'C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\test_env\schism-toolbox\examples\Exp4_ChesBay\inputs\vgrid.in';     % NEED TO BE CHANGED
+hgrid_file = 'Exp4_ChesBay\inputs\hgrid.ll';  % NEED TO BE CHANGED
+vgrid_file = 'Exp4_ChesBay\inputs\vgrid.in';     % NEED TO BE CHANGED
 
 Mobj = read_schism_hgrid(Mobj, hgrid_file);
 Mobj = read_schism_vgrid(Mobj, vgrid_file, 'v5.10'); 
