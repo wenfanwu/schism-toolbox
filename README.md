@@ -257,10 +257,10 @@ DS = prep_schism_bdry(Mobj, 'hycom_bys');
 
 BdryCnd = interp_schism_bdry(Mobj, DS);
 
-write_schism_th_nc(Mobj, BdryCnd, 'elev2D')
-write_schism_th_nc(Mobj, BdryCnd, 'TEM_3D')
-write_schism_th_nc(Mobj, BdryCnd, 'SAL_3D')
-write_schism_th_nc(Mobj, BdryCnd, 'uv3D')
+write_schism_th_nc(Mobj, 'elev2D', BdryCnd)
+write_schism_th_nc(Mobj, 'TEM_3D', BdryCnd)
+write_schism_th_nc(Mobj, 'SAL_3D', BdryCnd)
+write_schism_th_nc(Mobj, 'uv3D', BdryCnd)
 
 % check the temperature interpolation at the begining
 check_schism_bdry(Mobj, DS, BdryCnd, 'temp', 1)
