@@ -23,20 +23,21 @@ function write_schism_ic(Mobj, prefix_name, varData)
 %% Output Arguments
 % None
 %
+%% Notes
+% the *ic files have the same format with *gr3 files.
+%
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2021. 
-% Last Updated on 9 Nov. 2021. 
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021. 
+% Last Updated on 6 Nov. 2024. 
+% Email: wwu@vims.edu
 % 
-% See also: fprintf and write_schism_hotstart
+% See also:write_schism_gr3 and write_schism_hotstart
 
 %% Parse inputs
-if numel(varData) == 1
+if isscalar(varData)
     varData = varData*ones(1, Mobj.nNodes);
 end
-elemType = 3;
-head_line = datestr(now);
-
+head_line = datestr(Mobj.time(1), 'mmm/dd/yyyy'); %#ok<*DATST>
 %% Check
 switch prefix_name
     case 'temp'
@@ -54,19 +55,28 @@ switch prefix_name
             varData = min(42, varData);
         end
 end
-%% Begin to Write
+%% Begin to write
 fileName = fullfile(Mobj.aimpath, [prefix_name, '.ic']);
 fid = fopen(fileName,'wt');
 fprintf(fid, [head_line, '\n']);
 fprintf(fid, [num2str(Mobj.nElems),' ',num2str(Mobj.nNodes), '\n']);
-for iNode = 1:Mobj.nNodes
-    fprintf(fid, '%d  %14.6f  %14.6f  %13.7e\n', iNode, Mobj.lon(iNode), Mobj.lat(iNode), varData(iNode));
-end
-for iElem = 1:Mobj.nElems
-    fprintf(fid, '%d %d %d %d %d\n',iElem, elemType, Mobj.tri(iElem,1), Mobj.tri(iElem,2), Mobj.tri(iElem,3));
-end
+
+% Node Info
+node_part = [(1:Mobj.nNodes)', Mobj.lon(:), Mobj.lat(:), varData(:)]';
+node_fmt = repmat('%d   %14.6f   %14.6f   %13.7e\n', 1, size(node_part,2));
+fprintf(fid, node_fmt, node_part(:));
+
+% Elem Info
+elem_part = [(1:Mobj.nElems)', Mobj.i34(:).*ones(Mobj.nElems,1), Mobj.tri]';
+elem_part_1d = elem_part(:);
+elem_part_1d(isnan(elem_part_1d)) = [];
+
+elem_fmt = repmat('%d %d %d %d %d %d\n', Mobj.nElems, 1);
+elem_fmt(Mobj.i34==3, :) = repmat('%d %d %d %d %d   \n', sum(Mobj.i34==3), 1);
+elem_fmt = elem_fmt'; elem_fmt_1d = elem_fmt(:);
+fprintf(fid, elem_fmt_1d, elem_part_1d);
+
 fclose(fid);
 
 disp([prefix_name, '.ic has been created successfully!'])
-
 end

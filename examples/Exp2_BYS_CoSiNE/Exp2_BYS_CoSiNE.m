@@ -1,11 +1,11 @@
 %% This program is an EXAMPLE (Exp2_BYS_CoSiNE) in the schism-toolbox
 %% Tested platform: Matlab 2022a (Windows)
 %% Matlab add-on: Image Processing Toolbox; Mapping Toolbox
-%% Public package: M_Map; OceanMesh2D
+%% Public package: OceanMesh2D
 %% Model verision: SCHISM v5.10
-%% Author: Wenfan Wu, COAS, Ocean Univ. of China. 2023
+%% Author: Wenfan Wu, CCRM, Virginia Institute of Marine Science. 2024
 % ================================================================
-% ======== This is a biogeochemical simulation on the lon/lat coordinate =======
+% ======== This is a purely hydrological simulation on the lon/lat coordinate =======
 % ======== in the Bohai, Yellow Seas (BYS) ===============================
 % ================================================================
 %% Step-1: Load the mesh grid
@@ -15,9 +15,11 @@
 % modules in a smiliar vein.
 clc;clearvars
 workpath = pwd; 
-meshfile = 'E:\Code-repository\Matlab-codes\functions-test\schism-toolbox-v1.0-beta\examples\Exp2_BYS_CoSiNE\inputs\BYS_20814.mat';  % NEED TO BE CHANGED
+% mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat';  % NEED TO BE CHANGED
 
-Mobj = mesh2schism(meshfile); 
+mesh_file = 'C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\test_env\schism-toolbox\examples\Exp2_BYS_CoSiNE\inputs\BYS_20814.mat';
+
+Mobj = mesh2schism(mesh_file); 
 Mobj.expname = 'Exp2_BYS_CoSiNE';      
 Mobj.time = (datetime(2020,6,1):hours(1):datetime(2020,6,10))'; 
 Mobj.rundays = days(Mobj.time(end)-Mobj.time(1)); 
@@ -34,7 +36,7 @@ figure('Color', 'w')
 disp_schism_hgrid(Mobj, [1 0])
 axis image
 hold on
-plot_schism_bnds(Mobj, [1 1], 'Color', 'k')
+plot_schism_bnds(Mobj, [1 1 1], 'Color', 'k')
 
 write_schism_hgrid(Mobj)
 %% Step-4: Check the inverse CFL constraints and Hydrostatic
@@ -51,8 +53,8 @@ Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_nums, [4 5 3 5], 0.25);
 figure('Color', 'w')
 disp_schism_hgrid(Mobj, [1 0], 'EdgeAlpha', 0.05, 'LineWidth', 0.5);
 auto_center
-SectNodes = def_schism_transect(Mobj, -1, 0.01);
-disp_schism_vgrid(Mobj, SectNodes)
+sect_info = def_schism_transect(Mobj, -1, 0.01);
+disp_schism_vgrid(Mobj, sect_info)
 
 write_schism_vgrid(Mobj);
 %% Step-6: River Inputs@Element Sources
@@ -62,13 +64,13 @@ river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
 river_info = add_river_runoff(river_info, Mobj.time, 'real_time');
 
 % There are 13 bgc tracers in the CoSiNE module
-tracer_list = {'temp', 'salt', 'no3', 'sio4', 'nh4', 's1', 's2', 'z1', 'z2', 'dn', 'dsi',  'po4', 'dox', 'co2', 'alk'};  % NOTE the order!!!
+tracer_list = {'temp', 'salt', 'no3', 'sio4', 'nh4', 's1', 's2', 'z1', 'z2', 'dn', 'dsi', 'po4', 'dox', 'co2', 'alk'};  
 river_info = add_river_tracer(river_info, tracer_list, 'real_time');
 
-D = prep_river_source(river_info, tracer_list);
-write_schism_source_nc(Mobj, D,  tracer_list)
+D = prep_river_source(river_info, tracer_list); 
+write_schism_source_nc(Mobj, D,  tracer_list) % wrong tracer order will report errors
 
-% Make sure all the tracer data are accessible in the
+% Make sure all the tracer variables are accessible in the
 % 'example_river_data.mat' for your selected rivers.
 
 %% Step-7: Initial Conditions (elev/temp/salinity) (time-depedent)
@@ -96,11 +98,11 @@ write_schism_ic(Mobj, 'salt', InitCnd.salt(:,1))
 write_cosine_ic(Mobj, InitCnd)  % COS_hvar_*.ic
 
 % option-2: 3D initial fields (hotstart.nc)
-start_time = Mobj.time(1);
-hotstart_data = write_schism_hotstart(Mobj, InitCnd, start_time);
+% start_time = Mobj.time(1);
+% hotstart_data = write_schism_hotstart(Mobj, InitCnd, start_time);
 %% Step-8: Boundary Conditions (elev/temp/salinity/velocity/module-tracers)
 DS1 = prep_schism_bdry(Mobj, 'hycom_bys');
-varList = {'ssh', 'temp', 'salt'};
+varList = {'ssh', 'temp', 'salt', 'uvel', 'vvel'};
 BdryCnd1 = interp_schism_bdry(Mobj, DS1, varList);
 
 % Take an example with a constructed data set here
@@ -114,15 +116,15 @@ BdryCnd = add_structs(BdryCnd1, BdryCnd2);
 % check the no3 interpolation on the open boundary
 check_schism_bdry(Mobj, DS, BdryCnd, 'no3', 1)
 
-write_schism_th_nc(Mobj, BdryCnd, 'elev2D')
-write_schism_th_nc(Mobj, BdryCnd, 'TEM_3D')
-write_schism_th_nc(Mobj, BdryCnd, 'SAL_3D')
-write_schism_th_nc(Mobj, BdryCnd, 'uv3D')
+write_schism_th_nc(Mobj, 'elev2D', BdryCnd)
+write_schism_th_nc(Mobj, 'TEM_3D', BdryCnd)
+write_schism_th_nc(Mobj, 'SAL_3D', BdryCnd)
+write_schism_th_nc(Mobj, 'uv3D', BdryCnd)
 
-write_schism_th_nc(Mobj, BdryCnd, 'COS_3D')
+write_schism_th_nc(Mobj, 'COS_3D', BdryCnd)
 
 % check the consistency between initial fields and boundary inputs
-check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
+% check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
 
 %% END
 

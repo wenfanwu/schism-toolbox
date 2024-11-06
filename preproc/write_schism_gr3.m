@@ -21,18 +21,17 @@ function write_schism_gr3(Mobj, prefix_name, varData)
 % diffmin.gr3, diffmax.gr3, bdef.gr3, windfactor.gr3, hdif.gr3, and so on.
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2021. 
-% Last Updated on 29 Nov. 2021. 
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu,Virginia Institute of Marine Science in 2021. 
+% Last Updated on 17 Sep 2024. 
+% Email: wwu@vims.edu
 % 
 % See also: fprintf
 
 %% Parse inputs
-mesh_type = 3;   % 3 denotes tri, while 4 is quad.
 fileName = [Mobj.aimpath, prefix_name, '.gr3'];
-headLine = datestr(now);
+headLine = datestr(now); %#ok<DATST>
 
-if numel(varData) == 1
+if isscalar(varData)
     varData = varData*ones(1, Mobj.nNodes);
 end
 if numel(find(isnan(varData(:))))~=0
@@ -43,18 +42,27 @@ fid = fopen(fileName,'wt');
 fprintf(fid, [headLine, '\n']);                                                              
 fprintf(fid, [num2str(Mobj.nElems),' ',num2str(Mobj.nNodes), '\n']); 
 
+% Node Info
 node_part = [(1:Mobj.nNodes)', Mobj.lon(:), Mobj.lat(:), varData(:)]';
 node_fmt = repmat('%d   %14.6f   %14.6f    %13.7e\n', 1, size(node_part,2));
 fprintf(fid, node_fmt, node_part(:));
 
-tri = Mobj.tri; if size(tri, 2)~=3; tri = tri'; end
-elem_part = [(1:Mobj.nElems)', mesh_type*ones(Mobj.nElems,1), tri]';
-elem_fmt = repmat('%d %d %d %d %d\n', 1, size(elem_part,2));
-fprintf(fid, elem_fmt, elem_part(:));
+tri = Mobj.tri; 
+if size(tri, 1)~=Mobj.nElems; tri = tri'; end
+
+% Elem Info
+elem_part = [(1:Mobj.nElems)', Mobj.i34(:).*ones(Mobj.nElems,1), tri]';
+elem_part_1d = elem_part(:);
+elem_part_1d(isnan(elem_part_1d)) = [];
+
+elem_fmt = repmat('%d %d %d %d %d %d\n', Mobj.nElems, 1);
+elem_fmt(Mobj.i34==3, :) = repmat('%d %d %d %d %d   \n', sum(Mobj.i34==3), 1);
+elem_fmt = elem_fmt'; elem_fmt_1d = elem_fmt(:);
+
+fprintf(fid, elem_fmt_1d, elem_part_1d);
 
 fclose(fid);
 disp([prefix_name, '.gr3 has been created successfully!'])
-
 end
 
 % Notes from Wenfan Wu

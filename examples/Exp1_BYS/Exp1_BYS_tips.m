@@ -1,12 +1,12 @@
-%% This program shows some TIPS for the schism-toolbox
-%% Tested platform: Matlab 2022a (Windows)
+%% This program shows some TIPS when using the schism-toolbox
+%% Tested platform: Matlab 2024a (Windows)
 %% Matlab add-on: Image Processing Toolbox; Mapping Toolbox
-%% Public package: M_Map; OceanMesh2D
+%% Public package: OceanMesh2D
 %% Model verision: SCHISM v5.10
-%% Author: Wenfan Wu, COAS, Ocean Univ. of China. 2023
+%% Author: Wenfan Wu, CCRM, Virginia Institute of Marine Science. 2024
 %% Load the mesh grid
 clc;clearvars
-mesh_file = 'E:\Code-repository\Matlab-codes\functions-test\schism-toolbox-v1.0-beta\examples\Exp1_BYS\BYS_20814.mat';  % NEED TO BE CHANGED!!!
+mesh_file = '.\examples\Exp1_BYS\BYS_20814.mat';  % NEED TO BE CHANGED!!!
 
 Mobj = mesh2schism(mesh_file); 
 Mobj.expname = 'Exp1_BYS';      
@@ -106,7 +106,7 @@ switch_flags = [1 1 1 1 1 1 1 1 1];
 write_schism_station_in(Mobj, xyz_data, switch_flags)
 %% Tip-7: interplolate variables from nodes onto elemes
 varNode = Mobj.depth;
-varElem = interp_schism_node2elem(Mobj, varNode);
+varElem = convert_schism_var(Mobj, varNode, 'node2elem');
 
 figure('Color', 'w')
 subplot(211)
@@ -119,7 +119,7 @@ axis image
 
 %% Tip-8: interplolate variables from elems onto nodes
 varElem = Mobj.depthc;
-varNode = interp_schism_elem2node(Mobj, varElem);
+varNode = convert_schism_var(Mobj, varNode, 'elem2node');
 
 figure('Color', 'w')
 subplot(211)

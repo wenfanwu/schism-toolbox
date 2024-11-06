@@ -2,7 +2,7 @@ function DS = get_hycom_bdry_bys(Mobj) %#ok<*STOUT>
 % HYCOM data in the Bohai, and Yellow Seas
 
 %% Parse inputs
-datapath = 'E:\Code-repository\Matlab-codes\functions-test\schism-toolbox-v1.0-beta\data\hycom\';  % NEED TO BE CHANGED
+datapath = 'C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\test_env\schism-toolbox\data\hycom\';  % NEED TO BE CHANGED
 
 time_unit = 'days';
 bdry_time = unique(dateshift(Mobj.time, 'start', time_unit));
@@ -19,7 +19,7 @@ nLons = numel(Hf.lon);
 nLats = numel(Hf.lat);
 nDeps = numel(Hf.depth);
 nTimes = numel(Hf.time);
-nNodes_obc = Mobj.nNodes_obc;
+nNodes_obc = numel(Mobj.obc_nodes_tot);
 
 %% Interpolation
 varList = {'ssh', 'temperature', 'salinity', 'uvel', 'vvel'}; % variable names in the original dataset

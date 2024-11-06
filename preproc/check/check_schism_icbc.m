@@ -63,9 +63,9 @@ lat = Mobj.lat(ind);
 %% Display
 figure('Color', 'w');
 disp_schism_var(Mobj, varInit)
-varLim = caxis;
+varLim = caxis; %#ok<*CAXIS>
 hold on
-scatter(lon, lat, 60, varBnd, 'filled', 'MarkerEdgeColor', [.5 .5 .5], 'MarkerEdgeAlpha', 1)
+scatter(lon, lat, 60, varBnd, 'filled', 'MarkerEdgeColor', [.5 .5 .5], 'MarkerEdgeAlpha', 0.1)
 axis image
 colormap(jet(25))
 box on

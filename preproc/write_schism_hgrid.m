@@ -1,19 +1,19 @@
-function write_schism_hgrid(Mobj, RivBnd)
+function write_schism_hgrid(Mobj)
 % Write the hgrid.gr3&hgrid.ll file for SCHISM.
-% 
+%
 %% Syntax
 % write_schism_hgrid(Mobj)
 % write_schism_hgrid(Mobj, RivBnd)
 
-%% Description 
+%% Description
 % write_schism_hgrid(Mobj, RivBnd) writes the hgrid.gr3&hgrid.ll files for
-% SCHISM. 
+%       SCHISM.
 % write_schism_hgrid(Mobj, RivBnd) writes the hgrid.gr3&hgrid.ll when the
-% river is specified as boundary nodes (Not quite work now!). 
-
+%       river is specified as boundary nodes (Not quite work now!).
+%
 %% Example
-% meshfile = 'E:\Numerical-Models\Model-Exps\SCHISM\Exp3_Bohai2\inputs\BYES_34651.mat';
-% Mobj = mesh2schism(meshfile);
+% mesh_file = 'E:\Numerical-Models\Model-Exps\SCHISM\Exp3_Bohai2\inputs\BYES_34651.mat';
+% Mobj = mesh2schism(mesh_file);
 % write_schism_hgrid(Mobj)
 %
 %% Input Arguments
@@ -23,95 +23,106 @@ function write_schism_hgrid(Mobj, RivBnd)
 % None
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2021. 
-% Last Updated on 9 Nov. 2021. 
-% Email: wenfanwu@stu.ouc.edu.cn
-% 
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
+% Last Updated on 24 Oct 2024.
+% Email: wwu@vims.edu
+%
 % See also: fopen
 
 %% Parse inputs
-if nargin == 1
-    obc_nodes = Mobj.obc_nodes;
-    obc_counts = Mobj.obc_counts;
-    nNodes_obc = Mobj.nNodes_obc;
-else % if river input is added as open boundary
-    obc_counts = Mobj.obc_counts + RivBnd.riverNums;
-    nNodes_obc = Mobj.nNodes_obc +length(RivBnd.riverNodes);
-    obc_nodes = zeros(size(Mobj.obc_nodes,1), obc_counts);
-    obc_nodes(:,1:Mobj.obc_counts) = Mobj.obc_nodes;
-    for ii = 1:RivBnd.riverNums
-        indRiver = RivBnd.ind(ii):RivBnd.ind(ii)+RivBnd.branchLens(ii)-1;
-        obc_nodes(1:RivBnd.branchLens(ii), ii+1) = RivBnd.riverNodes(indRiver);
-    end
+hgrid_gr3 = fullfile(Mobj.aimpath, 'hgrid.gr3');
+hgrid_ll = fullfile(Mobj.aimpath, 'hgrid.ll');
+
+if strncmpi(Mobj.coord, 'geographic', 3)
+    write_hgrid_file(Mobj, hgrid_gr3)
+    copyfile(hgrid_gr3, hgrid_ll)
+else
+    write_hgrid_file(Mobj, hgrid_gr3)
+    write_hgrid_file(Mobj, hgrid_ll)
 end
 
-%% Begin to write
-fileName = fullfile(Mobj.aimpath, 'hgrid.gr3');
-fileName2 = fullfile(Mobj.aimpath, 'hgrid.ll');
+disp('hgrid.gr3&hgrid.ll have been created successfully!')
+end
 
-fid = fopen(fileName,'wt');
+
+function write_hgrid_file(Mobj, hgrid_file)
+% write hgrid files (hgrid.gr3 or hgrid.ll)
+%
+% Notes: Mobj.lon and Mobj.lat stores the coordinates for your given
+% coordinate. In other words, they can also represent cartersian
+% coordinates when your specified coordinate is 'cartersian".
+
+switch hgrid_file(end-2:end)
+    case 'gr3'  % geographic (lon/lat)
+        ux = Mobj.lon(:); uy = Mobj.lat(:);
+    case '.ll' % cartersian
+        ux = Mobj.x(:); uy = Mobj.y(:); % Add new fields "x" and "y" in this case
+end
+
+obc_nodes = Mobj.obc_nodes;
+obc_counts = Mobj.obc_counts;
+
+%  Begin to write
+fid = fopen(hgrid_file,'wt');
 fprintf(fid, [Mobj.expname, '\n']);                                                           % alphanumeric description; ignored by code
 fprintf(fid, [num2str(Mobj.nElems),' ',num2str(Mobj.nNodes), '\n']);     % # of elements and nodes in the horizontal grid
 
-% List of node info:
-node_part = [(1:Mobj.nNodes)', Mobj.lon(:), Mobj.lat(:), Mobj.depth(:)]';
+% Node Info
+node_part = [(1:Mobj.nNodes)', ux(:), uy(:), Mobj.depth(:)]';
 node_fmt = repmat('%d   %14.6f   %14.6f   %13.7e\n', 1, size(node_part,2));
 fprintf(fid, node_fmt, node_part(:));
 
-% Connectivity table:
-con_tab = Mobj.tri;
-con_tab(con_tab~=0) = 1;
-grid_types = sum(con_tab,2);
+% Elem Info
+elem_part = [(1:Mobj.nElems)', Mobj.i34(:).*ones(Mobj.nElems,1), Mobj.tri]';
+elem_part_1d = elem_part(:);
+elem_part_1d(isnan(elem_part_1d)) = [];
 
-node_part = [(1:Mobj.nElems)', grid_types(:), Mobj.tri(:,1), Mobj.tri(:,2), Mobj.tri(:,3)]';
-node_fmt = repmat('%d %d %d %d %d\n', 1, size(node_part,2));
-fprintf(fid, node_fmt, node_part(:));
+elem_fmt = repmat('%d %d %d %d %d %d\n', Mobj.nElems, 1);
+elem_fmt(Mobj.i34==3, :) = repmat('%d %d %d %d %d   \n', sum(Mobj.i34==3), 1);
+elem_fmt = elem_fmt'; elem_fmt_1d = elem_fmt(:);
 
-% Will the part above fail due to the string length constraints of
-% MATLAB when the # of nodes is too large? I am not sure.
-
+fprintf(fid, elem_fmt_1d, elem_part_1d);
 %% List of open and land boundary segments (needed for hgrid.gr3 only; not needed for other *.gr3)
 % WRITE THE OPEN BOUNDARY PART
 fprintf(fid, [num2str(obc_counts), ' = Number of open boundaries\n']);
-fprintf(fid, [num2str(nNodes_obc), ' = Total number of open boundary nodes\n']);
+fprintf(fid, [num2str(numel(Mobj.obc_nodes_tot)), ' = Total number of open boundary nodes\n']);
 for iSeg = 1:obc_counts
-    tmp = obc_nodes(:,iSeg);
-    tmp(tmp==0) = [];
-    fprintf(fid, [num2str(length(tmp),'%d'), ' = Number of nodes for open boundary ',num2str(iSeg),'\n']);
-    
-    node_part = tmp(:)';
+    tmp_nodes = obc_nodes(:,iSeg);
+    tmp_nodes(tmp_nodes==0) = [];
+    fprintf(fid, [num2str(length(tmp_nodes),'%d'), ' = Number of nodes for open boundary ',num2str(iSeg),'\n']);
+
+    node_part = tmp_nodes(:)';
     node_fmt = repmat('%d\n', 1, size(node_part,2));
     fprintf(fid, node_fmt, node_part(:));
 end
 
 % WRITE THE LAND PART
 fprintf(fid, [num2str(Mobj.land_counts+Mobj.island_counts), ' = number of land boundaries\n']);   % including island numbers here
-fprintf(fid, [num2str(Mobj.nNodes_land+Mobj.nNodes_island), ' = Total number of land boundary nodes\n']);
-for iLand1 = 1:Mobj.land_counts
-    tmp = Mobj.land_nodes(:,iLand1);
-    tmp(tmp==0) = [];
-    fprintf(fid, [num2str(length(tmp),'%d'), ' 0 = Number of nodes for land boundary ',num2str(iLand1),'\n']);
-    
-    node_part = tmp(:)';
+fprintf(fid, [num2str(numel(Mobj.land_nodes_tot)+numel(Mobj.island_nodes_tot)), ' = Total number of land boundary nodes\n']);
+for iSeg = 1:Mobj.land_counts
+    tmp_nodes = Mobj.land_nodes(:,iSeg);
+    tmp_nodes(tmp_nodes==0) = [];
+    fprintf(fid, [num2str(length(tmp_nodes),'%d'), ' 0 = Number of nodes for land boundary ',num2str(iSeg),'\n']);
+
+    node_part = tmp_nodes(:)';
     node_fmt = repmat('%d\n', 1, size(node_part,2));
     fprintf(fid, node_fmt, node_part(:));
 end
 
 % WRITE THE ISLAND PART
-for iLand2 = 1:Mobj.island_counts
-    tmp = Mobj.island_nodes(:,iLand2);
-    tmp(tmp==0) = [];
-    fprintf(fid, [num2str(length(tmp),'%d'), ' 1 = Number of nodes for island boundary ',num2str(iLand2),'\n']);
-    
-    node_part = tmp(:)';
+for iSeg = 1:Mobj.island_counts
+    tmp_nodes = Mobj.island_nodes(:,iSeg);
+    tmp_nodes(tmp_nodes==0) = [];
+    fprintf(fid, [num2str(length(tmp_nodes),'%d'), ' 1 = Number of nodes for island boundary ',num2str(iSeg),'\n']);
+
+    node_part = tmp_nodes(:)';
     node_fmt = repmat('%d\n', 1, size(node_part,2));
     fprintf(fid, node_fmt, node_part(:));
 end
-fclose(fid);
-eval(['copyfile ', fileName, ' ',fileName2])
 
-disp('hgrid.gr3&hgrid.ll have been created successfully!')
+fclose(fid);
 end
+
 
 
 

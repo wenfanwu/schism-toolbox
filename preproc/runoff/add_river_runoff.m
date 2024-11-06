@@ -83,11 +83,11 @@ end
 
 function [time, runoff] = get_river_runoff(river_name)
 % This function aims to extract the runoff data according to the river
-% name. Note that this function should be created on your own.
-% The returned 'time' should be in the format of datetime. In addiiton,
-% make sure the river name is the consistent in the whole toolbox.
+% name. Note that the river data should be created based on your own
+% applications. The returned 'time' should be in the format of datetime. In
+% addiiton, make sure the river name is the consistent within the whole toolbox. 
 
-load example_river_data.mat %#ok<*LOAD>
+RivData = load('example_river_data.mat');
 
 D = RivData.(river_name);
 time = D.time;

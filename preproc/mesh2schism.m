@@ -1,184 +1,170 @@
-function Mobj = mesh2schism(meshfile)
-% Load the horizontal grids
-% 
-%% Syntax
-% Mobj = mesh2schism(meshfile)
+function Mobj = mesh2schism(mesh_file, sname)
+% Load the unstructured grid from OceanMesh2D or SMS.
 %
-%% Description 
-% Mobj = mesh2schism(meshfile) returns a datastruct containing the basic
-% information of the horizontal grids.
-% 
+%% Syntax
+% Mobj = mesh2schism(mesh_file) 
+% Mobj = mesh2schism(mesh_file, sname)
+%
+%% Description
+% Mobj = mesh2schism(mesh_file) read the mesh info from 2dm/mat file into a
+%       datastruct (Mobj)
+% Mobj = mesh2schism(mesh_file, sname) specifies the mesh generation
+%       software (SMS or OceanMesh2D)
+%
 %% Example
 % mesh_file  = 'E:\Exp2_BYES\inputs\BYES_64676.mat';
 % Mobj = mesh2schism(mesh_file);
-%
+% 
+% mesh_file = 'D:\WorkDisk\test.2dm';
+% Mobj = mesh2schism(mesh_file);
+% 
 %% Input Arguments
-% meshfile --- the absolute filepath of the mesh file generated from the 
-% OceanMesh2D toolbox.
-% 
+% mesh_file - mesh file; char
+%       the absolute filepath of mesh file from OceanMesh2D or SMS.
+% sname - software name; char
+%       the mesh generation software; By default: the function will
+%       automatically decide based on the file suffix 
+%
 %% Output Arguments
-% Mobj --- a datastruct containing the basic information of horizontal grids.
-% 
+% Mobj - mesh object; datastruct
+%       the datastruct containing mesh info.
+%
 %% Notes
-% this function aims to load the mesh grid generated from OceanMesh2D
-% toolbox, and save it as a datastruct named "Mobj", meaning "Mesh object".
-% The obtained datastruct contains the basic information of the mesh grid,
-% including the # of nodes and elements, depth and so on. In addition, this
-% function will check whether the open/land boundary nodes are
-% anti-clockwise. If not, it will modify them automatically. 
+% This function aims to load the mesh grid generated from OceanMesh2D/SMS
+% and save it as a datastruct named "Mobj", meaning "Mesh object".
+% The obtained datastruct contains essential information of mesh grid,
+% including the # of nodes and elements, depth and so on.
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2021. 
-% Last Updated on 9 Nov. 2021. 
-% Email: wenfanwu@stu.ouc.edu.cn
-% 
-% See also: ispolycw
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
+% Last Updated on 04 Nov 2024.
+% Email: wwu@vims.edu
+%
+% See also: add_grid_metrics and add_bnd_metrics
 
 %% Parse inputs
-if contains(meshfile, ' ') == 1
-    error('There must be no Spaces in the filepath!')
+% if contains(mesh_file, ' ') == 1
+%     error('there must be no spaces in the filepath!')
+% end
+
+if nargin<2
+    switch mesh_file(end-3:end)
+        case '.2dm'
+            sname = 'SMS';
+        case '.mat'
+            sname = 'OceanMesh2D';
+    end
 end
-
-Mobj.aimpath = [fileparts(meshfile), '\'];
-load(meshfile, 'm')
-
-% node metrics
-Mobj.nNodes = length(m.p(:,1));
-Mobj.lon = m.p(:,1);
-Mobj.lat = m.p(:,2);
-Mobj.depth = m.b;
-Mobj.slope =  hypot(m.bx, m.by);
-
-% element metrics
-Mobj.nElems = size(m.t,1);
-Mobj.tri = m.t;  % The vertex order of the triangle mesh must be counterclockwise in SCHISM
-Mobj.lonc = mean(Mobj.lon(Mobj.tri), 2);
-Mobj.latc = mean(Mobj.lat(Mobj.tri), 2);
-Mobj.depthc = mean(Mobj.depth(Mobj.tri), 2);
-
-% side metrics
-T = Mobj.tri;
-P = [Mobj.lon, Mobj.lat];
-TR = triangulation(T,P);
-E = edges(TR);
-Mobj.nSides = size(E,1);
-Mobj.edges = E;
-% Mobj.lons = mean(Mobj.lon(Mobj.edges), 2);  % lons and lonc should be obtained from the model ouputs
-% Mobj.lats = mean(Mobj.lat(Mobj.edges), 2);
-
-Mobj.region = round([min(Mobj.lon)-0.5 max(Mobj.lon)+0.5 min(Mobj.lat)-0.5 max(Mobj.lat)+0.5], 2);
-
-%% Check the rotation direction
-% open boundary nodes
-op_bnds = m.op.nbdv;
-bnd_lens = m.op.nvdll;
-nBnds = size(op_bnds, 2);
-disp([num2str(nBnds), ' open boundaries were considered'])
-bnd_tmp = op_bnds(:,1);
-bnd_tmp(bnd_tmp==0) = [];
-if ispolycw(Mobj.lon(bnd_tmp), Mobj.lat(bnd_tmp)) == 1
-    disp('The open boundary nodes are aligned clockwise and has been adjusted to anti-clockwise')
-    tmp = cell2mat(arrayfun(@(x) circshift(op_bnds(:,x), -bnd_lens(x), 1), 1:nBnds,'UniformOutput',false));
-    obcNodes_cali = flipud(tmp);
-else
-    disp('The open boundary nodes are aligned anti-clockwise')
-    obcNodes_cali = op_bnds;
+%% Load mesh
+switch lower(sname)
+    case 'sms'
+        disp('read mesh info from 2dm file created by SMS')
+        Mobj = read_2dm_info(mesh_file);
+    case 'oceanmesh2d'
+        disp('read mesh info from mat file created by OceanMesh2D')
+        Mobj = read_mat_info(mesh_file);
+    otherwise
+        warning on
+        warning('unrecognized data type!')
 end
-
-% land boundary nodes
-landLens = m.bd.nvell;
-landBnds = m.bd.nbvv;  % land ID is 20; island ID is 21
-nLands = size(landBnds, 2);
-disp([num2str(nLands), ' land and island boundaries were considered'])
-land_tmp = landBnds(:,1);
-land_tmp(land_tmp==0) = [];
-if ispolycw(Mobj.lon(land_tmp), Mobj.lat(land_tmp)) == 1
-    disp('The land boundary nodes are aligned clockwise and has been adjusted to anti-clockwise')
-    tmp = cell2mat(arrayfun(@(x) circshift(landBnds(:,x), -landLens(x), 1), 1:nLands,'UniformOutput',false));
-    landNodes_cali = flipud(tmp);
-else
-    disp('The land boundary nodes are aligned anti-clockwise')
-    landNodes_cali = landBnds;
-end
-
-%% Load the ocean/land/island info.
-Mobj.obc_nodes = obcNodes_cali;  
-Mobj.obc_counts = size(Mobj.obc_nodes, 2);
-Mobj.obc_lens = sum(Mobj.obc_nodes~=0);
-tmp = Mobj.obc_nodes(:);
-tmp(tmp==0) = [];
-Mobj.obc_nodes_tot = tmp;
-
-ind = Mobj.obc_nodes;
-ind_nan = ind==0;
-ind(ind==0) = 1;
-lon_tmp = Mobj.lon(ind);
-lat_tmp = Mobj.lat(ind);
-
-lon_tmp(ind_nan) = nan;
-lat_tmp(ind_nan) = nan;
-Mobj.lon_obc = lon_tmp;
-Mobj.lat_obc = lat_tmp;
-
-Mobj = get_obc_elems(Mobj);
-Mobj.nElems_obc = numel(find(Mobj.obc_elems(:)~=0));
-Mobj.nNodes_obc= sum(Mobj.obc_lens);
-
-% the land ID is 20
-indLand = m.bd.ibtype==20;
-Mobj.land_nodes = landNodes_cali(:,indLand);
-Mobj.land_counts = size(Mobj.land_nodes,2);
-Mobj.land_lens = sum(Mobj.land_nodes~=0);
-Mobj.nNodes_land = sum(Mobj.land_lens);
-tmp = Mobj.land_nodes(:);
-tmp(tmp==0) = [];
-Mobj.land_nodes_tot = tmp;
-
-% the island ID is 21
-indLand2 = m.bd.ibtype==21;
-Mobj.island_nodes = landNodes_cali(:,indLand2);
-Mobj.island_counts = size(Mobj.island_nodes,2);
-Mobj.island_lens = sum(Mobj.island_nodes~=0);
-Mobj.nNodes_island = sum(Mobj.island_lens);
-tmp = Mobj.island_nodes(:);
-tmp(tmp==0) = [];
-Mobj.island_nodes_tot = tmp;
-
-% outer boundary nodes
-bnd_nodes = [Mobj.land_nodes_tot; Mobj.obc_nodes_tot];
-Mobj.lon_bnd = Mobj.lon(bnd_nodes);
-Mobj.lat_bnd = Mobj.lat(bnd_nodes);
 
 end
 
-function Mobj = get_obc_elems(Mobj)
-% calculate the index of open boundary nodes.
+function Mobj = read_2dm_info(mesh_file)
+%% Load the mesh info from 2dm file created by SMS.
+D = importdata(mesh_file, '%/s', inf); D = D(3:end);
 
-obc_nodes = Mobj.obc_nodes;
-Mobj.obc_elems = zeros(size(obc_nodes));
-nBnds = size(obc_nodes,2);
-for ibnd = 1:nBnds
-    indVert1 = Mobj.tri(:,1)==obc_nodes(:,ibnd)';
-    indVert2 = Mobj.tri(:,2)==obc_nodes(:,ibnd)';
-    indVert3 = Mobj.tri(:,3)==obc_nodes(:,ibnd)';
-    indVert = indVert1+indVert2+indVert3;
-    tmp = sum(indVert,2);
-    tmp = find(tmp>1);
-    Mobj.obc_elems(1:length(tmp),ibnd) = tmp;
-end
+ind_node = cellfun(@(x) strncmp(x, 'ND', 2), D);
+ind_elem3 = cellfun(@(x) strncmp(x, 'E3T', 3), D);
+ind_elem4 = cellfun(@(x) strncmp(x, 'E4Q', 3), D);
+ind_elem = ind_elem3 | ind_elem4;
+
+node_part = D(ind_node);
+elem_part = D(ind_elem);
+
+i34 = cellfun(@(x) strncmp(x, 'E4Q', 3)+3, elem_part);
+
+elem3_info = double(split(string(elem_part(i34==3))));
+elem4_info = double(split(string(elem_part(i34==4))));
+node_info = double(split(string(node_part)));
+
+nElems = size(elem_part,1);
+
+tri = nan(nElems, 4);
+tri(i34==3, 1:3) = elem3_info(:,3:5);
+if ~isempty(elem4_info)
+    tri(i34==4, 1:4) = elem4_info(:,3:6);
 end
 
-% !...  Count # of tracer models and tracers
-% !...  Each trace module has a pre-defined ID as follows:
-% !     1: T
-% !     2: S
-% !     3: GEN
-% !     4: AGE
-% !     5: SED3D
-% !     6: EcoSim
-% !     7: ICM
-% !     8: CoSINE
-% !     9: Feco
-% !    10: TIMOR
-% !    11: FABM
-% !    12: DVD numerical mixing analysis of Klingbeit
+lon = node_info(:,3);
+lat = node_info(:,4);
+depth = node_info(:,5);
+
+if sum(depth==0)==0
+    warning on
+    warning('depth info is missing in the 2dm file')
+end
+
+Mobj.aimpath = [fileparts(mesh_file), '\'];
+Mobj = add_grid_metrics(Mobj, lon, lat, tri, depth);
+
+% boundary metrics
+ind_obc = cellfun(@(x) strncmp(x, 'NS', 2), D);
+obc_part = D(ind_obc);
+obc_part = cellfun(@(x) strtrim(x), obc_part, 'UniformOutput',false);  % adapt to earlier versions of MATLAB
+end_flags = cellfun(@(x) count(x, '-'), obc_part);
+end_locs = find(end_flags); end_locs = [1; end_locs(:)];
+
+nNodes_est = length(obc_part)*10;
+obc_counts = sum(end_flags);
+
+obc_nodes = zeros(nNodes_est, obc_counts);
+for ii = 1:obc_counts
+    loc = end_locs(ii):end_locs(ii+1)-1;
+
+    obc_line = double(split(string(obc_part(loc,:))));
+    obc_line = obc_line(:, 2:end)'; obc_line = obc_line(:);
+
+    obc_end = double(split(string(obc_part(end_locs(ii+1),:))));
+    obc_end = obc_end(2:end)'; obc_end = obc_end(:);
+
+    obc_tot = [obc_line(:); abs(obc_end(:))];
+
+    obc_nodes(1:numel(obc_tot), ii) = obc_tot(:);
+end
+
+if isempty(obc_nodes)
+    warning on
+    warning('open boundary nodes are not found in the 2dm file!')
+end
+
+[land_nodes, island_nodes] = find_land_island(Mobj, obc_nodes);
+
+Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes);
+end
+
+function Mobj = read_mat_info(mesh_file)
+%% Load the mesh info from MAT file created by OceanMesh2D
+% essential information
+load(mesh_file, 'm')
+
+Mobj.aimpath = [fileparts(mesh_file), '\'];
+lon = m.p(:,1);  lat = m.p(:,2);  tri = m.t; tri(:,4) = nan; depth = m.b(:);
+
+Mobj = add_grid_metrics(Mobj, lon, lat, tri, depth);
+% Mobj.slope =  hypot(m.bx, m.by);  % may be removed in the future for consistency
+
+% load the land/island/open nodes
+obc_nodes = m.op.nbdv;
+
+land_island_nodes = m.bd.nbvv;
+ind_land = m.bd.ibtype==20;  % the land ID is 20
+land_nodes = land_island_nodes(:,ind_land);
+
+ind_island = m.bd.ibtype==21;  % the island ID is 21
+island_nodes = land_island_nodes(:,ind_island);
+
+Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes);
+end
+
+

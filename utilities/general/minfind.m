@@ -1,4 +1,4 @@
-function indMin = minfind(varBase, varFind, topNum)
+function indMin = minfind(varAll, varData, N)
 % Find the position of the closest value
 %
 %% Syntax
@@ -28,14 +28,11 @@ function indMin = minfind(varBase, varFind, topNum)
 
 %% Parse inputs
 if nargin < 3
-    topNum = 1;
+    N = 1;
 end
 
-varBase = varBase(:)';
-varFind = varFind(:);
-
-diff_vals = abs(varBase-varFind);
+diff_vals = abs(varAll(:)'-varData(:));
 [~, indMin] = sort(diff_vals, 2);
-indMin = indMin(:, 1:topNum);
+indMin = indMin(:, 1:N);
 
 end

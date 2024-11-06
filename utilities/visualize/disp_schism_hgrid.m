@@ -31,9 +31,9 @@ function disp_schism_hgrid(Mobj, opt_flags, varargin)
 % None
 % 
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2021. 
-% Last Updated on 9 Nov. 2021. 
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2024. 
+% Last Updated on 6 Nov. 2024. 
+% Email: wwu@vims.edu
 % 
 % See also: mesh2schism and disp_schism_var
 
@@ -47,19 +47,24 @@ bnd_flag = opt_flags(end);
 opts_def = {'EdgeColor', 'k','Linewidth',0.0125,'EdgeAlpha', 0.05};
 varargin = [opts_def(:)', varargin(:)'];
 
+tri = Mobj.tri;
+if numel(find(Mobj.i34==4)) == 0
+    tri = tri(:, 1:3);
+else
+    tri = fillmissing(tri,"previous",2); % for speeding
+end
 %% Bathymetry
 cmap = jet(25);
-
 switch dep_flag
     case 0 % none color
-        patch('Faces',Mobj.tri,'Vertices', [Mobj.lon(:) Mobj.lat(:)], 'FaceColor', 'none', varargin{:});
+        patch('Faces', tri,'Vertices', [Mobj.lon(:) Mobj.lat(:)], 'FaceColor', 'none', varargin{:});
     case 1 % interpolated
-        patch('Faces', Mobj.tri,'Vertices', [Mobj.lon(:) Mobj.lat(:)], 'FaceVertexCData', -Mobj.depth(:), 'FaceColor','interp', varargin{:});
+        patch('Faces', tri,'Vertices', [Mobj.lon(:) Mobj.lat(:)], 'FaceVertexCData', -Mobj.depth(:), 'FaceColor','interp', varargin{:});
         cbar = colorbar;
         cbar.Label.String = 'depth (m)';
         colormap(cmap)
     case 2 % color on the mesh
-        trimesh(Mobj.tri, Mobj.lon(:), Mobj.lat(:), -Mobj.depth(:));
+        trimesh(tri, Mobj.lon(:), Mobj.lat(:), -Mobj.depth(:));
         view(0, 90)
         cbar = colorbar;
         cbar.Label.String = 'depth (m)';

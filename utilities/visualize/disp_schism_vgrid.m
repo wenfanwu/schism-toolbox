@@ -64,7 +64,7 @@ for iNode = 1:nNodes
     plot(sect_info.dist(iNode)*ones(1, layNums), depTrans(1:layNums,iNode), 'Color','k')
 end
 plot(sect_info.dist, depMax, 'Color','k', 'LineWidth',2)
-xlabel('Along transect distance (km)');
+xlabel('Along transect distance (m)');
 ylabel('Depth (m)');
 
 end

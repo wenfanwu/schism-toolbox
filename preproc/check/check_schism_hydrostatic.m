@@ -45,10 +45,9 @@ if nargin < 3
 end
 
 %% Calculation
-R = calc_schism_cradius(Mobj);      % use the circumradius
-% R = calc_schism_sidelen(Mobj);  % use the side length
+R = calc_schism_reso(Mobj);   
 
-Rd = R(:)./abs(Mobj.depth(:));
+Rd = R(:)./abs(Mobj.depthc(:));
 Rd(Rd>cut_val) = nan;
 
 N = numel(find(~isnan(Rd)));
@@ -58,11 +57,13 @@ switch disp_flag
     case 'on'
         figure('Color', 'w')
         disp_schism_var(Mobj, Rd, 'EdgeColor', 'k')
+        hold on
+        plot_schism_bnds(Mobj)
         axis image
         box on
-        caxis([0 cut_val])
+        caxis([0 cut_val]) %#ok<CAXIS>
         title(['# of violating points = ', num2str(N)])
-%         auto_center
+        auto_center
 end
 
 end

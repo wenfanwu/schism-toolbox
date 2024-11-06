@@ -188,13 +188,8 @@ if dpmax>hsm(m_vqs)
     error(['Max depth exceeds master depth:', num2str(dpmax), num2str(hsm(m_vqs))])
 end
 
-T = Mobj.tri;
-P = [Mobj.lon, Mobj.lat];
-TR = triangulation(T,P);
-E = edges(TR);
-
-ns = length(E);
-isidenode = E';
+ns = Mobj.nEdges;
+isidenode = Mobj.edg';
 disp(['ns=', num2str(ns)])
 
 % Preparation

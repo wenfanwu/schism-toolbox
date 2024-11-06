@@ -91,6 +91,8 @@ end
 if strcmpi(disp_flag, 'on')
     figure('Color', 'w')
     disp_schism_hgrid(Mobj, [1 0])
+    hold on
+    plot_schism_bnds(Mobj)
     colormap(white)
     colorbar off
     hold on
@@ -106,7 +108,7 @@ function dataTips = select_datatips(Mobj, title_str)
 figure('Color', 'w');
 disp_schism_hgrid(Mobj, [0 0])
 hold on
-% plot_schism_bnds(Mobj, [1 1], 'Color', 'w')
+plot_schism_bnds(Mobj)
 box on;
 xlabel('Longitude (°E)', 'FontWeight','bold')
 ylabel('Latitude (°N)', 'FontWeight','bold')

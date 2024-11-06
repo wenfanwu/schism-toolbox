@@ -1,8 +1,17 @@
-# SCHISM-toolbox (v1.0-beta)
+# SCHISM-toolbox (v1.1-beta)
 
 This is a MATLAB toolbox designed for the Semi-implicit Cross-scale Hydroscience Integrated System Model ([SCHISM](http://ccrm.vims.edu/schismweb/)).
 
-Last updated on 27 Aug 2023 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), CCRM, Virginia Institute of Marine Science.
+Last updated on 6 Nov 2024 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), CCRM, Virginia Institute of Marine Science.
+
+### New features!!!
+
+- work for mixed triangular/quadrangular grid
+- work for cartesian or geographic coordinates
+- map projection is allowed for variable visualization
+- nudging functions are provided.
+
+More details can be found in the [**Changelog.md**](./Changelog.md) file.
 
 ## Prerequisites
 
@@ -10,26 +19,31 @@ Last updated on 27 Aug 2023 by [Wenfan Wu](https://www.researchgate.net/profile/
 
 **Official Add-Ons (Mandatory):**   
 `Image Processing Toolbox` (drawpolygon, drawline);   
-`Mapping Toolbox` (ispolycw, distance)   
+`Mapping Toolbox` (ispolycw, distance, projcrs, profwd)   
 
 **Public packages (Recommended):**   
-[`OceanMesh2D`](https://github.com/CHLNDDEV/OceanMesh2D)  [`M_Map`](https://www.eoas.ubc.ca/~rich/map.html#10._Tracklines_and_UTM_projection) 
+[`OceanMesh2D`](https://github.com/CHLNDDEV/OceanMesh2D) 
 
-> Notes: **OceanMesh2D** is only required when you are using <font color="green">**mesh2schism.m**</font> function; **M_MAP** is only used in <font color="green">**calc_schism_cradius.m**</font>;
+> Notes: **OceanMesh2D** is only required when you're using <font color="green">**mesh2schism.m**</font> to load MAT file created by OceanMesh2D.
 
 <br>
 
 ## Workflow
 
-The following steps show the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green">**Exp1_BYS_main.m**</font>) in this toolbox for more details.
+The following steps show a complete workflow to prepare input files with this toolbox. Refer to the first example (<font color="green">**Exp1_BYS_main.m**</font>) in this toolbox for more details.
 
 ### Step-1: Load the mesh grid
 
-This part aims to load the mesh grid generated from OceanMesh2D, and then all the grid info. will be stored in a datastruct named '**Mobj**' (viz. mesh object).
+This part aims to load the mesh grid created by OceanMesh2D or SMS, and then all the grid info. will be stored in a datastruct named '**Mobj**' (see [**mesh_object.png**](mesh_object.png) for more details).
 
 ```matlab
 clc;clearvars
-mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat'; % NEED TO BE CHANGED
+% options-1: load mesh grid from OceanMesh2D
+% mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat'; % NEED TO BE CHANGED
+
+% option-2: load mesh grid from SMS
+mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.2dm'; % NEED TO BE CHANGED
+
 Mobj = mesh2schism(mesh_file); 
 Mobj.expname = 'Exp1_BYS';      
 Mobj.time = (datetime(2020,6,1):hours(1):datetime(2020,6,10))'; 
@@ -40,7 +54,7 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate
 
 > All input files generated afterwards will be placed in the directory where the **mesh_file** is located; 
 > 
-> <span style="color:cornflowerblue;">If your mesh grid is generated from the other softwares (e.g. SMS), just use the '**read_schism_hgrid.m**' function to create the '**Mobj**' datastruct, and the remaining workflow is the same. Refer to **Exp3_CORIE_LSC2.m** for more details.</span>
+> <span style="color:cornflowerblue;">If your mesh grid is generated from softwares other than OceanMesh2D or SMS, just use the '**read_schism_hgrid.m**' function to generate the '**Mobj**' datastruct, and the remaining workflow is the same. Refer to **Exp3_CORIE_LSC2.m** for more details.</span>
 
 <br>
 
@@ -58,16 +72,16 @@ Mobj = call_schism_tracers(Mobj);
 
 ### Step-3: Horizontal grids
 
-This part aims to visualize the horizontal grids and generate hgrid.gr3 and hgrid.ll files.
+This part aims to visualize the horizontal grids and generate hgrid.gr3/hgrid.ll file.
 
 ```matlab
 figure('Color', 'w')
 disp_schism_hgrid(Mobj, [1 0])
 axis image
 hold on
-plot_schism_bnds(Mobj, [1 1], 'Color', 'k')
+plot_schism_bnds(Mobj, [1 1 1], 'Color', 'k')
 
-% write the hgrid.gr3 and hgrid.ll files 
+% write hgrid.gr3 and hgrid.ll files 
 write_schism_hgrid(Mobj)
 ```
 
@@ -158,10 +172,10 @@ write_schism_vgrid(Mobj, 'v5.10');
 
 ### Step-6: River inputs
 
-This part aims to add river inputs in the form of element sources (e.g. source.nc).
+This part aims to add river inputs in the form of element sources (e.g., source.nc).
 
 ```matlab
-SS = def_schism_source(Mobj, [1 0], 'load', 'on');
+SS = def_schism_source(Mobj, [1 0], 'rebuild', 'on');
 river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
 
 river_info = add_river_runoff(river_info, Mobj.time, 'real_time');
@@ -187,13 +201,13 @@ write_schism_source_nc(Mobj, D,  tracer_list)
 
 ### Step-7: Initial Conditions
 
-This part aims to prepare the inital fields (e.g. elev.ic, temp.ic, and hotstart.nc).
+This part aims to prepare the inital fields (e.g., elev.ic, temp.ic, and hotstart.nc).
 
 ```matlab
 % DS contains the original initial fields with a fixed format:
 % 1) 'lon', 'lat', 'depth' vectors must be in ascending order;
 % 2) 'depth' vector must be positive; and ensure the range of lon/lat covers you model domain
-% 3) 'var' must in the dimension of lon*lat or lon*lat*depth above.
+% 3) 'var' must have dimensions of lon*lat or lon*lat*depth.
 
 % option-1: real-time initial field from hycom.
 DS = prep_schism_init(Mobj, 'hycom_bys'); 
@@ -305,7 +319,7 @@ write_schism_bctides(Mobj, TideForc, bc_flags)
 
 ### Step-10: Bottom friction
 
-This part aims to prepare the input files related to bottom friction (e.g. drag.gr3).
+This part aims to prepare the input files related to bottom friction (e.g., drag.gr3).
 
 ```matlab
 % Type-1: roughness
@@ -324,6 +338,8 @@ write_schism_gr3(Mobj, 'rough', fmc)
 <br>
 
 ### Step-11: Misc. files ending in gr3
+
+This part aims to generate the input files ending in gr3 (e.g., shapiro.gr3, albedo.gr3 and so on).
 
 ```matlab
 % shapiro.gr3
@@ -361,6 +377,8 @@ write_schism_gr3(Mobj, 'hdif', hdif)
 
 ### Step-12: Misc. files ending in prop
 
+This part aims to prepare input files ending in prop (e.g., tvd.prop).
+
 ```matlab
 tvd_flags = ones(Mobj.nElems, 1);
 tvd_flags(Mobj.depthc<5) = 0;
@@ -376,11 +394,13 @@ write_schism_prop(Mobj, 'fluxflag', flux_flags)
 
 ### Step-13: Atmospheric forcing
 
+This part aims to prepare sflux files (netcdf) as atmospheric forcing.
+
 ```matlab
 % AtmForc inculdes the extracted atmospheric forcing data with a fixed format:
 % 1) lon/lat matrix (nLons*nLats) are generated from the meshgrid function, and in ascending order
 % 2) variable matrix should be of nLons*nLats*nTimes
-% 3) the 'region' and 'time' fields must cover your simulation period, model domain, respectively.
+% 3) the 'region' and 'time' fields must cover your simulation period and model domain.
 
 nFiles = 5; 
 
@@ -392,9 +412,27 @@ write_schism_sflux(AtmForc, 'air', nFiles)
 
 > nFiles is the estimated # of sflux_prc/air/rad_*.nc files. Note that the nFiles can not be too small, since the **time_steps** of each sflux nc file can not exceed 1000 by default. In addition, <span style="color:green;">**write_schism_sflux.m**</span> will slightly adjust this value to ensure that each file starts at 0 o'clock in certain day, since the 'hour' component of 'base_date' property is unused in each nc file.
 > 
-> Considering that the raw data of atmospheric forcing is too large, this toolbox does not offer the function to create 'AtmForc', but directly uploads the result.
-> 
-> You need to prepare the AtmForc variable according to the required format, and then use 'write_schism_sflux.m' to create the nc files.
+> AtmForc was created by the function <span style="color:green;">**get_era5_forcing.m**</span>. However, you need to modify/replace this function carefully based on your own data sources, just make sure the outputed AtmForc meets the required format above.
+
+### Step-14: Boundary nudging (optional)
+
+This part aims to prepare boundary nudging files (e.g., TEM/SAL_nu.nc).
+
+```matlab
+% define a boundary nuding zone (90-km width)
+% 20 km is the width of max-nudging zone adjacent to the boundary
+[nudge_factor, nudge_nodes] = calc_schism_nudge(Mobj, [20, 90, 4e-5], 'on');
+
+nudge_time = Mobj.time(1):Mobj.time(end); % daily inputs
+D.time = seconds(nudge_time-nudge_time(1));
+D.map_to_global_node = nudge_nodes;
+D.tracer_concentration = 25*ones(1,Mobj.maxLev, numel(nudge_nodes), numel(nudge_time));  % constant temperature
+
+write_schism_gr3(Mobj, 'TEM_nudge', nudge_factor)
+write_schism_nu_nc(Mobj, 'TEM', D)
+```
+
+<br>
 
 ## Notes
 
@@ -402,13 +440,11 @@ This toolbox was written referring to the [fvcom-toolbox](https://github.com/pwc
 
 ## Limitations (To-do List)
 
-* The toolbox can only be used for purely triangular grid so far, although SCHISM supports mixed triangular/quadrangular grids.
-* only for geographical grids so far.
-* primarily for the input files related to hydrological part so far, while the other modules such as CoSiNE, ICM are not fully supported. However, many interfaces have been reserved for additional modules.
-* rivers can only be added as source points so far, although the river can also be added as boudary inflow in SCHISM.
+* This toolbox is primarily used for preparing input files related to hydrological part so far, while the other modules such as CoSiNE, ICM are not fully supported. However, many interfaces have been reserved for future extensions.
+* Rivers can only be added as source points so far, although they can also be added as open boundary inflows in SCHISM.
 
 ## Copyright
 
 This toolbox is distributed under the Apache-2.0 license. It is free to use and no profit making is allowed. 
 
-If you encounter any problems/bugs when using this toolbox, or if you have any suggestions, please contact [wwu@vims.edu](mailto:wwu@vims.edu). Any potential co-developers are highly welcome.
+If you encountered any problems/bugs when using this toolbox, or if you have any suggestions, please contact [wwu@vims.edu](mailto:wwu@vims.edu). Any potential co-developers are highly welcome.

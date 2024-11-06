@@ -45,7 +45,7 @@ figure('Color', 'w')
 subplot(221)
 disp_schism_var(Mobj, varNew_s)
 hold on
-plot_schism_bnds(Mobj, [1 1], 'Color', 'k')
+plot_schism_bnds(Mobj)
 axis image
 box on
 xlim(Mobj.region(1:2))
@@ -60,7 +60,7 @@ subplot(222)
 pcolor(D.lon, D.lat, varRaw_s')
 shading flat
 hold on
-plot_schism_bnds(Mobj, [1 1], 'Color', 'k')
+plot_schism_bnds(Mobj)
 axis image
 box on
 xlim(Mobj.region(1:2))
@@ -76,7 +76,7 @@ title('Raw Data (surface)', 'FontWeight','bold')
 subplot(223)
 disp_schism_var(Mobj, varNew_b)
 hold on
-plot_schism_bnds(Mobj, [1 1], 'Color', 'k')
+plot_schism_bnds(Mobj)
 axis image
 box on
 xlim(Mobj.region(1:2))
@@ -91,7 +91,7 @@ subplot(224)
 pcolor(D.lon, D.lat, varRaw_b')
 shading flat
 hold on
-plot_schism_bnds(Mobj, [1 1], 'Color', 'k')
+plot_schism_bnds(Mobj)
 axis image
 box on
 xlim(Mobj.region(1:2))

@@ -34,12 +34,11 @@ if nargin < 2
 end
 g = 9.80665;
 ua = 0;
-h = abs(Mobj.depth);
+h = abs(Mobj.depthc);
 dt = Mobj.dt;
 
 %% Calculation
-R = calc_schism_cradius(Mobj);      % use the circumradius
-% R = calc_schism_sidelen(Mobj);  % use the side length
+R = calc_schism_reso(Mobj);  
 
 dx = R(:);
 CFL_val = (ua+sqrt(g*h)).*dt./dx;
@@ -74,7 +73,7 @@ subplot(223)
 disp_schism_var(Mobj, CFL_val)
 axis image
 box on
-caxis([0 1])
+caxis([0 1]) %#ok<*CAXIS>
 title('CFL numbers')
 
 % nexttile

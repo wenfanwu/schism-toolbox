@@ -66,8 +66,9 @@ end
 
 end
 function [tracer_time, tracer_var] = get_river_tracer(river_name, tracer_name)
+% This function aims to extract the tracer data according to the river name.
 
-load example_river_data.mat %#ok<*LOAD>
+RivData = load('example_river_data.mat');
 
 D = RivData.(river_name);
 tracer_time = D.time;

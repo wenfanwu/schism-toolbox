@@ -30,7 +30,7 @@ function DS = prep_cosine_bdry(Mobj, dst)
 %% Parse inputs
 switch dst
     case 'test_data'
-        load('fake_bdry_bgc_data_for_test') %#ok<LOAD> 
+        load('example_fake_bgc_data_for_bdry.mat') %#ok<LOAD> 
         DS = fake_bdry_data;
 end
 

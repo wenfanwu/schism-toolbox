@@ -1,57 +1,101 @@
-function elem_area = calc_schism_area(Mobj, ctype)
+function [S, area3, area4] = calc_schism_area(Mobj)
 % Calculate the element area (m^2)
 %
 %% Syntax
 % elem_area = calc_schism_area(Mobj)
-% elem_area = calc_schism_area(Mobj, ctype)
-% 
+%
 %% Description
-% elem_area = calc_schism_area(Mobj) calculates the areas of elements on a
-% triangulation mesh (units: m^3).
-% elem_area = calc_schism_area(Mobj, ctype) determines the coorinate type
-% (geographic/cartesian).
+% elem_area = calc_schism_area(Mobj) calculates the element areas of
+%       unstructured grids (units: m^2).  
 %
 %% Example
-% elem_area = calc_schism_area(Mobj, 'geographic');
-% 
+% elem_area = calc_schism_area(Mobj);
+%
 %% Input Arguments
-% Mobj --- the mesh object
-% ctype --- coordinate type (geographic/cartersian); Default: ctype = 'geographic'; 
+% Mobj - mesh object; datastruct
+%       the datastruct containing mesh info.
 %
 %% Output Arguments
-% elem_area --- the areas of elements  (units: m^2).
+% elem_area - element areas; double
+%       the areas of elements  (units: m^2).
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2022. 
-% Last Updated on 8 Mar. 2022. 
-% Email: wenfanwu@stu.ouc.edu.cn
-% 
-% See also: distance
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021. 
+% Last Updated on 05 Nov 2024. 
+% Email: wwu@vims.edu
+%
+% See also: calc_schism_sidelen
 
 %% Parse inputs
-if nargin < 2
-    ctype = 'geographic';
+if strncmpi(Mobj.coord, 'geographic', 3)
+    ntype = 1;
+else
+    ntype = 0;
 end
-lon_verts = Mobj.lon(Mobj.tri);
-lat_verts = Mobj.lat(Mobj.tri);
-nElems = size(Mobj.tri,1);
 
 %% Calculation
-if strncmpi(ctype, 'geographic', 3)
-    disp('calculate the element areas on a geographic coordinate')
-    N = pi/180*6378000;
-    a = distance(lat_verts(:, 1), lon_verts(:, 1), lat_verts(:, 2), lon_verts(:, 2))*N;
-    b = distance(lat_verts(:, 2), lon_verts(:, 2), lat_verts(:, 3), lon_verts(:, 3))*N;
-    c = distance(lat_verts(:, 1), lon_verts(:, 1), lat_verts(:, 3), lon_verts(:, 3))*N;
-    p = sum([a(:), b(:), c(:)], 2)/2;
+tri3 = Mobj.tri(Mobj.i34==3, 1:3);
+tri4 = Mobj.tri(Mobj.i34==4, 1:4);
 
-    elem_area = sqrt(abs(p.*(a-p).*(p-b).*(p-c))); % Haron Formula
-else
-    disp('calculate the element areas on a Cartesian coordinate')
-    side_vec1 = [zeros(nElems,1) lon_verts(:,2)-lon_verts(:,1) lon_verts(:,3)-lon_verts(:,1)];
-    side_vec2 = [zeros(nElems,1) lat_verts(:,2)-lat_verts(:,1) lat_verts(:,3)-lat_verts(:,1)];
-    
-    elem_area = sum(cross(side_vec1, side_vec2)/2, 2);  % Cross-product
+% calculate the triangular areas
+x1 = Mobj.lon(tri3(:,[1 2])); y1 = Mobj.lat(tri3(:,[1 2]));
+x2 = Mobj.lon(tri3(:,[2 3])); y2 = Mobj.lat(tri3(:,[2 3]));
+x3 = Mobj.lon(tri3(:,[3 1])); y3 = Mobj.lat(tri3(:,[3 1]));
+e1 = calc_edge_lens(x1, y1, ntype);
+e2 = calc_edge_lens(x2, y2, ntype);
+e3 = calc_edge_lens(x3, y3, ntype);
+
+area3 = calc_triangle_area(e1,e2,e3);
+
+% calculate the quadrangular areas (split into two triangles)
+% triangle at (v1,v2,v3)
+x1 = Mobj.lon(tri4(:,[1 2])); y1 = Mobj.lat(tri4(:,[1 2]));
+x2 = Mobj.lon(tri4(:,[2 3])); y2 = Mobj.lat(tri4(:,[2 3]));
+x3 = Mobj.lon(tri4(:,[3 1])); y3 = Mobj.lat(tri4(:,[3 1]));
+e1 = calc_edge_lens(x1, y1, ntype);
+e2 = calc_edge_lens(x2, y2, ntype);
+e3 = calc_edge_lens(x3, y3, ntype);
+
+area4_p1 = calc_triangle_area(e1,e2,e3);
+
+% triangle at (v1,v3,v4)
+x1 = Mobj.lon(tri4(:,[1 3])); y1 = Mobj.lat(tri4(:,[1 3]));
+x2 = Mobj.lon(tri4(:,[3 4])); y2 = Mobj.lat(tri4(:,[3 4]));
+x3 = Mobj.lon(tri4(:,[4 1])); y3 = Mobj.lat(tri4(:,[4 1]));
+e1 = calc_edge_lens(x1, y1, ntype);
+e2 = calc_edge_lens(x2, y2, ntype);
+e3 = calc_edge_lens(x3, y3, ntype);
+
+area4_p2 = calc_triangle_area(e1,e2,e3);
+
+area4 = [area4_p1(:) area4_p2(:)];
+
+S = nan(Mobj.nElems,1);
+S(Mobj.i34==3) = area3;
+S(Mobj.i34==4) = area4_p1+area4_p2;
 end
 
+function area = calc_triangle_area(a,b,c)
+% calculate the triangle area using Haron formula
+
+s = (a + b + c) / 2;
+area = sqrt(s.*(s-a).*(s-b).*(s-c));
+end
+
+function edge_lens = calc_edge_lens(x, y, ntype)
+% calculate the edge length using Haversine formula
+
+switch ntype
+    case 1
+        R = 6371000;  % earth radius (m)
+        lon_rad = x * pi / 180;
+        lat_rad = y * pi / 180;
+        dlon = lon_rad(:,2) - lon_rad(:,1);
+        dlat = lat_rad(:,2) - lat_rad(:,1);
+        a = sin(dlat/2).^2 + cos(lat_rad(:,1)) .* cos(lat_rad(:,2)) .* sin(dlon/2).^2; 
+        c = 2 * atan2(sqrt(a), sqrt(1-a));
+        edge_lens = R * c;
+    case 0
+        edge_lens = hypot(diff(x,1,2), diff(y,1,2));
+end
 end

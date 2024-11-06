@@ -27,15 +27,16 @@ function Mobj = call_schism_tracers(Mobj)
 % 
 % See also: 
 %% All modules are off by default
-module_list = {'use_gen', 'use_age', 'use_sed3d', 'use_ecosim', 'use_icm', 'use_icm_ph', 'use_cosine', 'use_fib', 'use_timor', ...
+module_list = {'use_gen', 'use_age', 'use_sed3d', 'use_ecosim', 'use_icm', 'use_icm_ph', 'use_cosine', 'use_fib', 'use_timor', ...  % tracer modules
     'use_wwm', 'use_ice'};  % non-tracer modules
 for imod = 1:numel(module_list)
     mod_name = module_list{imod};
     if ~isfield(Mobj, mod_name)
         Mobj.(mod_name) = 'no';
     else
-        Mobj = rmfield(Mobj, mod_name);
-        Mobj.(mod_name) = 'yes';
+        if ~strcmp(Mobj.(mod_name), 'yes') & ~strcmp(Mobj.(mod_name), 'no')
+            error('the module flags must be yes or no')
+        end
     end
 end
 %% TEM&SAL (index=1&2)
@@ -56,7 +57,6 @@ tracer_sheet(1, :) = {'TEM', 'SAL', 'GEN', 'AGE', 'SED', 'ECO', 'ICM', 'COS', 'F
 
 tracer_sheet(2,:) = {'off'};
 tracer_sheet(2, 1:2) = {'ON'};
-
 
 %% USE_GEN (index=3)
 if strcmpi(Mobj.use_gen, 'yes')

@@ -35,7 +35,7 @@ if nargin < 5
 end
 D = DS.(varName);
 
-nNodes_obc = Mobj.nNodes_obc;
+nNodes_obc = numel(Mobj.obc_nodes_tot);
 nDeps_new = Mobj.maxLev;
 nDeps_raw = numel(D.depth);
 

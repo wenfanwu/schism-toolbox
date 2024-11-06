@@ -1,43 +1,52 @@
-function indMin = geomin(lon, lat, lon_site, lat_site)
-% Locate the ordinal number of points
-% 
+function indMin = geomin(lonAll, latAll, siteLon, siteLat, N)
+% Find indices of the nearest points on geographic maps
+%
 %% Syntax
-% 
 %
-%% Description 
-% 
 %
-%% Examples
+%% Description
+%
+%
+%% Examples 
 %
 %
 %% Input Arguments
-%
+% lonAll - longitude vector; double
+%       the longitude vector for searching.
+% latAll - latitude vector; double
+%       the latitude vector for searching.
+% siteLon - target longitude; double
+%       the target longitude for searching.
+% siteLat - target latitude; double
+%       the target latitude for searching.
+% N - the returned # of points; double
+%       the returned # of the first closest points. default: N=1
 %
 %% Output Arguments
-% 
-% 
-%% Notes
-%
+% indMin - index matrix; double
+%       the indices of nearest points. the returned indMin is a matrix of
+%       (N*M), with M being the length of siteLon/siteLat.  
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2022. 
-% Last Updated on 2022-10-22.
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2024. 
+% Last Updated on 11 Oct 2024. 
+% Email: wwu@vims.edu
 % 
 % See also: 
 
 %% Parse inputs
-if length(lon_site) > 1 && length(lon_site) == length(lat_site)
-    indMin = arrayfun(@(x) geomin(lon, lat, lon_site(x), lat_site(x)), 1:length(lon_site));
-else
-    for iRange = 0.0001:0.01:0.2
-        indNear = abs(lon-lon_site)<iRange & abs(lat-lat_site)<iRange;
-        if sum(indNear) ~= 0
-            lon(~indNear) = nan;
-            lat(~indNear) = nan;
-            break
-        end
-    end
-    indMin = minfind(hypot(lon,lat), hypot(lon_site, lat_site));
+if nargin < 5 
+    N = 1;
 end
+fcn = @(x,y) distance(y,x, latAll, lonAll, [6378.137 0.0818191910428158])';  % km
+
+dist_cell = arrayfun(@(x,y) fcn(x,y), siteLon, siteLat, 'UniformOutput',false);
+dist = cell2mat(dist_cell);
+
+% sort distances for each target point and get the N nearest indices
+[~, sorted_indices] = sort(dist, 2);  % sort along the first dimension (across points)
+
+% return the indices of the N closest points for each target
+indMin = sorted_indices(:,1:N); 
+
 end

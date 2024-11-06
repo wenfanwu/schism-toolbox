@@ -40,7 +40,7 @@ function DS = prep_cosine_init(Mobj, dst)
 %% Parse inputs
 switch dst
     case 'test_data'
-        load('woa_init_bgc_data_for_test.mat') %#ok<LOAD> 
+        load('example_woa_bgc_data_for_init') %#ok<LOAD> 
         DS = woa_init_data;
 end
 

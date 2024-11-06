@@ -1,65 +1,75 @@
-function auto_center(zoom_factor, aspect_ratio)
-% Automatically center the figure
+function auto_center(base_size, adjust_factor)
+% Automatically center the figure with minimal blank space around the plot
 %
 %% Syntax
 % auto_center
-% auto_center(zoom_factor)
-% auto_center(zoom_factor, aspect_ratio)
+% auto_center(base_size)
+% auto_center(base_size, adjust_factor)
 %
 %% Description
-% auto_center() automatically centers the figure
-% auto_center(zoom_factor) specifies the adjustment scale (>0)
-% auto_center(zoom_factor, aspect_ratio) specifies aspect ratio (>0)
-%
-%% Example
+% auto_center centerizes the current figure
+% auto_center(base_size) specifies the base size of figure
+% auto_center(base_size, adjust_factor) adjusts the figure height
+% 
+%% Examples 
 % figure
-% pcolor(peaks(20))
+% disp_schism_var(Mobj, Mobj.depth)
 % auto_center
 %
-% figure
-% subplot(211)
-% pcolor(peaks(20))
-% subplot(212)
-% pcolor(peaks(20))
-% auto_center(0.65, 0.5)
-% 
 %% Input Arguments
-% zoom_factor --- zoom factor (>0); Default: zoom_factor = 0.5;
-% aspect_ratio --- aspect ratio (>0), with higher value denoting longer x-axis
-% visually; Default: aspect_ratio = 1; 
+% base_size - base size; double; 
+%       specifies the base size of figure. base_size = 0.5 (default);
+%       base_size >0 and <1;
+% adjust_factor - adjust factor; double
+%       adjusts the figure height slightly, adjust_factor = 1 (default);
+%
+%% Output Arguments
+% None
+% 
+%% Notes
+% This function was generated with the help of ChatGPT
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2022. 
-% Last Updated on 2022-04-14. 
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021. 
+% Last Updated on 29 Oct 2024. 
+% Email: wwu@vims.edu
 % 
-% See also: get and set
+% See also: 
 
 %% Parse inputs
-if nargin < 1
-    zoom_factor = 0.5;
+if nargin==0
+    base_size = 0.5;
 end
-if nargin < 2
-    aspect_ratio = 1;
-end
-if isempty(zoom_factor)
-    zoom_factor = 0.5;
+if nargin<2
+    adjust_factor = 1;
 end
 
-scnsize = get(0, 'ScreenSize');
-H = scnsize(4);
-L = scnsize(3);
+%% Center figure
+ax = gca;
 
-dx = abs(diff(xlim));
-dy = abs(diff(ylim));
-%% Adjustment
-udx = dx/L*aspect_ratio;
-udy = dy/H;
+xdar  = ax.DataAspectRatio(1);
+ydar  = ax.DataAspectRatio(2);
 
-pt = (1-zoom_factor)/2; 
-if udx>=udy
-    set(gcf, 'Units', 'normalized', 'Position', [pt, pt, zoom_factor, zoom_factor/udx*udy])
-else
-    set(gcf, 'Units', 'normalized', 'Position', [pt, pt, zoom_factor/udy*udx, zoom_factor])
+dx = abs(diff(ax.XLim))/xdar;
+dy = abs(diff(ax.YLim))/ydar;
+aspect_ratio = dx/dy*ax.InnerPosition(4)/ax.OuterPosition(4);
+
+fig_width=base_size*aspect_ratio;
+fig_height=base_size*adjust_factor;
+
+R = fig_height/fig_width;
+
+if R>=1   % portrait
+    fig_width = min(fig_width,1);
+    fig_height = fig_width*R;
+else  % landscape
+    fig_height = min(fig_height,1);
+    fig_width = fig_height/R;
 end
+
+left_margin = (1-fig_width)/2;
+bottom_margin = (1-fig_height)/2;
+
+set(gcf, 'Units', 'normalized', 'Position', [left_margin, bottom_margin, fig_width, fig_height]);
+
 end

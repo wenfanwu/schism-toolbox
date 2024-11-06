@@ -28,14 +28,18 @@ function tripcolor(tri, x, y, z, varargin)
 % See also: patch
 
 %% Parse inputs
-if size(tri,2) ~= 3
-    tri = tri';
+i34 = ~isnan(tri(:,end))+3;
+
+if numel(find(i34==4)) == 0
+    tri = tri(:, 1:3);
 end
+
 if size(tri,1) == length(z(:))
     opts_def = {'FaceColor','flat', 'EdgeAlpha', 0.1, 'CDataMapping','scaled', 'EdgeColor', 'none', 'LineWidth', 0.0025};
 else
     opts_def = {'FaceColor','interp', 'EdgeAlpha', 0.1, 'CDataMapping','scaled', 'EdgeColor', 'none', 'LineWidth', 0.0025};
 end
+
 varargin = [opts_def(:)', varargin(:)'];
 %% Display
 patch('Faces',tri,'Vertices',[x(:) y(:)], 'FaceVertexCData',z(:), varargin{:})

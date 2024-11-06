@@ -1,84 +1,60 @@
-function write_schism_th_nc(Mobj, BdryCnd, prefix_name)
-% Write .th_nc file for SCHISM
+function write_schism_th_nc(Mobj, prefix_name, BdryCnd)
+% Write *.th_nc files for SCHISM
 % 
 %% Syntax
-% write_schism_th_nc(Mobj, BdryCnd, prefix_name)
+% write_schism_th_nc(Mobj, prefix_name, BdryCnd)
 %
 %% Description 
-% write_schism_th_nc(Mobj, BdryCnd, prefix_name) creates prefix_name.th.nc
+% write_schism_th_nc(Mobj, prefix_name, BdryCnd) creates prefix_name.th.nc
 % file as boudary inputs.
 %
 %% Examples
-% write_schism_th_nc(Mobj, BdryCnd, 'elev2D')
-% write_schism_th_nc(Mobj, BdryCnd, 'COS_3D')
+% write_schism_th_nc(Mobj, 'elev2D', BdryCnd)
+% write_schism_th_nc(Mobj, 'COS_3D', BdryCnd)
 % 
 %% Input Arguments
 % Mobj --- the mesh object
-% BdryCnd --- the datastruct that contains boundary data.
 % prefix_name --- prefix name for the th.nc file, e.g. elev2D, uv3D,
 % TEM_3D, COS_3D.
+% BdryCnd --- the datastruct that contains boundary data.
 % 
 %% Output Arguments
 % None
 % 
-%% Notes
-% Make sure the provided BdryCnd contains required variables. 
-% This function is still under development to accommodate more tracer 
-% modules.
-%
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2022. 
-% Last Updated on 2023-11-27.
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2022.
+% Last Updated on 28 Oct 2024.
+% Email: wwu@vims.edu
 % 
 % See also: 
 
 %% Parse inputs
-% sz_ref = [Mobj.maxLev, numel(Mobj.obc_nodes_tot), numel(Mobj.time)];
-
-% varList = fieldnames(BdryCnd);
-% if numel(contains(varList, 'time'))==0
-%     error('the input datastruct should have the field named time!')
-% end
-% varList(contains(varList, 'time')) = [];
-% for ii = 1:numel(varList)
-%     varName = varList{ii};
-%     sz_vars = size(BdryCnd.(varName));
-%     if (sz_vars(1) ~= sz_ref(1) && sz_vars(1) ~= 1) || sz_vars(2) ~= sz_ref(2) || sz_vars(3) ~= sz_ref(3) 
-%         error(['The size of ', varName, ' is not correct!'])
-%     end
-% end
-%% Write NetCDF
 BdryCnd = std_bdry_inputs(Mobj, BdryCnd);
 
-if strcmp(prefix_name, 'elev2D')
-    D = BdryCnd.ssh;
-end
-if strcmp(prefix_name, 'TEM_3D')
-    D = BdryCnd.temp;
-end
-if strcmp(prefix_name, 'SAL_3D')
-    D = BdryCnd.salt;
-end
-if strcmp(prefix_name, 'uv3D')
-    D.time_step = BdryCnd.uvel.time_step;
-    D.time = BdryCnd.uvel.time;
-    D.time_series = cat(1,BdryCnd.uvel.time_series,BdryCnd.vvel.time_series);
-end
-if strcmp(prefix_name, 'ICM_3D')
-    D = merge_tracer_struct(Mobj, BdryCnd, 7);
-end
-if strcmp(prefix_name, 'COS_3D')
-    D = merge_tracer_struct(Mobj, BdryCnd, 8);
+switch prefix_name
+    case 'elev2D'
+        D = BdryCnd.ssh;
+    case 'TEM_3D'
+        D = BdryCnd.temp;
+    case 'SAL_3D'
+        D = BdryCnd.salt;
+    case 'uv3D'
+        D.time_step = BdryCnd.uvel.time_step;
+        D.time = BdryCnd.uvel.time;
+        D.time_series = cat(1,BdryCnd.uvel.time_series,BdryCnd.vvel.time_series);
+    case 'COS_3D'
+        D = merge_tracer_struct(Mobj, BdryCnd, 8);
+    case 'ICM_3D'
+        D = merge_tracer_struct(Mobj, BdryCnd, 7);
 end
 
 filepath = [Mobj.aimpath, prefix_name, '.th.nc'];
 write_th_nc(filepath, D)
-
 end
 
 function BdryCnd = std_bdry_inputs(Mobj, BdryCnd)
 % Standardized
+
 time = Mobj.time;
 
 varList = fieldnames(BdryCnd);
@@ -90,13 +66,13 @@ for iVar = 1:nVars
 
     BdryCnd = rmfield(BdryCnd, varName);
     
-    S.time_step = seconds(time(2)-time(1));
-    S.time = seconds(time-time(1));
+    C.time_step = seconds(time(2)-time(1));
+    C.time = seconds(time-time(1));
     varData = permute(varData, [2 1 3]);
-    S.time_series(1,:,:,:) = flip(varData, 1);   % the first row of the depth dimension denotes the bottom in SCHISM inputs
+    C.time_series(1,:,:,:) = flip(varData, 1);   % the bottom row in the depth dimension denotes the surface layer
     
-    BdryCnd.(varName) = S;
-    clear S
+    BdryCnd.(varName) = C;
+    clear C
 end
 end
 

@@ -27,7 +27,7 @@ function DS = get_hycom_init_clim(Mobj)
 % See also: 
 
 %% Parse inputs
-filepath = 'hycom_clim_vars_1995_2020.mat';
+filepath = 'example_hycom_clim_1995_2020.mat'; 
 load(filepath) %#ok<LOAD>
 
 cmon = month(Mobj.time(1));

@@ -1,5 +1,5 @@
 function disp_schism_var(Mobj, varData, varargin)
-% Visualize the variable on triangular mesh
+% Visualize variables on unstructured mesh
 %
 %% Syntax
 % disp_schism_var(Mobj, varData)
@@ -7,22 +7,32 @@ function disp_schism_var(Mobj, varData, varargin)
 %
 %% Description
 % disp_schism_var(Mobj, varData) visualizes the variable on a triangular mesh.
-% disp_schism_var(Mobj, varData, varargin) modifies the mesh styles.
+% disp_schism_var(Mobj, varData, varargin) modifies the mesh styles or the
+%       projection flags 
 %
-%% Examples 
-% 
+%% Examples
+% figure
+% disp_schism_var(Mobj, Mobj.depth, 'Projection', 'on', 'EdgeColor', 'k')
+% hold on
+% plot_schism_bnds(Mobj, [1 1], 'Projection', 'on', 'Color', 'r', 'LineWidth', 2)
+% axis image
+%
 %% Input Arguments
-% Mobj --- the mesh object
-% varData --- variable vector defined at the nodes or elements.
-% varargin --- this function shares the same options with the matlab
-% built-in fuction 'patch.m'; some useful options include 'EdgeColor',
-% 'EdgeAlpha', 'LineWidth', and so on. 
+% Mobj - mesh object; datastruct
+%       a datastruct containing the mesh info.
+% varData - variable data; double
+%       variable vector defined@nodes or elements.
+% varargin - input options
+%       this function shares the same options with the built-in fuction
+%       'patch.m'; some useful options include 'EdgeColor', 'EdgeAlpha',
+%       'LineWidth', and so on. Besides, you can determine whether to use
+%       the map projection or not when plotting ('projection', 'on').
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2021. 
-% Last Updated on 6 Jun. 2022. 
-% Email: wenfanwu@stu.ouc.edu.cn
-% 
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
+% Last Updated on 28 Oct 2024.
+% Email: wwu@vims.edu
+%
 % See also: tripcolor and patch
 
 %% Parse inputs
@@ -34,12 +44,54 @@ if numel(varData)~=Mobj.nNodes && numel(varData)~=Mobj.nElems
 end
 varData = double(varData(:));
 
+ind = find(strncmpi(varargin, 'projection', 4), 1, 'last' ); % only the last one is valid
+if isempty(ind)
+    proj_flag = 'off';
+else
+    proj_flag = varargin{ind+1};
+    varargin(ind:ind+1) = [];
+end
+
+tri = Mobj.tri;
+if numel(find(Mobj.i34==4)) == 0
+    tri = tri(:, 1:3);
+else
+    tri = fillmissing(tri,"previous",2); % for speeding
+end
 %% Display
-tripcolor(Mobj.tri, Mobj.lon, Mobj.lat, varData, varargin{:})
+switch proj_flag
+    case 'off'    % without projection
+        tripcolor(tri, Mobj.lon, Mobj.lat, varData, varargin{:})
+
+    case 'on'   % with projection
+        proj = projcrs(3395, 'Authority', 'EPSG');  % % EPSG 3395: Mercator projection
+        [x, y] = projfwd(proj, Mobj.lat, Mobj.lon);
+
+        tripcolor(tri, x, y, varData, varargin{:})
+        xticks = get(gca, 'XTick'); yticks = get(gca, 'YTick');
+
+        [~, lon_xticks] = projinv(proj, xticks, mean(y)*ones(size(xticks)));
+        [lat_yticks, ~] = projinv(proj, mean(x)*ones(size(yticks)), yticks);
+
+        if fix((max(lon_xticks)-min(lon_xticks))/0.5)>4
+            lon_xticks = round(lon_xticks*2)/2;
+        else
+            lon_xticks = round(lon_xticks,2);
+        end
+
+        if fix((max(lat_yticks)-min(lat_yticks))/0.5)>4
+            lat_yticks = round(lat_yticks*2)/2;
+        else
+            lat_yticks = round(lat_yticks,2);
+        end
+
+        set(gca, 'XTick', xticks, 'XTickLabel', lon_xticks);
+        set(gca, 'YTick', yticks, 'YTickLabel', lat_yticks);
+end
+xlabel('Longitude', 'FontWeight','bold')
+ylabel('Latitude', 'FontWeight','bold')
+
+box on
 colorbar
 colormap(jet(25))
-hold on; box on
-xlabel('Longitude (°E)', 'FontWeight','bold')
-ylabel('Latitude (°N)', 'FontWeight','bold')
-
 end

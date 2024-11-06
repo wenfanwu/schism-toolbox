@@ -131,7 +131,7 @@ end
 
 switch lower(Mobj.coord)
     case 'geographic'
-        distRoi = distance(lat_list(1), lon_list(1), lat_list, lon_list, [6378.137 0.0818191910428158]);
+        distRoi = distance(lat_list(1), lon_list(1), lat_list, lon_list, [6378137 0.0818191910428158]); % meters
     case 'cartesian'
         distRoi = hypot(lon_list-lon_list(1), lat_list-lat_list(1));
 end

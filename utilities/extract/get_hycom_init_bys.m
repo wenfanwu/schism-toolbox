@@ -29,7 +29,7 @@ function DS = get_hycom_init_bys(Mobj)
 %% Parse inputs 
 init_time = Mobj.time(1);
 
-datapath = 'E:\Code-repository\Matlab-codes\functions-test\schism-toolbox-v1.0-beta\data\hycom\';  % can be changed
+datapath = 'C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\test_env\schism-toolbox\data\hycom\';  % NEED TO BE CHANGED
 
 cdate = datestr(init_time, 'yyyymmdd');
 filepath = [datapath, cdate, '.mat'];

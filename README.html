@@ -1248,24 +1248,37 @@ pre[class*="language-"] {
   <style>.markdown-body{}pre.front-matter{display:none!important;}</style>
 </head>
 <body>
-  <article class="markdown-body"><h1 class="atx" id="schism-toolbox-v10-beta">SCHISM-toolbox (v1.0-beta)</h1>
+  <article class="markdown-body"><h1 class="atx" id="schism-toolbox-v11-beta">SCHISM-toolbox (v1.1-beta)</h1>
 <p>This is a MATLAB toolbox designed for the Semi-implicit Cross-scale Hydroscience Integrated System Model (<a href="http://ccrm.vims.edu/schismweb/">SCHISM</a>).</p>
-<p>Last updated on 27 Aug 2023 by <a href="https://www.researchgate.net/profile/Wenfan-Wu/research">Wenfan Wu</a>, CCRM, Virginia Institute of Marine Science.</p>
+<p>Last updated on 6 Nov 2024 by <a href="https://www.researchgate.net/profile/Wenfan-Wu/research">Wenfan Wu</a>, CCRM, Virginia Institute of Marine Science.</p>
+<h3 class="atx" id="new-features">New features!!!</h3>
+<ul>
+<li>work for mixed triangular/quadrangular grid</li>
+<li>work for cartesian or geographic coordinates</li>
+<li>map projection is allowed for variable visualization</li>
+<li>nudging functions are provided.</li>
+</ul>
+<p>More details can be found in the <a href="./Changelog.md"><strong>Changelog.md</strong></a> file.</p>
 <h2 class="atx" id="prerequisites">Prerequisites</h2>
 <p><strong>MATLAB Version: 2014b and above</strong></p>
-<p><strong>Official Add-Ons (Mandatory):</strong><br><code>Image Processing Toolbox</code> (drawpolygon, drawline);<br><code>Mapping Toolbox</code> (ispolycw, distance)   </p>
-<p><strong>Public packages (Recommended):</strong><br><a href="https://github.com/CHLNDDEV/OceanMesh2D"><code>OceanMesh2D</code></a>  <a href="https://www.eoas.ubc.ca/~rich/map.html#10._Tracklines_and_UTM_projection"><code>M_Map</code></a> </p>
+<p><strong>Official Add-Ons (Mandatory):</strong><br><code>Image Processing Toolbox</code> (drawpolygon, drawline);<br><code>Mapping Toolbox</code> (ispolycw, distance, projcrs, profwd)   </p>
+<p><strong>Public packages (Recommended):</strong><br><a href="https://github.com/CHLNDDEV/OceanMesh2D"><code>OceanMesh2D</code></a> </p>
 <blockquote>
-<p>Notes: <strong>OceanMesh2D</strong> is only required when you are using <font color="green"><strong>mesh2schism.m</strong></font> function; <strong>M_MAP</strong> is only used in <font color="green"><strong>calc_schism_cradius.m</strong></font>;</p>
+<p>Notes: <strong>OceanMesh2D</strong> is only required when you're using <font color="green"><strong>mesh2schism.m</strong></font> to load MAT file created by OceanMesh2D.</p>
 </blockquote>
 <br>
 
 <h2 class="atx" id="workflow">Workflow</h2>
-<p>The following steps show the complete workflow to genearte input files with this toolbox. Refer to the first example (<font color="green"><strong>Exp1_BYS_main.m</strong></font>) in this toolbox for more details.</p>
+<p>The following steps show a complete workflow to prepare input files with this toolbox. Refer to the first example (<font color="green"><strong>Exp1_BYS_main.m</strong></font>) in this toolbox for more details.</p>
 <h3 class="atx" id="step-1-load-the-mesh-grid">Step-1: Load the mesh grid</h3>
-<p>This part aims to load the mesh grid generated from OceanMesh2D, and then all the grid info. will be stored in a datastruct named '<strong>Mobj</strong>' (viz. mesh object).</p>
+<p>This part aims to load the mesh grid created by OceanMesh2D or SMS, and then all the grid info. will be stored in a datastruct named '<strong>Mobj</strong>' (see <a href="mesh_object.png"><strong>mesh_object.png</strong></a> for more details).</p>
 <pre><code class="fenced-code-block language-matlab">clc<span class="token punctuation">;</span>clearvars
-mesh_file <span class="token operator">=</span> <span class="token string">'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat'</span><span class="token punctuation">;</span> <span class="token comment">% NEED TO BE CHANGED</span>
+<span class="token comment">% options-1: load mesh grid from OceanMesh2D</span>
+<span class="token comment">% mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat'; % NEED TO BE CHANGED</span>
+
+<span class="token comment">% option-2: load mesh grid from SMS</span>
+mesh_file <span class="token operator">=</span> <span class="token string">'Exp2_BYS_CoSiNE\inputs\BYS_20814.2dm'</span><span class="token punctuation">;</span> <span class="token comment">% NEED TO BE CHANGED</span>
+
 Mobj <span class="token operator">=</span> <span class="token function">mesh2schism</span><span class="token punctuation">(</span>mesh_file<span class="token punctuation">)</span><span class="token punctuation">;</span> 
 Mobj<span class="token punctuation">.</span>expname <span class="token operator">=</span> <span class="token string">'Exp1_BYS'</span><span class="token punctuation">;</span>      
 Mobj<span class="token punctuation">.</span>time <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token function">datetime</span><span class="token punctuation">(</span><span class="token number">2020</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">:</span><span class="token function">hours</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">:</span><span class="token function">datetime</span><span class="token punctuation">(</span><span class="token number">2020</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">'</span><span class="token punctuation">;</span> 
@@ -1274,7 +1287,7 @@ Mobj<span class="token punctuation">.</span>dt <span class="token operator">=</s
 Mobj<span class="token punctuation">.</span>coord <span class="token operator">=</span> <span class="token string">'geographic'</span><span class="token punctuation">;</span>  <span class="token comment">% geographic or Cartesian coordinate</span></code></pre>
 <blockquote>
 <p>All input files generated afterwards will be placed in the directory where the <strong>mesh_file</strong> is located; </p>
-<p><span style="color:cornflowerblue;">If your mesh grid is generated from the other softwares (e.g. SMS), just use the '<strong>read_schism_hgrid.m</strong>' function to create the '<strong>Mobj</strong>' datastruct, and the remaining workflow is the same. Refer to <strong>Exp3_CORIE_LSC2.m</strong> for more details.</span></p>
+<p><span style="color:cornflowerblue;">If your mesh grid is generated from softwares other than OceanMesh2D or SMS, just use the '<strong>read_schism_hgrid.m</strong>' function to generate the '<strong>Mobj</strong>' datastruct, and the remaining workflow is the same. Refer to <strong>Exp3_CORIE_LSC2.m</strong> for more details.</span></p>
 </blockquote>
 <br>
 
@@ -1287,14 +1300,14 @@ Mobj<span class="token punctuation">.</span>coord <span class="token operator">=
 <br>
 
 <h3 class="atx" id="step-3-horizontal-grids">Step-3: Horizontal grids</h3>
-<p>This part aims to visualize the horizontal grids and generate hgrid.gr3 and hgrid.ll files.</p>
+<p>This part aims to visualize the horizontal grids and generate hgrid.gr3/hgrid.ll file.</p>
 <pre><code class="fenced-code-block language-matlab"><span class="token function">figure</span><span class="token punctuation">(</span><span class="token string">'Color'</span><span class="token punctuation">,</span> <span class="token string">'w'</span><span class="token punctuation">)</span>
 <span class="token function">disp_schism_hgrid</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
 axis image
 hold on
-<span class="token function">plot_schism_bnds</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'Color'</span><span class="token punctuation">,</span> <span class="token string">'k'</span><span class="token punctuation">)</span>
+<span class="token function">plot_schism_bnds</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span> <span class="token number">1</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'Color'</span><span class="token punctuation">,</span> <span class="token string">'k'</span><span class="token punctuation">)</span>
 
-<span class="token comment">% write the hgrid.gr3 and hgrid.ll files </span>
+<span class="token comment">% write hgrid.gr3 and hgrid.ll files </span>
 <span class="token function">write_schism_hgrid</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">)</span></code></pre>
 <div align="center">
   <img width="550" alt="Figure 1 Model domain" src="imags/fig_3.1.png">
@@ -1371,8 +1384,8 @@ sect_info <span class="token operator">=</span> <span class="token function">def
 <br>
 
 <h3 class="atx" id="step-6-river-inputs">Step-6: River inputs</h3>
-<p>This part aims to add river inputs in the form of element sources (e.g. source.nc).</p>
-<pre><code class="fenced-code-block language-matlab">SS <span class="token operator">=</span> <span class="token function">def_schism_source</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'load'</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<p>This part aims to add river inputs in the form of element sources (e.g., source.nc).</p>
+<pre><code class="fenced-code-block language-matlab">SS <span class="token operator">=</span> <span class="token function">def_schism_source</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">1</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'rebuild'</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 river_info <span class="token operator">=</span> <span class="token function">match_rivers</span><span class="token punctuation">(</span>SS<span class="token punctuation">.</span>source<span class="token punctuation">.</span>lonc<span class="token punctuation">,</span> SS<span class="token punctuation">.</span>source<span class="token punctuation">.</span>latc<span class="token punctuation">,</span> SS<span class="token punctuation">.</span>source<span class="token punctuation">.</span>elems<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 river_info <span class="token operator">=</span> <span class="token function">add_river_runoff</span><span class="token punctuation">(</span>river_info<span class="token punctuation">,</span> Mobj<span class="token punctuation">.</span>time<span class="token punctuation">,</span> <span class="token string">'real_time'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1396,11 +1409,11 @@ D <span class="token operator">=</span> <span class="token function">prep_river_
 <br>
 
 <h3 class="atx" id="step-7-initial-conditions">Step-7: Initial Conditions</h3>
-<p>This part aims to prepare the inital fields (e.g. elev.ic, temp.ic, and hotstart.nc).</p>
+<p>This part aims to prepare the inital fields (e.g., elev.ic, temp.ic, and hotstart.nc).</p>
 <pre><code class="fenced-code-block language-matlab"><span class="token comment">% DS contains the original initial fields with a fixed format:</span>
 <span class="token comment">% 1) 'lon', 'lat', 'depth' vectors must be in ascending order;</span>
 <span class="token comment">% 2) 'depth' vector must be positive; and ensure the range of lon/lat covers you model domain</span>
-<span class="token comment">% 3) 'var' must in the dimension of lon*lat or lon*lat*depth above.</span>
+<span class="token comment">% 3) 'var' must have dimensions of lon*lat or lon*lat*depth.</span>
 
 <span class="token comment">% option-1: real-time initial field from hycom.</span>
 DS <span class="token operator">=</span> <span class="token function">prep_schism_init</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'hycom_bys'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
@@ -1501,7 +1514,7 @@ TideForc<span class="token punctuation">.</span>nf_salt <span class="token opera
 <br>
 
 <h3 class="atx" id="step-10-bottom-friction">Step-10: Bottom friction</h3>
-<p>This part aims to prepare the input files related to bottom friction (e.g. drag.gr3).</p>
+<p>This part aims to prepare the input files related to bottom friction (e.g., drag.gr3).</p>
 <pre><code class="fenced-code-block language-matlab"><span class="token comment">% Type-1: roughness</span>
 z0 <span class="token operator">=</span> <span class="token number">0.001</span><span class="token punctuation">;</span>  <span class="token comment">% set constant roughness in the model domain</span>
 <span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'rough'</span><span class="token punctuation">,</span> z0<span class="token punctuation">)</span>
@@ -1516,6 +1529,7 @@ fmc <span class="token operator">=</span> <span class="token number">0.025</span
 <br>
 
 <h3 class="atx" id="step-11-misc-files-ending-in-gr3">Step-11: Misc. files ending in gr3</h3>
+<p>This part aims to generate the input files ending in gr3 (e.g., shapiro.gr3, albedo.gr3 and so on).</p>
 <pre><code class="fenced-code-block language-matlab"><span class="token comment">% shapiro.gr3</span>
 shapiro_val <span class="token operator">=</span> <span class="token function">gen_slope_filter2</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">0.001</span><span class="token punctuation">,</span> <span class="token number">0.05</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'shapiro'</span><span class="token punctuation">,</span> shapiro_val<span class="token punctuation">)</span>
@@ -1549,6 +1563,7 @@ hdif <span class="token operator">=</span> <span class="token function">calc_sch
 <br>
 
 <h3 class="atx" id="step-12-misc-files-ending-in-prop">Step-12: Misc. files ending in prop</h3>
+<p>This part aims to prepare input files ending in prop (e.g., tvd.prop).</p>
 <pre><code class="fenced-code-block language-matlab">tvd_flags <span class="token operator">=</span> <span class="token function">ones</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span>nElems<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token function">tvd_flags</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span>depthc<span class="token operator">&lt;</span><span class="token number">5</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
 <span class="token function">write_schism_prop</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'tvd'</span><span class="token punctuation">,</span> tvd_flags<span class="token punctuation">)</span>
@@ -1561,10 +1576,11 @@ flux_flags <span class="token operator">=</span> <span class="token function">de
 <br>
 
 <h3 class="atx" id="step-13-atmospheric-forcing">Step-13: Atmospheric forcing</h3>
+<p>This part aims to prepare sflux files (netcdf) as atmospheric forcing.</p>
 <pre><code class="fenced-code-block language-matlab"><span class="token comment">% AtmForc inculdes the extracted atmospheric forcing data with a fixed format:</span>
 <span class="token comment">% 1) lon/lat matrix (nLons*nLats) are generated from the meshgrid function, and in ascending order</span>
 <span class="token comment">% 2) variable matrix should be of nLons*nLats*nTimes</span>
-<span class="token comment">% 3) the 'region' and 'time' fields must cover your simulation period, model domain, respectively.</span>
+<span class="token comment">% 3) the 'region' and 'time' fields must cover your simulation period and model domain.</span>
 
 nFiles <span class="token operator">=</span> <span class="token number">5</span><span class="token punctuation">;</span> 
 
@@ -1574,21 +1590,33 @@ nFiles <span class="token operator">=</span> <span class="token number">5</span>
 <span class="token function">write_schism_sflux</span><span class="token punctuation">(</span>AtmForc<span class="token punctuation">,</span> <span class="token string">'air'</span><span class="token punctuation">,</span> nFiles<span class="token punctuation">)</span></code></pre>
 <blockquote>
 <p>nFiles is the estimated # of sflux_prc/air/rad_*.nc files. Note that the nFiles can not be too small, since the <strong>time_steps</strong> of each sflux nc file can not exceed 1000 by default. In addition, <span style="color:green;"><strong>write_schism_sflux.m</strong></span> will slightly adjust this value to ensure that each file starts at 0 o'clock in certain day, since the 'hour' component of 'base_date' property is unused in each nc file.</p>
-<p>Considering that the raw data of atmospheric forcing is too large, this toolbox does not offer the function to create 'AtmForc', but directly uploads the result.</p>
-<p>You need to prepare the AtmForc variable according to the required format, and then use 'write_schism_sflux.m' to create the nc files.</p>
+<p>AtmForc was created by the function <span style="color:green;"><strong>get_era5_forcing.m</strong></span>. However, you need to modify/replace this function carefully based on your own data sources, just make sure the outputed AtmForc meets the required format above.</p>
 </blockquote>
+<h3 class="atx" id="step-14-boundary-nudging-optional">Step-14: Boundary nudging (optional)</h3>
+<p>This part aims to prepare boundary nudging files (e.g., TEM/SAL_nu.nc).</p>
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% define a boundary nuding zone (90-km width)</span>
+<span class="token comment">% 20 km is the width of max-nudging zone adjacent to the boundary</span>
+<span class="token punctuation">[</span>nudge_factor<span class="token punctuation">,</span> nudge_nodes<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">calc_schism_nudge</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">20</span><span class="token punctuation">,</span> <span class="token number">90</span><span class="token punctuation">,</span> <span class="token number">4e-5</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+nudge_time <span class="token operator">=</span> Mobj<span class="token punctuation">.</span><span class="token function">time</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">:</span>Mobj<span class="token punctuation">.</span><span class="token function">time</span><span class="token punctuation">(</span><span class="token keyword">end</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">% daily inputs</span>
+D<span class="token punctuation">.</span>time <span class="token operator">=</span> <span class="token function">seconds</span><span class="token punctuation">(</span>nudge_time<span class="token operator">-</span><span class="token function">nudge_time</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+D<span class="token punctuation">.</span>map_to_global_node <span class="token operator">=</span> nudge_nodes<span class="token punctuation">;</span>
+D<span class="token punctuation">.</span>tracer_concentration <span class="token operator">=</span> <span class="token number">25</span><span class="token operator">*</span><span class="token function">ones</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span>Mobj<span class="token punctuation">.</span>maxLev<span class="token punctuation">,</span> <span class="token function">numel</span><span class="token punctuation">(</span>nudge_nodes<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">numel</span><span class="token punctuation">(</span>nudge_time<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">% constant temperature</span>
+
+<span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'TEM_nudge'</span><span class="token punctuation">,</span> nudge_factor<span class="token punctuation">)</span>
+<span class="token function">write_schism_nu_nc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'TEM'</span><span class="token punctuation">,</span> D<span class="token punctuation">)</span></code></pre>
+<br>
+
 <h2 class="atx" id="notes">Notes</h2>
 <p>This toolbox was written referring to the <a href="https://github.com/pwcazenave/fvcom-toolbox">fvcom-toolbox</a> developed by Dr. Geoff Cowles et al.</p>
 <h2 class="atx" id="limitations-to-do-list">Limitations (To-do List)</h2>
 <ul>
-<li>The toolbox can only be used for purely triangular grid so far, although SCHISM supports mixed triangular/quadrangular grids.</li>
-<li>only for geographical grids so far.</li>
-<li>primarily for the input files related to hydrological part so far, while the other modules such as CoSiNE, ICM are not fully supported. However, many interfaces have been reserved for additional modules.</li>
-<li>rivers can only be added as source points so far, although the river can also be added as boudary inflow in SCHISM.</li>
+<li>This toolbox is primarily used for preparing input files related to hydrological part so far, while the other modules such as CoSiNE, ICM are not fully supported. However, many interfaces have been reserved for future extensions.</li>
+<li>Rivers can only be added as source points so far, although they can also be added as open boundary inflows in SCHISM.</li>
 </ul>
 <h2 class="atx" id="copyright">Copyright</h2>
 <p>This toolbox is distributed under the Apache-2.0 license. It is free to use and no profit making is allowed. </p>
-<p>If you encounter any problems/bugs when using this toolbox, or if you have any suggestions, please contact&nbsp;<a href="mailto:wwu@vims.edu">wwu@vims.edu</a>. Any potential co-developers are highly welcome.</p>
+<p>If you encountered any problems/bugs when using this toolbox, or if you have any suggestions, please contact&nbsp;<a href="mailto:wwu@vims.edu">wwu@vims.edu</a>. Any potential co-developers are highly welcome.</p>
 </article>
 </body>
 </html>

@@ -1,5 +1,5 @@
 function Mobj = read_schism_vgrid(Mobj, vgrid_file, version_num)
-% Read the vertical grids from vgrid.in
+% Read the vertical grids
 %
 %% Syntax
 % Mobj = read_schism_vgrid(Mobj, vgrid_file, version_num)
@@ -26,9 +26,9 @@ function Mobj = read_schism_vgrid(Mobj, vgrid_file, version_num)
 % None
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2023.
-% Last Updated on 2023-11-27.
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Instiute of Marine Science in 2023.
+% Last Updated on 24 Oct 2024
+% Email: wwu@vims.edu
 %
 % See also: read_schism_hgrid
 
@@ -63,7 +63,7 @@ switch ivcor
                 tline = double(split(string(strtrim(vdata{ii}))));
                 tline = sort(tline(3:end), 'descend');
                 if tline(1)~=0 && tline(end)~=-1
-                    error('Failed to read the vgrid.in due to split error!')
+                    error('failed to read the vgrid.in due to split error!')
                 end
                 vgrids(1:length(tline), ii) = tline;
             end
@@ -83,7 +83,7 @@ switch ivcor
 
         Mobj.nLevs = sum(~isnan(vgrids));
         Mobj.maxLev = max(Mobj.nLevs);
-        disp(['The mean # of levels is ', num2str(mean(Mobj.nLevs), '%.2f')])
+        disp(['the mean # of levels is ', num2str(mean(Mobj.nLevs), '%.2f')])
 
         Mobj.master_grid = 'unknown';
         vgrids = vgrids(1:Mobj.maxLev,:);

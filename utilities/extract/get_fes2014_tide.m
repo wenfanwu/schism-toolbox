@@ -23,9 +23,9 @@ function TideForc = get_fes2014_tide(Mobj, tideList)
 % https://www.aviso.altimetry.fr/en/data/products/auxiliary-products/global-tide-fes.html
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2021. 
-% Last Updated on 2 Dec. 2021. 
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021. 
+% Last Updated on 23 Sep 2024. 
+% Email: wwu@vims.edu
 % 
 % See also: add_nodal_factors and write_schism_bctides
 
@@ -37,24 +37,31 @@ nTides = length(tideList);
 
 % Make sure you have downloaded the fes2014 data set from AVISO website
 % https://www.aviso.altimetry.fr/en/data/products/auxiliary-products/global-tide-fes.html
-elev_path = 'H:\Tidal-Models\FES2014\aviso\L1_data\fes2014b_ocean_tide\';
-ubar_path = 'H:\Tidal-Models\FES2014\aviso\L1_data\fes2014a_eastward_velocity\';
-vbar_path = 'H:\Tidal-Models\FES2014\aviso\L1_data\fes2014a_northward_velocity\';
+elev_path = 'E:\Tidal-Models\FES2014\aviso\L1_data\fes2014b_ocean_tide\';
+ubar_path = 'E:\Tidal-Models\FES2014\aviso\L1_data\fes2014a_eastward_velocity\';
+vbar_path = 'E:\Tidal-Models\FES2014\aviso\L1_data\fes2014a_northward_velocity\';
 
 %% Extract
-lon = ncread([elev_path, 'm2.nc'], 'lon');
-lat = ncread([elev_path, 'm2.nc'], 'lat');
+lonTide = ncread([elev_path, 'm2.nc'], 'lon');   % [0, 360]
+latTide = ncread([elev_path, 'm2.nc'], 'lat');    % [-90, 90]
 
-obcNodesTot = Mobj.obc_nodes_tot;
-indLon = minfind(lon, Mobj.lon(obcNodesTot));
-indLat = minfind(lat, Mobj.lat(obcNodesTot));
+% Adjust the coordinate system if necessary
+[lon_adjust, lon_flag] = check_lons(Mobj.lon, lonTide);
+if lon_flag~=0
+    disp('longitude coordinate system is inconsistent with FES2014 (0-360)')
+end
 
-amp = nan(Mobj.nNodes_obc, nTides);
-pha = nan(Mobj.nNodes_obc, nTides);
-uamp = nan(Mobj.nNodes_obc, nTides);
-vamp = nan(Mobj.nNodes_obc, nTides);
-upha = nan(Mobj.nNodes_obc, nTides);
-vpha = nan(Mobj.nNodes_obc, nTides);
+indLon = minfind(lonTide, lon_adjust(Mobj.obc_nodes_tot));
+indLat = minfind(latTide, Mobj.lat(Mobj.obc_nodes_tot));
+
+nNodes_obc = numel(Mobj.obc_nodes_tot);
+
+amp = nan(nNodes_obc, nTides);
+pha = nan(nNodes_obc, nTides);
+uamp = nan(nNodes_obc, nTides);
+vamp = nan(nNodes_obc, nTides);
+upha = nan(nNodes_obc, nTides);
+vpha = nan(nNodes_obc, nTides);
 tic
 for iTide = 1:nTides
     tideName = tideList{iTide};

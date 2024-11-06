@@ -1,19 +1,22 @@
 %% This program is an EXAMPLE (Exp1_BYS) in the schism-toolbox
-%% Tested platform: Matlab 2022a (Windows)
+%% Tested platform: Matlab 2024a (Windows)
 %% Matlab add-on: Image Processing Toolbox; Mapping Toolbox
-%% Public package: M_Map; OceanMesh2D
+%% Public package:OceanMesh2D
 %% Model verision: SCHISM v5.10
-%% Author: Wenfan Wu, COAS, Ocean Univ. of China. 2023
+%% Author: Wenfan Wu, CCRM, Virginia Institute of Marine Science. 2024
 % ================================================================
-% ======== This is a purely hydrological simulation on the lon/lat coordinate =======
-% ======== in the Bohai, Yellow Seas (BYS) ===============================
+% ====== This is a purely hydrological simulation on the lgeographic coordinate =====
+% ================ in the Bohai and Yellow Seas (BYS) ====================
 % ================================================================
 %% Step-1: Load the mesh grid
-% Load mesh grid from the MAT file, in this example, the mesh grid is
-% generated from OceanMesh2D. If your grid is from SMS or other softwares,
-% please use 'read_schism_hgrid.m' and refer to Exp3_CORIE_LSC2.
+% the mesh grid can be generated from OceanMesh2D or SMS. If your grid is
+% from other softwares, please use 'read_schism_hgrid.m' and refer to Exp3_CORIE_LSC2.  
 clc;clearvars
-mesh_file = 'E:\Code-repository\Matlab-codes\functions-test\schism-toolbox-v1.0-beta\examples\Exp1_BYS\BYS_20814.mat';  % NEED TO BE CHANGED!!!
+% option-1: Load mesh grid created by OceanMesh2D
+% mesh_file = 'Exp1_BYS\inputs\BYS_20814.mat';  % NEED TO BE CHANGED
+
+% option-2: Load mesh grid created by SMS
+mesh_file = 'Exp1_BYS\inputs\BYS_20814.2dm';  % NEED TO BE CHANGED
 
 Mobj = mesh2schism(mesh_file); 
 Mobj.expname = 'Exp1_BYS';      
@@ -25,9 +28,7 @@ Mobj.coord = 'geographic'; % geographic or Cartesian coordinates
 % All the input files generated afterwards wiil be placed in the directory
 % where the meshfile is located (Exp1_BYS\inputs).
 %% Step-2: Activated modules 
-% in this case, only hydrological module is activated and thus there are
-% only two activated tracers (TEM&SAL).
-% This step is reserved for future extension to other modules.
+% only hydrological module is activated in this run and thus there are only two activated tracers (TEM&SAL).
 Mobj = call_schism_tracers(Mobj);
 
 %% Step-3: Horizontal grids
@@ -36,7 +37,7 @@ figure('Color', 'w')
 disp_schism_hgrid(Mobj, [1 0])
 axis image
 hold on
-plot_schism_bnds(Mobj, [1 1], 'Color', 'k')
+plot_schism_bnds(Mobj, [1 1 1], 'Color', 'k')
 
 % write the hgrid.gr3 and hgrid.ll files 
 write_schism_hgrid(Mobj)
@@ -49,7 +50,6 @@ calc_schism_CFL(Mobj)
 
 % check the hydrostatic assumption
 check_schism_hydrostatic(Mobj);
-
 %% Step-5: Vertical grids
 % option-1: LSC2 coordinates
 dep_edges = [10, 20, 30, 45, 55, 65, 75, 90];
@@ -82,7 +82,7 @@ write_schism_vgrid(Mobj, 'v5.10');
 
 % load the source_sink.mat existed in the aimpath; change the 'load' to
 % 'rebuild' to select your own source/sink elements if needed.
-SS = def_schism_source(Mobj, [1 0], 'load', 'on');  
+SS = def_schism_source(Mobj, [1 0], 'rebuild', 'on');  
 river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
 
 river_info = add_river_runoff(river_info, Mobj.time, 'real_time');
@@ -149,10 +149,10 @@ DS = prep_schism_bdry(Mobj, 'hycom_bys');
 varList = {'ssh', 'temp', 'salt', 'uvel', 'vvel'}; 
 BdryCnd = interp_schism_bdry(Mobj, DS, varList);
 
-write_schism_th_nc(Mobj, BdryCnd, 'elev2D')
-write_schism_th_nc(Mobj, BdryCnd, 'TEM_3D')
-write_schism_th_nc(Mobj, BdryCnd, 'SAL_3D')
-write_schism_th_nc(Mobj, BdryCnd, 'uv3D')
+write_schism_th_nc(Mobj, 'elev2D', BdryCnd)
+write_schism_th_nc(Mobj, 'TEM_3D', BdryCnd)
+write_schism_th_nc(Mobj, 'SAL_3D', BdryCnd)
+write_schism_th_nc(Mobj, 'uv3D', BdryCnd)
 
 % check the interpolation
 check_schism_bdry(Mobj, DS, BdryCnd, 'temp', 1)
@@ -166,7 +166,7 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
 tideList = {'S2','M2','N2','K2', 'K1','P1','O1','Q1'};
 TideForc = get_fes2014_tide(Mobj, tideList);   
 
-% kill the potential NaN values adjacent to the coast
+% kill potential NaN values adjacent to the coast
 field_list = fieldnames(TideForc);
 for ii = 2:numel(field_list)
     tide_var = field_list{ii};
@@ -188,7 +188,6 @@ write_schism_gr3(Mobj, 'rough', z0)
 
 % Type-2: drag
 Cd = calc_schism_bfric(Mobj, 1, [0.07 3], 'on');
-
 write_schism_gr3(Mobj, 'drag', Cd)
 
 % Type-3: manning
@@ -197,7 +196,7 @@ write_schism_gr3(Mobj, 'rough', fmc)
 
 %% Step-11: Misc. files ending in gr3
 % shapiro.gr3
-shapiro_val = gen_slope_filter2(Mobj, [0.001, 0.05], 0.5, 'on');
+shapiro_val = calc_schism_shapiro(Mobj, [0.001, 0.05], 0.5, 'on');
 write_schism_gr3(Mobj, 'shapiro', shapiro_val)
 
 % windrot_geo2proj.gr3
@@ -221,7 +220,7 @@ bdef_factor(Mobj.depth<5) = -2;
 write_schism_gr3(Mobj, 'bdef', bdef_factor)
 
 % hdif.gr3
-hdif = calc_schism_hdif(Mobj, 0.25, 5e-5, 'on');
+hdif = calc_schism_hdif(Mobj, 0.25, 5e-3, 'on');
 write_schism_gr3(Mobj, 'hdif', hdif)
 
 %% Step-12: Misc. files ending in prop
@@ -241,7 +240,7 @@ write_schism_prop(Mobj, 'fluxflag', flux_flags)
 
 nFiles = 5; 
 
-load('test_era5_AtmForc.mat')
+load('example_AtmForc_era5.mat')
 AtmForc.aimpath = Mobj.aimpath;
 
 write_schism_sflux(AtmForc, 'prc', nFiles)
@@ -262,6 +261,18 @@ write_schism_sflux(AtmForc, 'air', nFiles)
 % You need to prepare the AtmForc variable by yourself based on the
 % required format, and then use 'write_schism_sflux.m' to create the nc files.
 
+%% Step-14: Boundary nudging (optional)
+% define a boundary nuding zone (90-km width)
+% 20 km is the width of max-nudging zone adjacent to the boundary
+[nudge_factor, nudge_nodes] = calc_schism_nudge(Mobj, [20, 90, 4e-5], 'on');
+
+nudge_time = Mobj.time(1):Mobj.time(end); % daily inputs
+D.time = seconds(nudge_time-nudge_time(1));
+D.map_to_global_node = nudge_nodes;
+D.tracer_concentration = 25*ones(1,Mobj.maxLev, numel(nudge_nodes), numel(nudge_time));  % constant temperature
+
+write_schism_gr3(Mobj, 'TEM_nudge', nudge_factor)
+write_schism_nu_nc(Mobj, 'TEM', D)
 %% END
 
 

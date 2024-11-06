@@ -1,16 +1,16 @@
-function Cd = calc_schism_bfric(Mobj, ntype, tuning_coefs, disp_flag)
+function Cd = calc_schism_bfric(Mobj, mtype, tuning_coefs, disp_flag)
 % Calculate the bottom friction using different empirical formulae
 %
 %% Syntax
-% Cd = calc_schism_bfric(Mobj, ntype, tuning_coefs)
+% Cd = calc_schism_bfric(Mobj, mtype, tuning_coefs)
 %
 %% Description
-% Cd = calc_schism_bfric(Mobj, ntype, tuning_coefs) returns the Cd (bottom
+% Cd = calc_schism_bfric(Mobj, mtype, tuning_coefs) returns the Cd (bottom
 % drag coefficient).
 %
 %% Input Arguments
 % Mobj --- the mesh object
-% ntype --- the formula type to calculate the Cd.
+% mtype --- the formula type to calculate the Cd.
 % turning_coefs --- turning coefficient pair. tuning_coefs = [fmc, h_min];
 % fmc is the factor of maning coefficient; h_min is the minmum depth in
 % manning formula.
@@ -30,7 +30,7 @@ function Cd = calc_schism_bfric(Mobj, ntype, tuning_coefs, disp_flag)
 
 %% Parse inputs
 if nargin < 2
-    ntype = 1;
+    mtype = 1;
 end
 if nargin < 3
     tuning_coefs = [0.025 3];
@@ -40,7 +40,7 @@ if nargin < 4
 end
 
 %% Caculate
-switch ntype
+switch mtype
     case 1  % Method-1: manning method
         fmc = tuning_coefs(1);
         h_min = tuning_coefs(2);
@@ -56,9 +56,12 @@ Cd = fcn(Mobj.depth);
 if strcmpi(disp_flag, 'on')
     figure('Color', 'w');
     disp_schism_var(Mobj, Cd)
+    hold on
+    plot_schism_bnds(Mobj)
     colormap(jet(25))
     axis image
     box on
+    auto_center
 end
 end
 
