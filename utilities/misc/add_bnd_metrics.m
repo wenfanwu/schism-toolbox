@@ -11,15 +11,12 @@ function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes)
 % 
 %
 %% Input Arguments
-% AtmForc - atmospheric forcing; datastruct
-%       this datastruct stores atmospheric forcing data.
-% suffix_name - filename suffix; char
-%       suffix name of the NetCDF files (air/prc/rad).
+%
 %
 %% Output Arguments
 %
 %% Notes
-% The outer boundaies (land/sea) should be aligned anti-clockwise while the
+% The outer boundaies (land/ocean) should be aligned anti-clockwise while the
 % inner boundaries (island) should be clockwise.
 % 
 % This function was generated with the help of ChatGPT
@@ -41,7 +38,7 @@ end
 
 % 2) arrange all boundaries in descending order based on the # of nodes
 % 3) trim redundant lines that are all zeros
-% 4) ensure all boundary nodes are aligned anti-clockwise
+% 4) ensure outer/inner boundary nodes are aligned anti-clockwise/clockwise
 obc_nodes = trim_bnd_nodes(Mobj, obc_nodes, 'open');
 land_nodes = trim_bnd_nodes(Mobj, land_nodes, 'land');
 island_nodes = trim_bnd_nodes(Mobj, island_nodes, 'island');
