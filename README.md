@@ -39,10 +39,10 @@ This part aims to load the mesh grid created by OceanMesh2D or SMS, and then all
 ```matlab
 clc;clearvars
 % options-1: load mesh grid from OceanMesh2D
-% mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat'; % NEED TO BE CHANGED
+mesh_file = 'Exp1_BYS\inputs\BYS_20814.mat'; % NEED TO BE CHANGED
 
 % option-2: load mesh grid from SMS
-mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.2dm'; % NEED TO BE CHANGED
+mesh_file = 'Exp1_BYS\inputs\BYS_20814.2dm'; % NEED TO BE CHANGED
 
 Mobj = mesh2schism(mesh_file); 
 Mobj.expname = 'Exp1_BYS';      

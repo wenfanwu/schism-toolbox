@@ -1274,10 +1274,10 @@ pre[class*="language-"] {
 <p>This part aims to load the mesh grid created by OceanMesh2D or SMS, and then all the grid info. will be stored in a datastruct named '<strong>Mobj</strong>' (see <a href="mesh_object.png"><strong>mesh_object.png</strong></a> for more details).</p>
 <pre><code class="fenced-code-block language-matlab">clc<span class="token punctuation">;</span>clearvars
 <span class="token comment">% options-1: load mesh grid from OceanMesh2D</span>
-<span class="token comment">% mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat'; % NEED TO BE CHANGED</span>
+mesh_file <span class="token operator">=</span> <span class="token string">'Exp1_BYS\inputs\BYS_20814.mat'</span><span class="token punctuation">;</span> <span class="token comment">% NEED TO BE CHANGED</span>
 
 <span class="token comment">% option-2: load mesh grid from SMS</span>
-mesh_file <span class="token operator">=</span> <span class="token string">'Exp2_BYS_CoSiNE\inputs\BYS_20814.2dm'</span><span class="token punctuation">;</span> <span class="token comment">% NEED TO BE CHANGED</span>
+mesh_file <span class="token operator">=</span> <span class="token string">'Exp1_BYS\inputs\BYS_20814.2dm'</span><span class="token punctuation">;</span> <span class="token comment">% NEED TO BE CHANGED</span>
 
 Mobj <span class="token operator">=</span> <span class="token function">mesh2schism</span><span class="token punctuation">(</span>mesh_file<span class="token punctuation">)</span><span class="token punctuation">;</span> 
 Mobj<span class="token punctuation">.</span>expname <span class="token operator">=</span> <span class="token string">'Exp1_BYS'</span><span class="token punctuation">;</span>      
