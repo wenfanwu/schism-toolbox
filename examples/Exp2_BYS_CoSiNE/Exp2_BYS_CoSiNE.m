@@ -14,7 +14,6 @@
 % activated. You can complete and extend this example to other tracer
 % modules in a smiliar vein.
 clc;clearvars
-workpath = pwd; 
 mesh_file = 'Exp2_BYS_CoSiNE\inputs\BYS_20814.mat';  % NEED TO BE CHANGED
 
 Mobj = mesh2schism(mesh_file); 
