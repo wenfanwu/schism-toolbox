@@ -404,7 +404,7 @@ This part aims to prepare sflux files (netcdf) as atmospheric forcing.
 
 nFiles = 5; 
 
-load('test_era5_AtmForc.mat')
+load('example_AtmForc_era5.mat')
 write_schism_sflux(AtmForc, 'prc', nFiles)
 write_schism_sflux(AtmForc, 'rad', nFiles)
 write_schism_sflux(AtmForc, 'air', nFiles)
