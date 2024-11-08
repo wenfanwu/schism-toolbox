@@ -11,12 +11,15 @@ function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes)
 % 
 %
 %% Input Arguments
-%
+% AtmForc - atmospheric forcing; datastruct
+%       this datastruct stores atmospheric forcing data.
+% suffix_name - filename suffix; char
+%       suffix name of the NetCDF files (air/prc/rad).
 %
 %% Output Arguments
 %
 %% Notes
-% The outer boundaies (land/ocean) should be aligned anti-clockwise while the
+% The outer boundaies (land/sea) should be aligned anti-clockwise while the
 % inner boundaries (island) should be clockwise.
 % 
 % This function was generated with the help of ChatGPT
@@ -38,7 +41,7 @@ end
 
 % 2) arrange all boundaries in descending order based on the # of nodes
 % 3) trim redundant lines that are all zeros
-% 4) ensure outer/inner boundary nodes are aligned anti-clockwise/clockwise
+% 4) ensure all boundary nodes are aligned anti-clockwise
 obc_nodes = trim_bnd_nodes(Mobj, obc_nodes, 'open');
 land_nodes = trim_bnd_nodes(Mobj, land_nodes, 'land');
 island_nodes = trim_bnd_nodes(Mobj, island_nodes, 'island');
@@ -83,6 +86,7 @@ bnd_lens = sum(bnd_nodes~=0,1);
 [~, ind_sorted] = sort(bnd_lens, 'descend');
 bnd_nodes = bnd_nodes(:, ind_sorted); % sort by the # of loop lens
 
+note_flag = 0;
 bnd_counts = size(bnd_nodes, 2);
 for ii = 1:bnd_counts
     bnd_tmp = bnd_nodes(:, ii);
@@ -95,7 +99,12 @@ for ii = 1:bnd_counts
     if ispolycw(Mobj.lon(bnd_tmp(ind_valid)), Mobj.lat(bnd_tmp(ind_valid)))==cw_flag
         disp(['the ',bnd_str,' boundary (#', num2str(ii),') is aligned ', old_str,' and has been adjusted to ', new_str])
         bnd_nodes(ind_valid, ii) = flip(bnd_tmp(ind_valid),1);
+        note_flag = 1;
     end
+end
+
+if note_flag==0
+    disp(['all ', bnd_str, ' boundaries are aligned ', new_str, ' (great)'])
 end
 
 % debug

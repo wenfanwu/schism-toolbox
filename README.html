@@ -1409,7 +1409,7 @@ D <span class="token operator">=</span> <span class="token function">prep_river_
 <br>
 
 <h3 class="atx" id="step-7-initial-conditions">Step-7: Initial Conditions</h3>
-<p>This part aims to prepare the inital fields (e.g., elev.ic, temp.ic, and hotstart.nc).</p>
+<p>This part aims to prepare the initial fields (e.g., elev.ic, temp.ic, and hotstart.nc).</p>
 <pre><code class="fenced-code-block language-matlab"><span class="token comment">% DS contains the original initial fields with a fixed format:</span>
 <span class="token comment">% 1) 'lon', 'lat', 'depth' vectors must be in ascending order;</span>
 <span class="token comment">% 2) 'depth' vector must be positive; and ensure the range of lon/lat covers you model domain</span>
@@ -1531,7 +1531,7 @@ fmc <span class="token operator">=</span> <span class="token number">0.025</span
 <h3 class="atx" id="step-11-misc-files-ending-in-gr3">Step-11: Misc. files ending in gr3</h3>
 <p>This part aims to generate the input files ending in gr3 (e.g., shapiro.gr3, albedo.gr3 and so on).</p>
 <pre><code class="fenced-code-block language-matlab"><span class="token comment">% shapiro.gr3</span>
-shapiro_val <span class="token operator">=</span> <span class="token function">gen_slope_filter2</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">0.001</span><span class="token punctuation">,</span> <span class="token number">0.05</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+shapiro_val <span class="token operator">=</span> <span class="token function">write_schism_shapiro</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">0.001</span><span class="token punctuation">,</span> <span class="token number">0.05</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'shapiro'</span><span class="token punctuation">,</span> shapiro_val<span class="token punctuation">)</span>
 
 <span class="token comment">% windrot_geo2proj.gr3</span>

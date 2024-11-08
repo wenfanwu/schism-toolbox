@@ -11,10 +11,7 @@ function varNew = convert_schism_var(Mobj, varRaw, conv_str)
 % 
 %
 %% Input Arguments
-% AtmForc - atmospheric forcing; datastruct
-%       this datastruct stores atmospheric forcing data.
-% suffix_name - filename suffix; char
-%       suffix name of the NetCDF files (air/prc/rad).
+%
 %
 %% Output Arguments
 %

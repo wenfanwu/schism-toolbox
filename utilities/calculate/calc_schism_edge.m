@@ -2,30 +2,27 @@ function [edge_lens, edge_len_list, tri_edg] = calc_schism_edge(Mobj)
 % Calculate side lengths (m) of triangular cells
 %
 %% Syntax
-% [node_lens, elem_lens, edge_lens] = calc_schism_sidelen(Mobj)
+% [edge_lens, edge_len_list, tri_edg] = calc_schism_edge(Mobj)
 %
 %% Description
-% [node_lens, elem_lens, edge_lens] = calc_schism_sidelen(Mobj) calculates
-%       the side lengths of each triangular cell 
+% [edge_lens, edge_len_list, tri_edg] = calc_schism_edge(Mobj)
 %
 %% Example
-% [node_lens, elem_lens, edge_lens] = calc_schism_sidelen(Mobj)
+%
 %
 %% Input Arguments
 % Mobj - mesh object; datastruct
 %       A datastruct containing mesh info.
 %
 %% Output Arguments
-% node_lens - side lengths@nodes
-% elem_lens - side lengths@elements
-% edge_lens - side lengths@edges
+%
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Insitute of Marine Science in 2022.
 % Last Updated on 10 Oct 2024.
 % Email: wwu@vims.edu
 %
-% See also: calc_schism_cradius
+% See also: calc_schism_reso
 
 %% Parse inputs
 if strncmpi(Mobj.coord, 'geographic', 3)
@@ -38,7 +35,7 @@ tri3 = Mobj.tri(Mobj.i34==3, 1:3);
 tri4 = Mobj.tri(Mobj.i34==4, 1:4);
 
 edge_lens = nan(Mobj.nElems,4);
-% calculate the triangular areas
+
 x1 = Mobj.lon(tri3(:,[1 2])); y1 = Mobj.lat(tri3(:,[1 2]));
 x2 = Mobj.lon(tri3(:,[2 3])); y2 = Mobj.lat(tri3(:,[2 3]));
 x3 = Mobj.lon(tri3(:,[3 1])); y3 = Mobj.lat(tri3(:,[3 1]));
@@ -47,7 +44,6 @@ e2 = calc_edge_lens(x2, y2, ntype);
 e3 = calc_edge_lens(x3, y3, ntype);
 edge_lens(Mobj.i34==3, 1:3) = [e1(:) e2(:) e3(:)];
 
-% calculate the quadrangular areas (split into two triangles)
 x1 = Mobj.lon(tri4(:,[1 2])); y1 = Mobj.lat(tri4(:,[1 2]));
 x2 = Mobj.lon(tri4(:,[2 3])); y2 = Mobj.lat(tri4(:,[2 3]));
 x3 = Mobj.lon(tri4(:,[3 4])); y3 = Mobj.lat(tri4(:,[3 4]));

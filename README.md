@@ -201,7 +201,7 @@ write_schism_source_nc(Mobj, D,  tracer_list)
 
 ### Step-7: Initial Conditions
 
-This part aims to prepare the inital fields (e.g., elev.ic, temp.ic, and hotstart.nc).
+This part aims to prepare the initial fields (e.g., elev.ic, temp.ic, and hotstart.nc).
 
 ```matlab
 % DS contains the original initial fields with a fixed format:
@@ -343,7 +343,7 @@ This part aims to generate the input files ending in gr3 (e.g., shapiro.gr3, alb
 
 ```matlab
 % shapiro.gr3
-shapiro_val = gen_slope_filter2(Mobj, [0.001, 0.05], 0.5, 'on');
+shapiro_val = write_schism_shapiro(Mobj, [0.001, 0.05], 0.5, 'on');
 write_schism_gr3(Mobj, 'shapiro', shapiro_val)
 
 % windrot_geo2proj.gr3

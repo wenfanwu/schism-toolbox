@@ -62,7 +62,6 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\extract\get_fes2014_tide**: add coordinate system checking
 - **.\utilities\extract\get_hycom_online**: minor improvements
 - **.\examples\Exp1_BYS**: minor changes
-- **.\examples\Exp1_BYS**: minor changes
 - **.\examples\Exp2_BYS_CoSiNE**: minor changes
 - **.\examples\Exp3_CORIE_LSC2**: minor changes
 
