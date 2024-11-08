@@ -343,7 +343,7 @@ This part aims to generate the input files ending in gr3 (e.g., shapiro.gr3, alb
 
 ```matlab
 % shapiro.gr3
-shapiro_val = write_schism_shapiro(Mobj, [0.001, 0.05], 0.5, 'on');
+shapiro_val = calc_schism_shapiro(Mobj, [0.001, 0.05], 0.5, 'on');
 write_schism_gr3(Mobj, 'shapiro', shapiro_val)
 
 % windrot_geo2proj.gr3
