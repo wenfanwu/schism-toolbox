@@ -6,9 +6,7 @@
 % ====== mixed triangular/quadrangular grid for the Chesapeake Bay =====
 % ==== hgrid.ll/vgrid.in is obtained at schism_verification_tests==========
 % ==========================================================
-%% Load the mesh grid (Change current folder first)
-% This example will shows you to create the mesh object (Mobj) directly
-% from an existed hgrid.gr3 file.
+%% Load the mesh grid
 clc;clearvars
 Mobj.time = (datetime(2020,6,1):hours(1):datetime(2020,6,10))'; 
 Mobj.rundays = days(Mobj.time(end)-Mobj.time(1)); 

@@ -7,7 +7,7 @@
 % ========== A purely triangular mesh for the Columbia River Estaury ==========
 % ==== hgrid.gr3/vgrid.in is obtained from the schism_verification_test website =====
 % =============================================================== 
-%% Load the mesh grid (Change current folder first)
+%% Load the mesh grid
 % This example will shows you to create the mesh object (Mobj) directly
 % from an existed hgrid.gr3 file.
 clc;clearvars
