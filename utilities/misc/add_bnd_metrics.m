@@ -1,5 +1,5 @@
 function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes)
-% Add ocean/land/island boundary info.
+% Add open/land/island boundary info.
 %
 %% Syntax
 %
@@ -11,12 +11,10 @@ function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes)
 % 
 %
 %% Input Arguments
-% AtmForc - atmospheric forcing; datastruct
-%       this datastruct stores atmospheric forcing data.
-% suffix_name - filename suffix; char
-%       suffix name of the NetCDF files (air/prc/rad).
+%
 %
 %% Output Arguments
+%
 %
 %% Notes
 % The outer boundaies (land/sea) should be aligned anti-clockwise while the
@@ -41,7 +39,7 @@ end
 
 % 2) arrange all boundaries in descending order based on the # of nodes
 % 3) trim redundant lines that are all zeros
-% 4) ensure all boundary nodes are aligned anti-clockwise
+% 4) ensure directions of all boundary nodes are correct
 obc_nodes = trim_bnd_nodes(Mobj, obc_nodes, 'open');
 land_nodes = trim_bnd_nodes(Mobj, land_nodes, 'land');
 island_nodes = trim_bnd_nodes(Mobj, island_nodes, 'island');
@@ -77,7 +75,7 @@ function bnd_nodes = trim_bnd_nodes(Mobj, bnd_nodes, bnd_str)
 % This function has three goals:
 % 1) arrange all boundaries in descending order based on the # of nodes
 % 2) trim redundant lines that are all zeros
-% 3) ensure all boundary nodes are placed anti-clockwise
+% 3) ensure directions of all boundary nodes are correct
 
 max_len = max(sum(bnd_nodes~=0,1));
 bnd_nodes = bnd_nodes(1:max_len,:);
