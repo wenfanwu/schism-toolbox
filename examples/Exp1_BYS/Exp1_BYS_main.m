@@ -1,11 +1,11 @@
 %% This program is an EXAMPLE (Exp1_BYS) in the schism-toolbox
 %% Tested platform: Matlab 2024a (Windows)
 %% Matlab add-on: Image Processing Toolbox; Mapping Toolbox
-%% Public package:OceanMesh2D
+%% Public package: OceanMesh2D
 %% Model verision: SCHISM v5.10
 %% Author: Wenfan Wu, CCRM, Virginia Institute of Marine Science. 2024
 % ================================================================
-% ====== This is a purely hydrological simulation on the lgeographic coordinate =====
+% ====== This is a purely hydrological simulation on geographic coordinate =======
 % ================ in the Bohai and Yellow Seas (BYS) ====================
 % ================================================================
 %% Step-1: Load the mesh grid

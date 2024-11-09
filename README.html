@@ -1269,12 +1269,12 @@ pre[class*="language-"] {
 <br>
 
 <h2 class="atx" id="workflow">Workflow</h2>
-<p>The following steps show a complete workflow to prepare input files with this toolbox. Refer to the first example (<font color="green"><strong>Exp1_BYS_main.m</strong></font>) in this toolbox for more details.</p>
+<p>The following steps show a complete workflow to prepare input files with this toolbox. Refer to the first example (<font color="green"><strong>Exp1_BYS_main.m</strong></font>) in the toolbox for more details.</p>
 <h3 class="atx" id="step-1-load-the-mesh-grid">Step-1: Load the mesh grid</h3>
-<p>This part aims to load the mesh grid created by OceanMesh2D or SMS, and then all the grid info. will be stored in a datastruct named '<strong>Mobj</strong>' (see <a href="mesh_object.png"><strong>mesh_object.png</strong></a> for more details).</p>
+<p>This part aims to load the mesh grid created by OceanMesh2D or SMS, and then all the grid info. will be stored in a datastruct named '<strong>Mobj</strong>' (see <a href="mesh_object.png"><strong>mesh_object.png</strong></a>).</p>
 <pre><code class="fenced-code-block language-matlab">clc<span class="token punctuation">;</span>clearvars
 <span class="token comment">% options-1: load mesh grid from OceanMesh2D</span>
-mesh_file <span class="token operator">=</span> <span class="token string">'Exp1_BYS\inputs\BYS_20814.mat'</span><span class="token punctuation">;</span> <span class="token comment">% NEED TO BE CHANGED</span>
+<span class="token comment">% mesh_file = 'Exp1_BYS\inputs\BYS_20814.mat'; % NEED TO BE CHANGED</span>
 
 <span class="token comment">% option-2: load mesh grid from SMS</span>
 mesh_file <span class="token operator">=</span> <span class="token string">'Exp1_BYS\inputs\BYS_20814.2dm'</span><span class="token punctuation">;</span> <span class="token comment">% NEED TO BE CHANGED</span>
@@ -1357,9 +1357,9 @@ dep_nums <span class="token operator">=</span>  <span class="token punctuation">
 Mobj <span class="token operator">=</span> <span class="token function">gen_schism_LSC2</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> dep_edges<span class="token punctuation">,</span> dep_nums<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">4</span> <span class="token number">5</span> <span class="token number">3</span> <span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">0.25</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 <span class="token comment">% option-2: SZ coordinates</span>
-s_consts <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">0.7</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
-zcors <span class="token operator">=</span> <span class="token number">20</span><span class="token operator">:</span><span class="token number">2</span><span class="token operator">:</span><span class="token punctuation">(</span><span class="token function">fix</span><span class="token punctuation">(</span><span class="token function">max</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span>depth<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-Mobj <span class="token operator">=</span> <span class="token function">gen_schism_SZ</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> s_consts<span class="token punctuation">,</span> zcors<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">% s_consts = [10, 0.7, 5, 20];</span>
+<span class="token comment">% zcors = 20:2:(fix(max(Mobj.depth))+10);</span>
+<span class="token comment">% Mobj = gen_schism_SZ(Mobj, s_consts, zcors);</span>
 
 <span class="token comment">% check the quality of vertical grids</span>
 <span class="token comment">% draw a line on the map and press ENTER</span>
@@ -1376,7 +1376,7 @@ sect_info <span class="token operator">=</span> <span class="token function">def
 <blockquote>
 <p>Draw a line on the map and press <strong>ENTER</strong>, this part will visualize the vertical layers of selected transect. </p>
 <p>The format of vgrid.in has changed since v5.10, and thus you need to specify the version number here (v5.10 or v5.9). v5.10 is the default.</p>
-<p>The function <span style="color:green;"><strong>def_schism_transect.m</strong></span> provides a variety of methods to define the transect (e.g. straight line, broken line, single points), see the usage of this function for more details.</p>
+<p><span style="color:green;"><strong>def_schism_transect.m</strong></span> provides a variety of methods to define the transect (e.g. straight line, broken line, single points), see the usage of this function for more details.</p>
 </blockquote>
 <p><img width="369" alt="图像1" src="imags/fig_5.1.png" title=""> <img width="367" alt="图像2" src="imags/fig_5.2.png" title=""></p>
 <p align="center"><strong>Figure 5</strong>. (left) The selected transect; (right) vertical layers along the transect.</p>
@@ -1558,7 +1558,7 @@ bdef_factor <span class="token operator">=</span> <span class="token function">z
 hdif <span class="token operator">=</span> <span class="token function">calc_schism_hdif</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token number">0.25</span><span class="token punctuation">,</span> <span class="token number">5e-5</span><span class="token punctuation">,</span> <span class="token string">'on'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token function">write_schism_gr3</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'hdif'</span><span class="token punctuation">,</span> hdif<span class="token punctuation">)</span></code></pre>
 <blockquote>
-<p>The function <span style="color:green;"><strong>write_schism_gr3.m</strong></span> makes it easy to generate all the input files ending in 'gr3'.</p>
+<p><span style="color:green;"><strong>write_schism_gr3.m</strong></span> makes it easy to generate all the input files ending in 'gr3'.</p>
 </blockquote>
 <br>
 
@@ -1571,7 +1571,7 @@ hdif <span class="token operator">=</span> <span class="token function">calc_sch
 flux_flags <span class="token operator">=</span> <span class="token function">def_schism_fluxflag</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token function">write_schism_prop</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'fluxflag'</span><span class="token punctuation">,</span> flux_flags<span class="token punctuation">)</span></code></pre>
 <blockquote>
-<p>The function <span style="color:green;"><strong>write_schism_prop.m</strong></span> makes it easy to generate all the input files ending in 'prop'.</p>
+<p><span style="color:green;"><strong>write_schism_prop.m</strong></span> makes it easy to generate all the input files ending in 'prop'.</p>
 </blockquote>
 <br>
 

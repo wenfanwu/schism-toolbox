@@ -30,16 +30,16 @@ More details can be found in the [**Changelog.md**](./Changelog.md) file.
 
 ## Workflow
 
-The following steps show a complete workflow to prepare input files with this toolbox. Refer to the first example (<font color="green">**Exp1_BYS_main.m**</font>) in this toolbox for more details.
+The following steps show a complete workflow to prepare input files with this toolbox. Refer to the first example (<font color="green">**Exp1_BYS_main.m**</font>) in the toolbox for more details.
 
 ### Step-1: Load the mesh grid
 
-This part aims to load the mesh grid created by OceanMesh2D or SMS, and then all the grid info. will be stored in a datastruct named '**Mobj**' (see [**mesh_object.png**](mesh_object.png) for more details).
+This part aims to load the mesh grid created by OceanMesh2D or SMS, and then all the grid info. will be stored in a datastruct named '**Mobj**' (see [**mesh_object.png**](mesh_object.png)).
 
 ```matlab
 clc;clearvars
 % options-1: load mesh grid from OceanMesh2D
-mesh_file = 'Exp1_BYS\inputs\BYS_20814.mat'; % NEED TO BE CHANGED
+% mesh_file = 'Exp1_BYS\inputs\BYS_20814.mat'; % NEED TO BE CHANGED
 
 % option-2: load mesh grid from SMS
 mesh_file = 'Exp1_BYS\inputs\BYS_20814.2dm'; % NEED TO BE CHANGED
@@ -140,9 +140,9 @@ dep_nums =  [20 21 22 23 24 25 27 28];
 Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_nums, [4 5 3 5], 0.25);
 
 % option-2: SZ coordinates
-s_consts = [10, 0.7, 5, 20];
-zcors = 20:2:(fix(max(Mobj.depth))+10);
-Mobj = gen_schism_SZ(Mobj, s_consts, zcors);
+% s_consts = [10, 0.7, 5, 20];
+% zcors = 20:2:(fix(max(Mobj.depth))+10);
+% Mobj = gen_schism_SZ(Mobj, s_consts, zcors);
 
 % check the quality of vertical grids
 % draw a line on the map and press ENTER
@@ -162,7 +162,7 @@ write_schism_vgrid(Mobj, 'v5.10');
 > 
 > The format of vgrid.in has changed since v5.10, and thus you need to specify the version number here (v5.10 or v5.9). v5.10 is the default.
 > 
-> The function <span style="color:green;">**def_schism_transect.m**</span> provides a variety of methods to define the transect (e.g. straight line, broken line, single points), see the usage of this function for more details.
+> <span style="color:green;">**def_schism_transect.m**</span> provides a variety of methods to define the transect (e.g. straight line, broken line, single points), see the usage of this function for more details.
 
 <img title="" src="imags/fig_5.1.png" alt="图像1" width="369"> <img title="" src="imags/fig_5.2.png" alt="图像2" width="367">
 
@@ -371,7 +371,7 @@ hdif = calc_schism_hdif(Mobj, 0.25, 5e-5, 'on');
 write_schism_gr3(Mobj, 'hdif', hdif)
 ```
 
-> The function <span style="color:green;">**write_schism_gr3.m**</span> makes it easy to generate all the input files ending in 'gr3'.
+> <span style="color:green;">**write_schism_gr3.m**</span> makes it easy to generate all the input files ending in 'gr3'.
 
 <br>
 
@@ -388,7 +388,7 @@ flux_flags = def_schism_fluxflag(Mobj, 2);
 write_schism_prop(Mobj, 'fluxflag', flux_flags)
 ```
 
-> The function <span style="color:green;">**write_schism_prop.m**</span> makes it easy to generate all the input files ending in 'prop'.
+> <span style="color:green;">**write_schism_prop.m**</span> makes it easy to generate all the input files ending in 'prop'.
 
 <br>
 
