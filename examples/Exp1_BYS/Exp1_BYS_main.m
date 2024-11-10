@@ -264,7 +264,7 @@ write_schism_sflux(AtmForc, 'air', nFiles)
 %% Step-14: Boundary nudging (optional)
 % define a boundary nuding zone (90-km width)
 % 20 km is the width of max-nudging zone adjacent to the boundary
-[nudge_factor, nudge_nodes] = calc_schism_nudge(Mobj, [20, 90, 4e-5], 'on');
+[nudge_factor, nudge_nodes] = calc_schism_nudge(Mobj, [20, 90, 4e-5], 'all', 'on');
 
 nudge_time = Mobj.time(1):Mobj.time(end); % daily inputs
 D.time = seconds(nudge_time-nudge_time(1));
