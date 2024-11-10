@@ -87,11 +87,11 @@ nNodes_obc= sum(obc_lens);
 ind_cut = 3+nNodes+nElems+nNodes_obc+obc_counts+2; % land boundary part begins from this line
 hgrid_str = double(split(string(D{ind_cut})));
 
-land_counts = hgrid_str(1);
-land_lens = nan(1, land_counts);
-bdry_flags = nan(1, land_counts);
-all_land_nodes = [];
-for ii = 1:land_counts
+land_island_counts = hgrid_str(1);
+land_island_lens = nan(1, land_island_counts);
+bdry_flags = nan(1, land_island_counts);
+land_island_nodes = [];
+for ii = 1:land_island_counts
     switch ii
         case 1
             begind = ind_cut+2;
@@ -105,14 +105,14 @@ for ii = 1:land_counts
 
     ind_nodes = begind+1:begind+N;
     tmp_nodes = double(string(D(ind_nodes)));
-    all_land_nodes = wisecat(all_land_nodes, tmp_nodes(:));
+    land_island_nodes = wisecat(land_island_nodes, tmp_nodes(:));
 
-    land_lens(ii) = N;
+    land_island_lens(ii) = N;
 end
 
 ind_island = logical(bdry_flags);
-land_nodes = all_land_nodes(:, ~ind_island);
-island_nodes = all_land_nodes(:, ind_island);
+land_nodes = land_island_nodes(:, ~ind_island);
+island_nodes = land_island_nodes(:, ind_island);
 
 max_len = max(sum(land_nodes~=0,1));
 land_nodes = land_nodes(1:max_len,:);
@@ -124,17 +124,18 @@ Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes);
 end
 
 function C = wisecat(A, B, maxLen, padval)
+
 B = B(:); 
 if dimnum(A) == 1
     A = A(:);
 end
 if nargin < 3
-    maxLen = max([length(A), length(B)]);
+    maxLen = max([size(A,1), size(B,1)]);
 end
 if nargin < 4
     padval = 0;
 end
-C = [padarray(A, [maxLen-length(A) 0], padval, 'post') padarray(B,[maxLen-length(B) 0], padval, 'post')];
+C = [padarray(A, [maxLen-size(A,1) 0], padval, 'post') padarray(B, [maxLen-size(B,1) 0], padval, 'post')];
 end
 
 % function Mobj = get_obc_elems(Mobj)
