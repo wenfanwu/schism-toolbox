@@ -162,7 +162,7 @@ write_schism_vgrid(Mobj, 'v5.10');
 > 
 > The format of vgrid.in has changed since v5.10, and thus you need to specify the version number here (v5.10 or v5.9). v5.10 is the default.
 > 
-> <span style="color:green;">**def_schism_transect.m**</span> provides a variety of methods to define the transect (e.g. straight line, broken line, single points), see the usage of this function for more details.
+> <span style="color:green;">**def_schism_transect.m**</span> provides a variety of methods to define the transect (e.g., straight line, broken line, single points), see the usage of this function for more details.
 
 <img title="" src="imags/fig_5.1.png" alt="图像1" width="369"> <img title="" src="imags/fig_5.2.png" alt="图像2" width="367">
 
@@ -246,7 +246,7 @@ Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);
 
 ### Step-8: Boundary Conditions
 
-This part aims to prepare the boundary inputs (e.g. elev2d.th.nc and TEM_3D.th.nc).
+This part aims to prepare the boundary inputs (e.g., elev2d.th.nc and TEM_3D.th.nc).
 
 ```matlab
 % option-1: prepare real-time boundary inputs using hycom data.
@@ -287,7 +287,7 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
 
 ### Step-9: Tidal forcing
 
-This part aims to implement tidal forcing at the open boundary (e.g. bctides.in).
+This part aims to implement tidal forcing at the open boundary (e.g., bctides.in).
 
 ```matlab
 % extract tidal forcing
@@ -421,7 +421,7 @@ This part aims to prepare boundary nudging files (e.g., TEM/SAL_nu.nc).
 ```matlab
 % define a boundary nuding zone (90-km width)
 % 20 km is the width of max-nudging zone adjacent to the boundary
-[nudge_factor, nudge_nodes] = calc_schism_nudge(Mobj, [20, 90, 4e-5], 'on');
+[nudge_factor, nudge_nodes] = calc_schism_nudge(Mobj, [20, 90, 4e-5], 'all', 'on');
 
 nudge_time = Mobj.time(1):Mobj.time(end); % daily inputs
 D.time = seconds(nudge_time-nudge_time(1));
