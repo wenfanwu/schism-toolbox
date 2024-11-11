@@ -419,7 +419,7 @@ write_schism_sflux(AtmForc, 'air', nFiles)
 This part aims to prepare boundary nudging files (e.g., TEM/SAL_nu.nc).
 
 ```matlab
-% define a boundary nuding zone (90-km width)
+% define boundary nudging zones (90-km width) for all open boundaries
 % 20 km is the width of max-nudging zone adjacent to the boundary
 [nudge_factor, nudge_nodes] = calc_schism_nudge(Mobj, [20, 90, 4e-5], 'all', 'on');
 
