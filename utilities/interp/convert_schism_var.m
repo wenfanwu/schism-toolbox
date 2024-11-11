@@ -2,29 +2,45 @@ function varNew = convert_schism_var(Mobj, varRaw, conv_str)
 % Convert variables between different mesh centeres
 %
 %% Syntax
-%
+% varNew = convert_schism_var(Mobj, varRaw, conv_str)
 %
 %% Description
-%
+% varNew = convert_schism_var(Mobj, varRaw, conv_str)
 %
 %% Examples 
-% 
+% varRaw = Mobj.depth;
+% varNew = convert_schism_var(Mobj, varRaw, 'node2elem');
 %
 %% Input Arguments
-%
+% Mobj - mehs object; datastruct
+%       this datastruct contains mesh info.
+% varRaw - raw variable data; double
+%       raw variable data @node/element/edge.
+% conv_str - conversion string; char
+%       conv_str determines the interpolation direction, six different
+%       methods are provided now:
+%       1) 'node2elem': interpolate from nodes to elements
+%       2) 'elem2elem': interpolate from elements to nodes
+%       3) 'node2edge': interpolate from nodes to edges/sides
+%       4) 'edge2node': interpolate from edges to nodes
+%       5) 'elem2edge': interpolate from elements to edges (not work yet)
+%       6) 'edge2elem': interpolate from edges to elements (not work yet)
 %
 %% Output Arguments
+% varNew - new variable data; double
+%       new variable data on required mesh centers.
 %
 %% Notes
 % The function was generated with the help of ChatGPT
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2024. 
-% Last Updated on 24 Oct 2024. 
+% Last Updated on 11 Nov 2024. 
 % Email: wwu@vims.edu
 % 
 % See also: 
 
+%% Parse inputs
 switch lower(conv_str)
     case 'node2elem'  % Arithmetic mean at the vertices
         varNew = nan(Mobj.nElems, 1);
@@ -56,8 +72,9 @@ switch lower(conv_str)
         varNew = varNew./total_weight;
 
     case {'elem2side', 'elem2edge'}
-
+        error('not work yet!')
     case {'side2elem', 'edge2elem'}
+        error('not work yet!')
 end
 
 end
