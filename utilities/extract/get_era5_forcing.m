@@ -226,7 +226,17 @@ short_name = nc_vars{ind_var};
 
 end
 
+function q = calc_shum(d2m, sp)
+% calculate the specific humidify
 
+%% Parse inputs
+% calculate the vapor pressure
+e = 6.11.*10.^(7.5.*d2m./(237.7+d2m));
+
+% calculate the specific humidity
+q = 0.622.*e./(sp-0.378.*e);
+
+end
 
 
 
