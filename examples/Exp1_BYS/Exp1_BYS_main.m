@@ -82,7 +82,7 @@ write_schism_vgrid(Mobj, 'v5.10');
 
 % load the source_sink.mat existed in the aimpath; change the 'load' to
 % 'rebuild' to select your own source/sink elements if needed.
-SS = def_schism_source(Mobj, [1 0], 'rebuild', 'on');  
+SS = def_schism_source(Mobj, [1 0], 'rebuild', 'on');   % select Yellow River Mouth here
 river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
 
 river_info = add_river_runoff(river_info, Mobj.time, 'real_time');

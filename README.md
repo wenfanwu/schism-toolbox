@@ -47,7 +47,7 @@ mesh_file = 'Exp1_BYS\inputs\BYS_20814.2dm'; % NEED TO BE CHANGED
 Mobj = mesh2schism(mesh_file); 
 Mobj.expname = 'Exp1_BYS';      
 Mobj.time = (datetime(2020,6,1):hours(1):datetime(2020,6,10))'; 
-Mobj.rundays = days(Mobj.time(end)-Mobj.time(1)+1); 
+Mobj.rundays = days(Mobj.time(end)-Mobj.time(1)); 
 Mobj.dt = 150;  % dt (secs), the same as in param.nml
 Mobj.coord = 'geographic';  % geographic or Cartesian coordinate
 ```
@@ -175,7 +175,7 @@ write_schism_vgrid(Mobj, 'v5.10');
 This part aims to add river inputs in the form of element sources (e.g., source.nc).
 
 ```matlab
-SS = def_schism_source(Mobj, [1 0], 'rebuild', 'on');
+SS = def_schism_source(Mobj, [1 0], 'rebuild', 'on'); % select Yellow River Mouth here
 river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
 
 river_info = add_river_runoff(river_info, Mobj.time, 'real_time');
