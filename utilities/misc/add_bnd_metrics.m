@@ -53,6 +53,7 @@ ind_btm = sub2ind(size(island_nodes), sum(island_nodes~=0, 1), 1:size(island_nod
 if sum(island_nodes(1,:) ~= island_nodes(ind_btm))==0
     disp('removed ending points of islands, since all islands start/end at the same node')
     island_nodes(ind_btm) = 0;
+	island_nodes(end, :) = [];
 end
 
 % make sure each island loop is aligned clockwise
@@ -184,7 +185,7 @@ bnd_nodes = bnd_nodes(1:max_len,:);
 
 bnd_lens = sum(bnd_nodes~=0,1);
 [~, ind_sorted] = sort(bnd_lens, 'descend');
-bnd_nodes = bnd_nodes(:, ind_sorted); % sort by the # of loop lens
+bnd_nodes = double(bnd_nodes(:, ind_sorted)); % sort by the # of loop lens
 
 end
 

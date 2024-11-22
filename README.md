@@ -100,7 +100,7 @@ This part aims to check the inverse CFL constraints and hydrostatic assumption.
 % check the invese CFL constraints
 check_schism_metrics(Mobj);
 
-% display the Max. acceptable resolutions as a function of water depth 
+% display the theoretical coarsest resolutions as a function of water depth 
 calc_schism_CFL(Mobj)
 
 % check the hydrostatic assumption
@@ -119,7 +119,7 @@ check_schism_hydrostatic(Mobj);
   <img src="imags/fig_4.2.png" alt="image" width="400">
 </div>
 
-<p align="center"><strong>Figure 3</strong>. The Max. acceptable resolutions as a function of water depth .</p>
+<p align="center"><strong>Figure 3</strong>. The theoretical coarsest resolutions as a function of water depth .</p>
 
 <div align="center">
   <img src="imags/fig_4.3.png" alt="image" width="400">

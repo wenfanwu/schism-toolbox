@@ -53,6 +53,8 @@ if nargin<2
             sname = 'SMS';
         case '.mat'
             sname = 'OceanMesh2D';
+		otherwise
+            error('unrecognized mesh file!')
     end
 end
 %% Load mesh
@@ -64,8 +66,7 @@ switch lower(sname)
         disp('read mesh info from mat file created by OceanMesh2D')
         Mobj = read_mat_info(mesh_file);
     otherwise
-        warning on
-        warning('unrecognized data type!')
+        error('unrecognized software name!')
 end
 
 end
