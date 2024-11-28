@@ -2,10 +2,10 @@ function skn = calc_schism_skew(Mobj)
 % Calculate the skewness (0-1) of each cell
 %
 %% Syntax
-% skn = calc_schism_angles(Mobj)
+% skn = calc_schism_skew(Mobj)
 %
 %% Description
-% skn = calc_schism_angles(Mobj) calculates the skewness of each cell
+% skn = calc_schism_skew(Mobj) calculates the skewness of each cell
 %
 %% Examples
 % skn = calc_schism_skew(Mobj);
@@ -22,7 +22,7 @@ function skn = calc_schism_skew(Mobj)
 %% Output Arguments
 % skn - skewness; double
 %       the skewness (0-1) of each cell. For triangular/quadrangular cell,
-%       skewness is defined as its deviation toequilateral-triangle/rectangle, 
+%       skewness is defined as its deviation to equilateral-triangle/rectangle, 
 %       skn = 0 for equilateral-triangle or rectangle.  
 %       the formula is given below: 
 %       skn_tri = sqrt(((A/60-1)^2 + (B/60-1)^2 + (C/60-1)^2)/3)/sqrt(2)

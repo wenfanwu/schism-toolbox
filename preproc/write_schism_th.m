@@ -1,55 +1,62 @@
-function write_schism_th(Mobj, suffixName, varMatrix, time_steps)
-% 
-% 
-%% Syntax
-% 
+function write_schism_th(Mobj, prefix_name, varRaw, timeRaw)
+% Write *.th file for SCHISM
 %
-%% Description 
-% 
+%% Syntax 
+% write_schism_th(Mobj, prefix_name, varRaw, timeRaw)
 %
-%% Examples
-%
+%% Description
+% write_schism_th(Mobj, prefix_name, varRaw, timeRaw) writes a
+%       <prefix_name>.th file for SCHISM
 %
 %% Input Arguments
-%
-%
-%% Output Arguments
-% 
+% Mobj - mesh object; datastruct
+%       a datastruct containing the mesh info.
+% prefix_name - file prefix name
+%       prefix name of the th file. e.g., prefix_name = 'elev'.
+% varRaw - raw data; double
+%       2D data matrix (nt*nps) to be written.
+% timeRaw - time vector; datetime
+%       the corresponding time vector (datetime format).
 % 
 %% Notes
-%
+% this function can be used to generate elev.th, flux.th, TEM_1.th,
+% SAL_1.th etc; time interval of 'timeRaw' must be greater than 'Mobj.dt' 
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2022. 
-% Last Updated on 2022-06-06.
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu,Virginia Institute of Marine Science in 2022. 
+% Last Updated on 27 Nov 2024. 
+% Email: wwu@vims.edu
 % 
-% See also: 
+% See also: write_schism_th_nc.m
 
 %% Parse inputs
-% This includes elev.th, flux.th, TEM_1.th, SAL_1.th etc
-% varMatrix (nTimes*nNodes)
-% the time interval of the provided 'timeSteps' must be larger than Mobj.dt
-
-%%
-if isnan(sum(varMatrix(:)))
-    error('NaN values were mixed into varMatrix, please check!')
+if isnan(sum(varRaw(:)))
+    error('NaNs were found in the data, please check!')
+end
+timeRaw = timeRaw(:);
+if size(varRaw,1) ~= numel(timeRaw)
+    varRaw = varRaw';
 end
 
-if size(varMatrix,1) ~= length(time_steps)
-    varMatrix = varMatrix';
+if size(varRaw,1) ~= numel(timeRaw)
+    error('time vector is inconsistent with the data matrix!')
 end
 
-varNew = multi_interp1(time_steps, varMatrix, Mobj.time, 1);
-timeTicks = seconds(Mobj.time - Mobj.time(1));
+nt = size(varRaw,1);  % # of time steps
+nps = size(varRaw, 2);  % # of points
 
-fileName = [Mobj.aimpath, suffixName, '.th'];
-fid = fopen(fileName,'wt');
-formatStr = ['%d.', repmat('% 11.3f', 1, size(varNew,2)), '\n'];
-for iTime = 1:length(timeTicks)
-    progressbar(iTime/length(timeTicks))
-    fprintf(fid, formatStr, timeTicks(iTime), varNew(iTime,:));
+time_steps = seconds(timeRaw-timeRaw(1));
+if min(diff(time_steps))<Mobj.dt
+    error(['the time interval should be greater than ', num2str(Mobj.dt)])
 end
+%% BEGIN TO WRITE
+filepath = [Mobj.aimpath, prefix_name, '.th'];
+fid = fopen(filepath,'wt');
+format_str = repmat(['%d.', repmat('% 11.3f', [1, nps]), '\n'], [1, nt]);
+varData = cat(2, time_steps(:), varRaw)';
+fprintf(fid, format_str, varData(:));
 fclose(fid);
-disp([suffixName, '.th has been created successfully!'])
+
+disp([prefix_name, '.th has been created successfully!'])
 end
+
