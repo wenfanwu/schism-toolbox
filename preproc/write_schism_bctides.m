@@ -34,9 +34,9 @@ function write_schism_bctides(Mobj, TideForc, bc_flags)
 %       elev_flag=[3,5]: elev_amp, elev_pha; 
 %
 %       uv_flag=2: const_flow; 
-%       uv_flag=-4: const_inflow; const_outflow; 
+%       uv_flag=-4: nf_inflow; nf_outflow; 
 %       uv_flag=[3,5]: u_amp; v_amp; u_pha: v_pha
-%       uv_flag=-1: eta_mean; vn_mean
+%       uv_flag=-1: eta_mean; vn_mean (maxLev*nNodes_obc)
 %
 %       nf_[mod]=[1,3,4]: nf_temp; nf_salt; nf_[mod]
 %       nf_[mod] is of m*n, m means the # of open boundaries, n means the #
@@ -203,15 +203,17 @@ for iSeg = 1: Mobj.obc_counts
         case -4
             disp(['the velocity at boundary (#',num2str(iSeg),') is forced by uv3D.th.nc (with nudging)'])
             % relaxation constants for inflow and outflow (between 0 and 1 with 1 being strongest nudging)
-            fprintf(fid, '%5.3f %5.3f\n', TideForc.const_inflow(iSeg), TideForc.const_outflow(iSeg));
-        case -1 % NOT work yet
-            disp('Flanther type radiation b.c. (iettype must be 0 in this case)')
+            fprintf(fid, '%3.2f %3.2f\n', TideForc.nf_inflow(iSeg), TideForc.nf_outflow(iSeg));
+        case -1
+            disp('Flather type radiation b.c. (iettype must be 0 in this case)')
             if elev_flag ~= 0
                 error('elev_flag must be zero for Flanther radiation case!')
             end
-            fprintf(fid, '%d\n', TideForc.eta_mean(iSeg));  % mean elev at each node
-            for ii = 1:Mobj.obc_lens(iSeg) 
-                fprintf(fid, '%d\n', TideForc.vn_mean(iSeg));  % mean normal velocity at the node (at all levels)
+            fprintf(fid, '%5.3f\n', TideForc.eta_mean(iSeg));  % mean elev at each node
+            for iNodes = ind_nodes(:)'
+                vn_mean = TideForc.vn_mean(:, iNodes);
+                vn_mean(isnan(vn_mean)) = []; vn_mean = vn_mean(:)';
+                fprintf(fid, [repmat('%5.3f ', 1, size(vn_mean,2)), '\n'], vn_mean);  % mean normal velocity at the node (at all levels)
             end
     end
     % ====================== Tracer PART ===========================
@@ -269,17 +271,17 @@ switch mod_flag
         disp([tracer_mod_name, ' at boundary (#', num2str(iSeg),') is not specified'])
     case 1
         disp([tracer_mod_name, ' at boundary (#', num2str(iSeg),') is forced by *.th'])
-        fprintf(fid, [repmat('%d ', 1, size(nf_mod,2)), '\n'], nf_mod(iSeg,:));  % nudging factor (between 0 and 1 with 1 being strongest nudging) for inflow
+        fprintf(fid, [repmat('%3.2f ', 1, size(nf_mod,2)), '\n'], nf_mod(iSeg,:));  % nudging factor (between 0 and 1 with 1 being strongest nudging) for inflow
     case 2
         
         disp([tracer_mod_name, ' at boundary (#', num2str(iSeg),') is forced by a constant value'])
         fprintf(fid, [repmat('%5.3f ', 1, size(const_mod,2)), '\n'], const_mod(iSeg,:));
     case 3
         disp([tracer_mod_name, ' at boundary (#', num2str(iSeg),') is forced by initial profile'])
-        fprintf(fid, [repmat('%d ', 1, size(nf_mod,2)), '\n'], nf_mod(iSeg,:));
+        fprintf(fid, [repmat('%3.2f ', 1, size(nf_mod,2)), '\n'], nf_mod(iSeg,:));
     case 4
         disp([tracer_mod_name, ' at boundary (#', num2str(iSeg),') is forced by *._3D.th.nc'])
-        fprintf(fid, [repmat('%d ', 1, size(nf_mod,2)), '\n'], nf_mod(iSeg,:));
+        fprintf(fid, [repmat('%3.2f ', 1, size(nf_mod,2)), '\n'], nf_mod(iSeg,:));
 end
 end
 
