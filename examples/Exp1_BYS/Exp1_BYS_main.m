@@ -173,13 +173,11 @@ for ii = 2:numel(field_list)
     TideForc.(tide_var) = fillmissing(TideForc.(tide_var), 'previous', 1);
 end
 
-TideForc = add_nodal_factors(Mobj, TideForc);
 TideForc.cutoff_depth = 10;
-
-bc_flags = [5 5 4 4];
 TideForc.nf_temp = 0.8;
 TideForc.nf_salt = 0.8;
 
+bc_flags = [5 5 4 4];
 write_schism_bctides(Mobj, TideForc, bc_flags)
 %% Step-10: Bottom friction
 % Type-1: roughness

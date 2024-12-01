@@ -48,4 +48,22 @@ disp_schism_vgrid(Mobj, sect_info)
 % the resulting figures (CORIE_transect_location.png and
 % CORIE_vertical_layers.png) can be found in the working path. 
 
+%% Tide Forcing (bctides.in)
+tideList = {'S2','M2','N2','K2', 'K1','P1','O1','Q1'};
+TideForc = get_fes2014_tide(Mobj, tideList);    % Global dataset
+
+field_list = fieldnames(TideForc);
+for ii = 1:numel(field_list)
+    tide_var = field_list{ii};
+    TideForc.(tide_var) = fillmissing(TideForc.(tide_var), 'previous', 1);
+end
+
+TideForc.cutoff_depth = 30;
+TideForc.nf_temp = [0.8 0.6 0.6 0.6];
+TideForc.nf_salt = [0.8 0.6 0.6 0.6];
+TideForc.const_flow = [0 100 100 100]; 
+
+bc_flags = [5 5 4 4; 0 2 4 4; 0 2 4 4; 0 2 4 4];  % for multiple open boundaries (the last three are river boundaries)
+write_schism_bctides(Mobj, TideForc, bc_flags)
+
 %% END

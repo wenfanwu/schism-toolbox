@@ -1,22 +1,22 @@
-function write_schism_th_nc(Mobj, prefix_name, BdryCnd)
+function write_schism_th_nc(Mobj, BdryCnd, prefix_name)
 % Write *.th_nc files for SCHISM
 % 
 %% Syntax
-% write_schism_th_nc(Mobj, prefix_name, BdryCnd)
+% write_schism_th_nc(Mobj, BdryCnd, prefix_name)
 %
 %% Description 
-% write_schism_th_nc(Mobj, prefix_name, BdryCnd) creates prefix_name.th.nc
+% write_schism_th_nc(Mobj, BdryCnd, prefix_name) creates prefix_name.th.nc
 % file as boudary inputs.
 %
 %% Examples
-% write_schism_th_nc(Mobj, 'elev2D', BdryCnd)
-% write_schism_th_nc(Mobj, 'COS_3D', BdryCnd)
+% write_schism_th_nc(Mobj, BdryCnd, 'elev2D')
+% write_schism_th_nc(Mobj, BdryCnd, 'COS_3D')
 % 
 %% Input Arguments
 % Mobj --- the mesh object
+% BdryCnd --- the datastruct that contains boundary data.
 % prefix_name --- prefix name for the th.nc file, e.g. elev2D, uv3D,
 % TEM_3D, COS_3D.
-% BdryCnd --- the datastruct that contains boundary data.
 % 
 %% Output Arguments
 % None

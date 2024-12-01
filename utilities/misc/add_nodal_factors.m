@@ -49,7 +49,7 @@ phs = (mean(U)+V(1,:))'*360;  % This is the average nodal correction + astronomi
 while any(phs < 0)
     phs(phs<0) = phs(phs<0) + 360;
 end
-TideForc.nf = F;
+TideForc.nodal_factor = F;
 TideForc.eq_arg = phs;
 
 end

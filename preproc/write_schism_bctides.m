@@ -1,5 +1,5 @@
 function write_schism_bctides(Mobj, TideForc, bc_flags)
-% Write the vgrid.in file for SCHISM.
+% Write the bctides.in file for SCHISM.
 % 
 %% Syntax
 % write_schism_bctides(Mobj, TideForc, bc_flags)
@@ -8,233 +8,278 @@ function write_schism_bctides(Mobj, TideForc, bc_flags)
 % write_schism_bctides(Mobj, TideForc, bc_flags) creates bctide.in file
 %
 %% Examples
-% tideList = {'S2','M2','N2','K2', 'K1','P1','O1','Q1'};
-% TideForc = get_fes2014_tide(Mobj, tideList);   
+% tide_list = {'S2','M2','N2','K2', 'K1','P1','O1','Q1'};
+% TideForc = get_fes2014_tide(Mobj, tide_list);   
 % write_schism_bctides(Mobj, TideForc, [5 5 4 4])
 %
 %% Input Arguments
-% Mobj --- the mesh object
-% TideForc --- datastruct containing the tidal forcing data, which can be
-% obtained from the 'get_fes2014_tide.m' function.
-% bc_flags --- open boundary types specified for different tracers. 
+% Mobj - mesh object; datastruct
+%       the datastruct containing mesh info.
+% TideForc - tidal forcing; datastruct
+%       the datastruct containing tidal forcing data, which can be obtained
+%       from the 'get_fes2014_tide.m' function. 
+% bc_flags - boundary condition flags; double
+%       the open boundary types specified for different tracers. bc_flags
+%       is of M*N, where M is the # of open boundaries. M can be 1 in any
+%       cases, meaning that the treatments of all tracers are identical on
+%       all boundaries. In this way, you can specify different flags for
+%       different boundaries. N indicates the # of activated tracer
+%       modules, and N should be at least 4 (for purely hydrodynamic case).
 %
-%% Output Arguments
-% None
-% 
+% required fields in TideForc:
+%       mandatory: tide_list; cutoff_depth (tide_list = {} means nTides=0, viz. no tidal forcing)
+%       nTides~=0: nodal_factor; eq_arg;  
+%
+%       elev_flag=2: const_elev;  
+%       elev_flag=[3,5]: elev_amp, elev_pha; 
+%
+%       uv_flag=2: const_flow; 
+%       uv_flag=-4: const_inflow; const_outflow; 
+%       uv_flag=[3,5]: u_amp; v_amp; u_pha: v_pha
+%       uv_flag=-1: eta_mean; vn_mean
+%
+%       nf_[mod]=[1,3,4]: nf_temp; nf_salt; nf_[mod]
+%       nf_[mod] is of m*n, m means the # of open boundaries, n means the #
+%       of tracers in the same module, since the # of tracers is greater
+%       than 1 for some modules.
+%
 %% Notes
 % The dimension of 'bc_flags' is M*N, where M depends on the activated
 % tracer modules, and M should be at least 4 (purely hydrodynamic case). N
 % is the # of open boundaries. N can be 1 in any cases, meaning that the
 % treatments of all boundary variables are identical on all boundaries.
-% Instead, you can define different flags for different boundaries.
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2023. 
-% Last Updated on 2023-11-24.
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
+% Last Updated on 30 Nov 2024.
+% Email: wwu@vims.edu
 % 
 % See also: add_nodal_factors and get_fes2014_tide
 
 %% Parse inputs
+if isscalar(find(size(bc_flags)~=1))
+    bc_flags = repmat(bc_flags(:)', [Mobj.obc_counts,1]);
+end
+
 if size(bc_flags,1)~=1 && size(bc_flags,1)~=Mobj.obc_counts
-    error('The # of B.C. segments does not correspond to the second dimension of bc_flags')
+    error('the # of open boundary segments does not match bc_flags!')
+end
+if size(bc_flags, 2)<4
+    error('the 2nd dimension of bc_flags cannot be less than 4!')
+end
+
+if ~isfield(TideForc, 'cutoff_depth')
+    error('cutoff_depth is not available!')
+end
+%% Prepare tide info.
+tide_list = TideForc.tide_list;
+nTides = length(tide_list);
+
+if nTides~=0
+    load('tide_fac_constants.mat', 'const');
+    tide_pool = cellstr(strtrim(string(const.name)));
+
+    tide_types = nan(nTides,1);
+    tide_amps = nan(nTides,1);
+    tide_freqs = nan(nTides,1);
+    for iTide = 1:nTides
+        tide_name = strtrim(tide_list{iTide});
+        ind_tide = find(strcmpi(tide_pool, tide_name));
+
+        tide_types(iTide) = const.doodson(ind_tide,1);
+        tide_amps(iTide) = const.potentialamp(ind_tide);
+        tide_freqs(iTide) = const.freq(ind_tide)/3600*2*pi;  % rad/s
+    end
+
+    TideForc = add_nodal_factors(Mobj, TideForc);
+
+    nodal_factor = TideForc.nodal_factor;
+    eq_arg = TideForc.eq_arg;
 end
 
 used_mods = check_tracer_module(Mobj);
-%% Define some default values
-if isfield(TideForc, 'cutoff_depth')
-    cutoff_depth = TideForc.cutoff_depth;
-else
-    cutoff_depth = -20;
+%% Write tide data
+head_line = datestr(Mobj.time(1), 'mm/dd/yyyy HH:MM:SS UTC'); %#ok<*DATST>
+
+filepath = [Mobj.aimpath, 'bctides.in'];
+fid = fopen(filepath,'wt');
+fprintf(fid, [head_line, '\n']);
+
+% earth tidal potential and cut-off depth
+fprintf(fid, '%d %d.  !# of tidal potential and cut-off depths\n', nTides, TideForc.cutoff_depth);
+
+for iTide = 1:nTides
+    % tidal constituent name
+    fprintf(fid, [tide_list{iTide}, '\n']);
+    % tidal species # (0: declinational; 1: diurnal; 2: semi-diurnal), amplitude constants, angular frequency, nodal factor, earth equilibrium argument (in degrees);
+    fprintf(fid, '%d% 8.6f% 12.6e% 8.5f% 9.5f\n', tide_types(iTide), tide_amps(iTide), tide_freqs(iTide), nodal_factor(iTide), eq_arg(iTide));
 end
 
-tideList = TideForc.tide_list;
-tideNums = length(tideList);
-tideNumsPot = tideNums;
+% total # of tidal boundary forcing frequencies
+fprintf(fid, [num2str(nTides, '%d'), ' ! total # of tidal boundary forcing frequencies\n']);
 
-% this part needs improvement in the future
-tideTypes = [2 2 2 2 1 1 1 1];
-tideAmps = [0.112841 0.242334 0.046398 0.030704 0.141565 0.046843 0.100514 0.019256];
-tideFreqs = [0.145444E-03 0.140519E-03 0.137880E-03 0.145842E-03 0.729212E-04 0.725229E-04 0.675977E-04 0.649585E-04];
-
-nodalFactors = TideForc.nf;
-eqArg = TideForc.eq_arg;
-
-headLine = datestr(Mobj.time(1), 'mm/dd/yyyy HH:MM:SS UTC');
-
-fileName = [Mobj.aimpath, 'bctides.in'];
-fid = fopen(fileName,'wt');
-fprintf(fid, [headLine, '\n']);
-
-%% Begin to write
-% Earth tidal potential and Cut-off depth
-fprintf(fid, '%d %d.  !# of tidal potential and cut-off depths\n', tideNumsPot, cutoff_depth);
-if tideNumsPot ~= 0
-    for iTide = 1:tideNumsPot
-        fprintf(fid, [tideList{iTide}, '\n']);
-        fprintf(fid, '%d% 8.6f% 12.6e% 8.5f% 9.5f\n', tideTypes(iTide), tideAmps(iTide), tideFreqs(iTide),nodalFactors(iTide), eqArg(iTide));
-    end
+for iTide = 1:nTides
+    % tidal constituent name
+    fprintf(fid, [tide_list{iTide}, '\n']);
+    % angular frequency (rad/s), nodal factor, earth equilibrium argument (in degrees) for constituent
+    fprintf(fid, '%13.6e% 8.5f% 9.5f\n', tide_freqs(iTide), nodal_factor(iTide), eq_arg(iTide));
 end
-% Activated tidal consitituents
-fprintf(fid, [num2str(tideNums, '%d'), ' ! total # of tidal boundary forcing frequencies\n']);
-for iTide = 1:tideNums
-    fprintf(fid, [tideList{iTide}, '\n']);
-    fprintf(fid, '%13.6e% 8.5f% 9.5f\n', tideFreqs(iTide),nodalFactors(iTide), eqArg(iTide));
-end
-
-%% B.C for different boundary segments
-if size(bc_flags,1) ~= Mobj.obc_counts
-    bc_flags = repmat(bc_flags(:)', Mobj.obc_counts, 1);
-end
+%% Write B.C for different boundary segments
+% # of open boundary segments
 fprintf(fid, [num2str(Mobj.obc_counts, '%d'), '  ! # of open boundary segments\n']);
 
 for iSeg = 1: Mobj.obc_counts
-    fprintf(fid, [repmat('%d ', 1, size(bc_flags,2)+1), '\n'],  Mobj.obc_lens(iSeg), bc_flags(iSeg,:));
+    % # of nodes on the open boundary segment j (corresponding to hgrid.gr3), B.C. flags for elevation, velocity, 
+    % temperature, salinity, and (optionally) for each tracer module invoked (in the order of GEN, AGE, SED3D, EcoSim, ICM, CoSiNE, FIB, and TIMOR)   
+    fprintf(fid, [repmat('%d ', 1, size(bc_flags,2)+1), '! the #',num2str(iSeg), ' open boundary \n'],  Mobj.obc_lens(iSeg), bc_flags(iSeg,:));
    
     elev_flag = bc_flags(iSeg,1);
     uv_flag = bc_flags(iSeg, 2);
-    segNodes = Mobj.obc_nodes(1:Mobj.obc_lens(iSeg),iSeg);
-    indNodes = minfind(Mobj.obc_nodes_tot, segNodes);
+    seg_nodes = Mobj.obc_nodes(1:Mobj.obc_lens(iSeg), iSeg);
+    ind_nodes = minfind(Mobj.obc_nodes_tot, seg_nodes);
     % ====================== Elevation PART ===========================
     switch elev_flag
-        case 1
-            disp('time history of elevation is read in from elev.th (ASCII)')
+        case 0
+             disp(['the elevation at boundary (#',num2str(iSeg),') is not specified'])
+        case 1 
+            disp(['the elevation at boundary (#',num2str(iSeg),') is forced by elev.th (time history)'])
         case 2
-            fprintf(fid, '%9.5f\n', TideForc.const_elev);
+            disp(['the elevation at boundary (#',num2str(iSeg),') is forced by a constant elevation'])
+            fprintf(fid, '%9.5f\n', TideForc.const_elev(iSeg)); 
         case {3, 5}
-            for iTide = 1:tideNums
-                fprintf(fid, [lower(tideList{iTide}), '\n']);
-                indTide = find(contains(TideForc.tide_list, tideList{iTide}));
-                elev_amp = TideForc.elev_amp(:,indTide);
-                elev_pha = TideForc.elev_pha(:,indTide);
-                for iNodes = indNodes(:)'
+            if elev_flag==3
+                disp(['the elevation at boundary (#',num2str(iSeg),') is forced by tidal elevation'])
+            else
+                disp(['the elevation at boundary (#',num2str(iSeg),') is forced by elev2D.th.nc + tidal elevation'])
+            end
+            for iTide = 1:nTides
+                fprintf(fid, [lower(tide_list{iTide}), '\n']);
+                ind_tide = find(contains(TideForc.tide_list, tide_list{iTide}));
+                elev_amp = TideForc.elev_amp(:,ind_tide);
+                elev_pha = TideForc.elev_pha(:,ind_tide);
+                for iNodes = ind_nodes(:)'
                     fprintf(fid, '%8.6f% 10.6f\n', elev_amp(iNodes), elev_pha(iNodes));
                 end
             end
         case 4
-            disp('time history of elevation is read in from elev2D.th.nc')
+            disp(['the elevation at boundary (#',num2str(iSeg),') is forced by elev2D.th.nc'])
     end
     % ====================== Velocity PART ===========================
     switch uv_flag
         case 0
-            disp('B.C. velocity is not specified! No input is needed in the bctides.in')
+            if elev_flag==0
+                error(['both elevation and velocity at boundary (#',num2str(iSeg),') are not specified!'])
+            else
+                disp(['the velocity at boundary (#',num2str(iSeg),') is not specified'])
+            end
         case 1
-            disp('time history of discharge is given on this boundary')
+            disp(['the velocity at boundary (#',num2str(iSeg),') is forced by flux.th (time history)'])
         case 2
-            disp('this boundary is forced by a constant discharge')
-            fprintf(fid, '%9.5f\n', TideForc.const_flow);
+            disp(['the velocity at boundary (#',num2str(iSeg),') is forced by a constant discharge'])
+            fprintf(fid, '%9.5f\n', TideForc.const_flow(iSeg));  % constant discharge (note that a negative number means inflow)
         case {3, 5}
             if uv_flag == 3
-                disp('vel. (not discharge!) is forced in frequency domain')
-            end
-            if uv_flag == 5
-                disp('time history of velocity (not discharge!) is read in from uv3D.th.nc and then added to the tidal velocity')
+                disp(['the velocity at boundary (#',num2str(iSeg),') is forced by tidal velocity'])
+            else
+                disp(['the velocity at boundary (#',num2str(iSeg),') is forced by uv3D.th.nc + tidal velocity'])
             end
             if isfield(TideForc, 'u_amp')
-                for iTide = 1:tideNums
-                    fprintf(fid, [lower(tideList{iTide}), '\n']);
-                    indTide = find(contains(TideForc.tide_list, tideList{iTide}));
-                    u_amp = TideForc.u_amp(:,indTide);
-                    u_pha = TideForc.u_pha(:,indTide);
-                    v_amp = TideForc.v_amp(:,indTide);
-                    v_pha = TideForc.v_pha(:,indTide);
-                    for iNodes = indNodes(:)'
+                for iTide = 1:nTides
+                    fprintf(fid, [lower(tide_list{iTide}), '\n']);
+                    ind_tide = find(contains(TideForc.tide_list, tide_list{iTide}));
+                    u_amp = TideForc.u_amp(:,ind_tide);
+                    u_pha = TideForc.u_pha(:,ind_tide);
+                    v_amp = TideForc.v_amp(:,ind_tide);
+                    v_pha = TideForc.v_pha(:,ind_tide);
+                    for iNodes = ind_nodes(:)'
                         fprintf(fid, '%8.6f% 10.6f% 8.6f% 10.6f\n', u_amp(iNodes), u_pha(iNodes), v_amp(iNodes), v_pha(iNodes));
                     end
                 end
             else
-                warning('velocity part is not found in the given struct!')
+               error('tidal velocity data is not found!')
             end
         case 4
-            disp('time history of velocity (not discharge!) is read in from uv3D.th.nc')
+            disp(['the velocity at boundary (#',num2str(iSeg),') is forced by uv3D.th.nc (without nudging)'])
         case -4
-            disp('time history of velocity (not discharge!) is read in from uv3D.th.nc')
-            %relaxation constants for inflow and outflow (between 0 and 1 with 1 being strongest nudging)
-            fprintf(fid, '%5.3f %5.3f\n', TideForc.relax_const_in, TideForc.relax_const_out);
-        case -1
+            disp(['the velocity at boundary (#',num2str(iSeg),') is forced by uv3D.th.nc (with nudging)'])
+            % relaxation constants for inflow and outflow (between 0 and 1 with 1 being strongest nudging)
+            fprintf(fid, '%5.3f %5.3f\n', TideForc.const_inflow(iSeg), TideForc.const_outflow(iSeg));
+        case -1 % NOT work yet
             disp('Flanther type radiation b.c. (iettype must be 0 in this case)')
             if elev_flag ~= 0
-                error('The elev_flag must be zero for Flanther radiation case!')
+                error('elev_flag must be zero for Flanther radiation case!')
             end
-            fprintf(fid, '%d\n', TideForc.eta_mean);
+            fprintf(fid, '%d\n', TideForc.eta_mean(iSeg));  % mean elev at each node
+            for ii = 1:Mobj.obc_lens(iSeg) 
+                fprintf(fid, '%d\n', TideForc.vn_mean(iSeg));  % mean normal velocity at the node (at all levels)
+            end
     end
     % ====================== Tracer PART ===========================
-    tracer_list = ['temp', 'salt', used_mods];
-    nTracers = numel(tracer_list);
+    tracer_mod_list = ['temp', 'salt', used_mods];
+    nTracers = numel(tracer_mod_list);
     for ii = 1:nTracers
-        tracer_mod_name = tracer_list{ii};
-        add_tracer_module(fid, TideForc, tracer_mod_name, bc_flags(iSeg, ii+2));
+        tracer_mod_name = tracer_mod_list{ii};
+        add_tracer_module(fid, TideForc, Mobj, tracer_mod_name, bc_flags(iSeg, ii+2), iSeg);
     end
 end
 
-% --------------- Add River Flux at the end, if necessary
-% if river_flag == 1
-%     for iRiver = 1:RivFlux.riverNums
-%         riverName = RivFlux.riverNames{RivFlux.ind(iRiver)};
-%         fprintf(fid, [repmat('%d ', 1, size(RivFlux.bcFlags,2)+1), '  !',riverName, '\n'],  RivFlux.branchLens(iRiver), RivFlux.bcFlags(iRiver,:));
-%         
-%         elev_flag = RivFlux.bcFlags(iRiver,1);
-%         uv_flag = RivFlux.bcFlags(iRiver,2);
-%         temp_flag = RivFlux.bcFlags(iRiver,3);
-%         salt_flag = RivFlux.bcFlags(iRiver,4);
-%         
-%         indNodes = RivFlux.riverNodes(iRiver:iRiver+RivFlux.branchLens(iRiver)-1);
-%         
-%         switch uv_flag
-%             case 1
-%                 disp('time history of discharge is given on this boundary')
-%         end
-%         switch temp_flag
-%             case 1
-%                 disp('time history of temperature on this boundary; time history of temperature will be read in from TEM_1.th')
-%                 fprintf(fid, '%2.1f\n', RivFlux.nf_temp);    %nudging factor (between 0 and 1 with 1 being strongest nudging) for inflow
-%         end
-%         switch salt_flag
-%             case 1
-%                 disp('time history of saltlinity on this boundary; time history of salinity will be read in from SAL_1.th')
-%                 fprintf(fid, '%2.1f\n', RivFlux.nf_salt);    %nudging factor (between 0 and 1 with 1 being strongest nudging) for inflow
-%         end
-%     end
-% end
-
 fclose(fid);
-
 disp('bctides.in has been created successfully!')
 end
 
 function used_mods = check_tracer_module(Mobj)
-mod_list = {'gen', 'age', 'sed3d', 'ecosim', 'icm', 'cosine', 'fib', 'timor'};
+
+tracer_mod_list = {'gen', 'age', 'sed3d', 'ecosim', 'icm', 'cosine', 'fib', 'timor'};
+
 used_mods = {};
 for iMod = 1:8
-    mod_name = mod_list{iMod};
-    if strcmpi(Mobj.(['use_', mod_name]), 'yes')
-        used_mods = [used_mods; mod_name]; %#ok<AGROW> 
+    tracer_mod_name = tracer_mod_list{iMod};
+    if strcmpi(Mobj.(['use_', tracer_mod_name]), 'yes')
+        used_mods = [used_mods; tracer_mod_name]; %#ok<AGROW> 
     end
 end
 end
 
-function add_tracer_module(fid, TideForc, tracer_mod_name, mod_flag)
+function add_tracer_module(fid, TideForc, Mobj, tracer_mod_name, mod_flag, iSeg)
+% Add tracer boundary condition
 
-abbr_name = upper(tracer_mod_name(1:3));
+tracer_mod_list = {'temp','salt','gen', 'age', 'sed3d', 'ecosim', 'icm', 'cosine', 'fib', 'timor'};
+ind_mod = find(contains(tracer_mod_list, tracer_mod_name));
+nTracers = Mobj.tracer_counts(ind_mod);
+
+if isfield(TideForc, ['nf_', tracer_mod_name])
+    nf_mod = TideForc.(['nf_', tracer_mod_name]);
+    if isscalar(nf_mod)
+        nf_mod = repmat(nf_mod, [Mobj.obc_counts, nTracers]);
+    else
+        nf_mod = reshape(nf_mod, [Mobj.obc_counts, nTracers]);
+    end
+end
+if isfield(TideForc, ['const_', tracer_mod_name])
+    const_mod = TideForc.(['const_', tracer_mod_name]);
+    if isscalar(const_mod)
+        const_mod = repmat(const_mod, [Mobj.obc_counts, nTracers]);
+    else
+        const_mod = reshape(const_mod, [Mobj.obc_counts, nTracers]);
+    end
+end
+
 switch mod_flag
     case 0
-        disp([tracer_mod_name, ' is not specified'])
+        disp([tracer_mod_name, ' at boundary (#', num2str(iSeg),') is not specified'])
     case 1
-        nf_mod = TideForc.(['nf_', tracer_mod_name]);
-        disp(['time history of salinity on this boundary; time history of temperature will be read in from ', abbr_name,'.th'])
-        fprintf(fid, '%d\n', nf_mod);    % nudging factor (between 0 and 1 with 1 being strongest nudging) for inflow
+        disp([tracer_mod_name, ' at boundary (#', num2str(iSeg),') is forced by *.th'])
+        fprintf(fid, [repmat('%d ', 1, size(nf_mod,2)), '\n'], nf_mod(iSeg,:));  % nudging factor (between 0 and 1 with 1 being strongest nudging) for inflow
     case 2
-        const_mod = TideForc.(['const_', tracer_mod_name]);
-        disp(['this boundary is forced by a constant value for ', abbr_name])
-        fprintf(fid, '%5.3f\n', const_mod);
+        
+        disp([tracer_mod_name, ' at boundary (#', num2str(iSeg),') is forced by a constant value'])
+        fprintf(fid, [repmat('%5.3f ', 1, size(const_mod,2)), '\n'], const_mod(iSeg,:));
     case 3
-        nf_mod = TideForc.(['nf_', tracer_mod_name]);
-        disp('initial salinity profile for inflow')
-        fprintf(fid, '%d\n', nf_mod);
+        disp([tracer_mod_name, ' at boundary (#', num2str(iSeg),') is forced by initial profile'])
+        fprintf(fid, [repmat('%d ', 1, size(nf_mod,2)), '\n'], nf_mod(iSeg,:));
     case 4
-        nf_mod = TideForc.(['nf_', tracer_mod_name]);
-        disp(['time history of salinity is read in from ', abbr_name,'_3D.th.nc'])
-        fprintf(fid, '%d\n', nf_mod);
+        disp([tracer_mod_name, ' at boundary (#', num2str(iSeg),') is forced by *._3D.th.nc'])
+        fprintf(fid, [repmat('%d ', 1, size(nf_mod,2)), '\n'], nf_mod(iSeg,:));
 end
 end
 
@@ -306,6 +351,11 @@ end
 % a negative depth like -100.
 
 % ELEV, VEL, TEM, SAL, GEN, AGE, SED3D, EcoSim, ICM, CoSiNE, FIB, and TIMOR 
+
+% tide_pool = {'S2','M2','N2','K2', 'K1','P1','O1','Q1'};
+% tide_types = [2 2 2 2 1 1 1 1];
+% tide_amps = [0.112841 0.242334 0.046398 0.030704 0.141565 0.046843 0.100514 0.019256];
+% tide_freqs = [0.145444E-03 0.140519E-03 0.137880E-03 0.145842E-03 0.729212E-04 0.725229E-04 0.675977E-04 0.649585E-04];
 
 
 
