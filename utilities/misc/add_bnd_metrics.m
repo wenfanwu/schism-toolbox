@@ -21,7 +21,7 @@ function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes)
 %       a matrix (M*N) containing the land boundary info, with M indicating
 %       the node number of the longest land boundary, while N indicating
 %       the # of land boundaries.
-% islandc_nodes - open boundary nodes; double
+% island_nodes - open boundary nodes; double
 %       a matrix (M*N) containing the island boundary info, with M indicating
 %       the node number of the longest island boundary, while N indicating
 %       the # of island boundaries.
@@ -40,6 +40,7 @@ function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes)
 % Email: wwu@vims.edu
 % 
 % See also: add_grid_metrics
+
 %% Parse inputs
 % 1) arrange all boundaries in descending order based on the # of nodes
 % 2) trim redundant lines that are all zeros
@@ -53,7 +54,7 @@ ind_btm = sub2ind(size(island_nodes), sum(island_nodes~=0, 1), 1:size(island_nod
 if sum(island_nodes(1,:) ~= island_nodes(ind_btm))==0
     disp('removed ending points of islands, since all islands start/end at the same node')
     island_nodes(ind_btm) = 0;
-	island_nodes(end, :) = [];
+    island_nodes(end, :) = [];
 end
 
 % make sure each island loop is aligned clockwise
@@ -111,7 +112,6 @@ end
 % arrange the land/open boundary nodes in descending order
 obc_flags = ind_flags(1:2:end);
 obc_cells = outer_bnd_cells(1:2:end);
-
 obc_lens = cellfun(@(x) length(x), obc_cells);
 [~, ind_sorted] = sort(obc_lens, 'descend');
 obc_cells = obc_cells(ind_sorted); % sort by the obc  lens
@@ -180,6 +180,7 @@ function bnd_nodes = trim_bnd_nodes(bnd_nodes)
 % 1) arrange all boundaries in descending order based on the # of nodes
 % 2) trim redundant lines that are all zeros
 
+bnd_nodes = abs(bnd_nodes);
 max_len = max(sum(bnd_nodes~=0,1));
 bnd_nodes = bnd_nodes(1:max_len,:);
 

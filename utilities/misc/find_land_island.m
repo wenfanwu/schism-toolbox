@@ -134,13 +134,13 @@ ind_obc = ismember(outer_nodes, obc_nodes_tot);
 start_locs = find(diff([0; ind_obc]) == 1)-1;
 end_locs = find(diff([ind_obc; 0]) == -1)+1;
 
-land_nodes = zeros(numel(outer_nodes), land_counts);
+land_nodes = zeros(numel(outer_nodes), land_counts); % land-sea adjacent nodes must be included in both land and open boundaries
 for ii = 1:land_counts
-    if ii == 1
-        % land-sea adjacent nodes should be included in both land and open boundary nodes
-        land_tmp = [outer_nodes(end_locs(end)-1:end); outer_nodes(1:start_locs(ii)+1)];  
-    else
-        land_tmp = outer_nodes(end_locs(ii-1):start_locs(ii));
+    switch ii
+        case 1
+            land_tmp = [outer_nodes(end_locs(end)-1:end); outer_nodes(1:start_locs(ii)+1)];
+        otherwise
+            land_tmp = outer_nodes(end_locs(ii-1)-1:start_locs(ii)+1);
     end
     land_nodes(1:numel(land_tmp), ii) = land_tmp(:);
 end

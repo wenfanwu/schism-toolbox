@@ -1499,13 +1499,11 @@ field_list <span class="token operator">=</span> <span class="token function">fi
     TideForc<span class="token punctuation">.</span><span class="token punctuation">(</span>tide_var<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token function">fillmissing</span><span class="token punctuation">(</span>TideForc<span class="token punctuation">.</span><span class="token punctuation">(</span>tide_var<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">'previous'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token keyword">end</span>
 
-TideForc <span class="token operator">=</span> <span class="token function">add_nodal_factors</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> TideForc<span class="token punctuation">)</span><span class="token punctuation">;</span>
 TideForc<span class="token punctuation">.</span>cutoff_depth <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
-
-bc_flags <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">5</span> <span class="token number">5</span> <span class="token number">4</span> <span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
 TideForc<span class="token punctuation">.</span>nf_temp <span class="token operator">=</span> <span class="token number">0.8</span><span class="token punctuation">;</span>
 TideForc<span class="token punctuation">.</span>nf_salt <span class="token operator">=</span> <span class="token number">0.8</span><span class="token punctuation">;</span>
 
+bc_flags <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">5</span> <span class="token number">5</span> <span class="token number">4</span> <span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
 <span class="token function">write_schism_bctides</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> TideForc<span class="token punctuation">,</span> bc_flags<span class="token punctuation">)</span></code></pre>
 <blockquote>
 <p>Download the fes2014 tidal products first, and change the directory in the function <span style="color:green;"><strong>get_fes2014_tide.m</strong></span> (Lines 40–42).</p>

@@ -53,7 +53,7 @@ if nargin<2
             sname = 'SMS';
         case '.mat'
             sname = 'OceanMesh2D';
-		otherwise
+        otherwise
             error('unrecognized mesh file!')
     end
 end
@@ -114,20 +114,20 @@ ind_obc = cellfun(@(x) strncmp(x, 'NS', 2), D);
 obc_part = D(ind_obc);
 obc_part = cellfun(@(x) strtrim(x), obc_part, 'UniformOutput',false);  % adapt to earlier versions of MATLAB
 end_flags = cellfun(@(x) count(x, '-'), obc_part);
-end_locs = find(end_flags); end_locs = [1; end_locs(:)];
+end_locs = find(end_flags); end_locs = [1; end_locs(:)]; end_locs(1) = 0;
 
 nNodes_est = length(obc_part)*10;
 obc_counts = sum(end_flags);
 
 obc_nodes = zeros(nNodes_est, obc_counts);
 for ii = 1:obc_counts
-    loc = end_locs(ii):end_locs(ii+1)-1;
+    loc = end_locs(ii)+1:end_locs(ii+1)-1;
 
     obc_line = double(split(string(obc_part(loc,:))));
     obc_line = obc_line(:, 2:end)'; obc_line = obc_line(:);
 
     obc_end = double(split(string(obc_part(end_locs(ii+1),:))));
-    obc_end = obc_end(2:end)'; obc_end = obc_end(:);
+    obc_end = obc_end(2:end)'; obc_end = abs(obc_end(:));
 
     obc_tot = [obc_line(:); abs(obc_end(:))];
 
