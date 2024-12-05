@@ -19,7 +19,7 @@ function R = calc_schism_reso(Mobj, mtype)
 % mtype - method type; double
 %       mtype determines the definition method of grid resolution.
 %       Five methods are provided (default: mtype=4):
-%       1) average side length           (x1+x2+x3)/3 or  (x1+x2+x3+x4)/4
+%       1) average side length           (x1+x2+x3)/3 or (x1+x2+x3+x4)/4
 %       2) equal area circle radius     sqrt(S/pi)
 %       3) square root area                sqrt(S)
 %       4) circumcircle radius             r1=(x1*x2*x3)/(4S);
@@ -50,8 +50,8 @@ end
 %% Calculate
 switch mtype
     case 1 % Average side length method
-        side_lens = calc_schism_edge(Mobj);
-        R = mean(side_lens, 2, 'omitnan');
+        edges = calc_schism_edge(Mobj);
+        R = mean(edges, 2, 'omitnan');
 
     case 2 % Equal area circle radius method
         S = calc_schism_area(Mobj);
@@ -62,10 +62,14 @@ switch mtype
         R = sqrt(S);
 
     case 4  % Circumcircle radius method
-        side_lens = calc_schism_edge(Mobj);
-        L3 = side_lens(Mobj.i34==3, 1:3);
-        L4 = side_lens(Mobj.i34==4, 1:4);
-        L4_p1 = L4(:, [1 2 3]); L4_p2 = L4(:, [1 4 3]);
+        edges = calc_schism_edge(Mobj);
+        angles = calc_schism_angles(Mobj);
+        inter_angle = angles(Mobj.i34==4, 2);
+
+        L3 = edges(Mobj.i34==3, 1:3);
+        L4 = edges(Mobj.i34==4, 1:4);
+        Ld = sqrt(L4(:, 1).^2+L4(:, 2).^2-2*L4(:, 1).*L4(:, 2).*cosd(inter_angle));  % law of cosines
+        L4_p1 = [L4(:, [1 2]) Ld(:)]; L4_p2 = [L4(:, [3 4]) Ld(:)];
 
         [~, S3, S4] = calc_schism_area(Mobj);
 
@@ -77,9 +81,9 @@ switch mtype
         R(Mobj.i34==4) = max([r4_p1(:) r4_p2(:)], [], 2);  % use the largest circumscribed circle
 
     case 5 % Incircle radius method
-        side_lens = calc_schism_edge(Mobj);
-        L3 = side_lens(Mobj.i34==3, 1:3);
-        L4 = side_lens(Mobj.i34==4, 1:4);
+        edges = calc_schism_edge(Mobj);
+        L3 = edges(Mobj.i34==3, 1:3);
+        L4 = edges(Mobj.i34==4, 1:4);
         L4_p1 = L4(:, [1 2 3]); L4_p2 = L4(:, [1 4 3]);
 
         [~, S3, S4] = calc_schism_area(Mobj);

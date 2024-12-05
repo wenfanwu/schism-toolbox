@@ -101,7 +101,7 @@ lon = node_info(:,3);
 lat = node_info(:,4);
 depth = node_info(:,5);
 
-if sum(depth==0)==0
+if sum(depth~=0)==0
     warning on
     warning('depth info is missing in the 2dm file')
 end
