@@ -24,6 +24,7 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\calculate\calc_schism_shapiro**: renamed from *gen_slope_filter2*
 - **.\utilities\calculate\calc_schism_angles**: calculate interior angles of each cell
 - **.\utilities\calculate\calc_schism_skew**: calculate the skewness of each cell
+- **.\utilities\calculate\calc_schism_grad**: calculate the gradient of variable
 - **.\utilities\interp\convert_schism_var**: convert variables between different mesh centers
 - **.\preproc\write_schism_nu_nc**: write nudging files (TEM/SAL/ICM_nu.nc)
 - **.\postproc\read_schism_gr3**: read "depth" info from the *gr3 file

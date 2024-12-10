@@ -16,16 +16,16 @@ function InitCnd = interp_schism_init(Mobj, DS, varList)
 %% Output Arguments
 % 
 % 
-%% Tips
+%% Notes
 % the input option 'varList' enables you to process partial fields in the
 % datastruct, this is quite useful when the RAM of your PC is not enough to
 % afford a data struct of  too many fields. This case may be encountered
 % especially when the model domain is very large.
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2022. 
-% Last Updated on 2022-05-17.
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2022.
+% Last Updated on 09 Dec 2024.
+% Email: wwu@vims.edu
 % 
 % See also: 
 
@@ -46,7 +46,6 @@ for iVar = 1:nVars
 
     lonRaw = D.lon;
     latRaw = D.lat;
-    depRaw = abs(D.depth);
     varRaw = squeeze(D.var);
 
     disp(['begin to interp the ', varName])
@@ -54,8 +53,9 @@ for iVar = 1:nVars
         case 2
             varNew = interp_tri(Mobj.lon, Mobj.lat, lonRaw, latRaw, varRaw);
         case 3
-            varTri = interp_tri(Mobj.lon, Mobj.lat, lonRaw, latRaw, varRaw);
-            varNew = interp_deps(Mobj, varTri, depRaw);
+            depRaw = abs(D.depth);
+            varTmp = interp_tri(Mobj.lon, Mobj.lat, lonRaw, latRaw, varRaw);
+            varNew = interp_deps(depRaw, varTmp, Mobj.depLayers);
         otherwise
             error(['dimension error for ', varName, '!'])
     end

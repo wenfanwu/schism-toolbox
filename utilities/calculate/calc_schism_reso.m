@@ -82,9 +82,13 @@ switch mtype
 
     case 5 % Incircle radius method
         edges = calc_schism_edge(Mobj);
+        angles = calc_schism_angles(Mobj);
+        inter_angle = angles(Mobj.i34==4, 2);
+
         L3 = edges(Mobj.i34==3, 1:3);
         L4 = edges(Mobj.i34==4, 1:4);
-        L4_p1 = L4(:, [1 2 3]); L4_p2 = L4(:, [1 4 3]);
+        Ld = sqrt(L4(:, 1).^2+L4(:, 2).^2-2*L4(:, 1).*L4(:, 2).*cosd(inter_angle));  % law of cosines
+        L4_p1 = [L4(:, [1 2]) Ld(:)]; L4_p2 = [L4(:, [3 4]) Ld(:)];
 
         [~, S3, S4] = calc_schism_area(Mobj);
         
