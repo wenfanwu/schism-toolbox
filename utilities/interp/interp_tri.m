@@ -2,10 +2,10 @@ function var_tri = interp_tri(lon_tri, lat_tri, lon_grid, lat_grid, var_grid)
 % Interpolates data from an orthogonal grid onto scattered points
 %
 %% Syntax
-% var_tri = interp_tri_fast(lon_tri, lat_tri, lon_grid, lat_grid, var_grid)
+% var_tri = interp_tri(lon_tri, lat_tri, lon_grid, lat_grid, var_grid)
 %
 %% Description
-% var_tri = interp_tri_fast(lon_tri, lat_tri, lon_grid, lat_grid, var_grid)
+% var_tri = interp_tri(lon_tri, lat_tri, lon_grid, lat_grid, var_grid)
 %       uses the original orthogonal grid to build a gridded interpolant and
 %       directly interpolate values at the (lon_tri, lat_tri) locations.
 %
@@ -15,7 +15,7 @@ function var_tri = interp_tri(lon_tri, lat_tri, lon_grid, lat_grid, var_grid)
 % var_grid : M x N x K array of variable values on the orthogonal grid. K means the depth dimension.
 %
 %% Output Arguments
-%   var_tri : P x K array of interpolated values at each target point and depth level.
+% var_tri : P x K array of interpolated values at each target point and depth level.
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.

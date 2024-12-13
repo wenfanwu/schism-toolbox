@@ -102,15 +102,24 @@ end
 Mobj.tri = tri;
 Mobj.i34 = i34;
 %% Edge metrics 
-% NOTES: the order of edge coordinates may not be identical to SCHISM grid outputs, and it will be improved later.
-% extract the sides of all triangles and quadrangulars.
-edges = [tri(i34 == 3, [1, 2]); tri(i34 == 3, [2, 3]); tri(i34 == 3, [3, 1]);  % triangular
-    tri(i34 == 4, [1, 2]); tri(i34 == 4, [2, 3]); tri(i34 == 4, [3, 4]); tri(i34 == 4, [4, 1])];  % quad
+% index for the 3rd edge of triangular cells
+ind_e3 = ones(size(tri'));  
+ind_e3(3,i34==3) = nan; 
+ind_e3 = ind_e3(:);
 
-sorted_edges = sort(edges, 2);
+tri(i34==3,4) = tri(i34==3,1);
+
+edges = nan(4*Mobj.nElems, 2);
+edges(1:4:end, :) = tri(:, [2, 3]); % start from the 2nd edge 
+edges(2:4:end, :) = tri(:, [3, 4]);
+edges(3:4:end, :) = tri(:, [4, 1]);  % invalid edge for triangular cells
+edges(4:4:end, :) = tri(:, [1, 2]);
+
+edges(isnan(ind_e3),:) = [];
 
 % find all the independent edges
-edges = unique(sorted_edges, 'rows');
+sorted_edges = sort(edges, 2);
+edges = unique(sorted_edges, 'rows','stable');
 
 Mobj.nEdges = size(edges, 1);
 
@@ -126,3 +135,6 @@ Mobj.edg = edges;
 
 disp('grid geometry metrics have been added')
 end
+
+
+
