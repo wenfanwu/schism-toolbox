@@ -38,7 +38,12 @@ function indMin = geomin(lonAll, latAll, siteLon, siteLat, N)
 if nargin < 5 
     N = 1;
 end
-fcn = @(x,y) distance(y,x, latAll, lonAll, [6378.137 0.0818191910428158])';  % km
+%% Calculate
+if max(lonAll)>360
+    fcn = @(x,y) hypot(lonAll-x, latAll-y)'; % units
+else
+    fcn = @(x,y) distance(y,x, latAll, lonAll, [6378.137 0.0818191910428158])';  % km
+end
 
 dist_cell = arrayfun(@(x,y) fcn(x,y), siteLon, siteLat, 'UniformOutput',false);
 dist = cell2mat(dist_cell);

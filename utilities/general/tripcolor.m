@@ -19,7 +19,7 @@ function tripcolor(tri, x, y, z, varargin)
 %       x-axis coordinates  (nNodes*1) defined at node centers.
 % z -  variable data; double
 %       variable vector (nNodes/nElems/nEdges*1) defined at the centers of
-%       nodes/elems/edges. 
+%       nodes/elems/edges.
 % varagin - options; char
 %       the same as the 'patch' function.
 %
@@ -76,6 +76,9 @@ end
 varargin = [opts(:)', varargin(:)'];
 patch('Faces',F, 'Vertices',V, 'FaceVertexCData',C(:), varargin{:});
 
+% Enable more powerful datatips
+dcm = datacursormode; 
+dcm.UpdateFcn = @schism_datatips;
 end
 
 function edges = get_edges(tri)
@@ -106,7 +109,6 @@ sorted_edges = sort(edges, 2);
 edges = unique(sorted_edges, 'rows','stable');
 
 end
-
 
 
 

@@ -17,6 +17,7 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\misc\add_grid_metrics**: add grid geometry metrics
 - **.\utilities\misc\add_bnd_metrics**: add boundary geometry metrics
 - **.\utilities\misc\find_land_island**: find land and island nodes for unstructured grid.
+- **.\utilities\misc\schism_datatips**: enhance datatips when visualizing data.
 - **.\utilities\extract\get_era5_forcing**: extract atmospheric forcing from era5
 - **.\utilities\calculate\calc_schism_nudge**: calculate boundary nudging factors (TEM/SAL/ICM_nudge.gr3)
 - **.\utilities\calculate\calc_schism_reso**: calculate grid resolution with dfferent methods
@@ -54,6 +55,7 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\define\def_schism_source**: updated 
 - **.\utilities\define\def_schism_transect**: updated 
 - **.\utilities\general\minfind**: updated 
+- **.\utilities\general\tripcolor**: updated 
 - **.\utilities\general\geomin**: more rigorous searching algorithms
 - **.\utilities\general\auto_center**: minor improvements
 - **.\utilities\generate\gen_schism_LSC2**: updated 
