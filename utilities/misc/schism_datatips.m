@@ -5,23 +5,27 @@ function output_txt = schism_datatips(obj,event_obj)
 % output_txt   Data tip text, returned as a character vector or a cell array of character vectors
 
 pos = event_obj.Position;
+if ~isa(event_obj.Target, 'matlab.graphics.primitive.Patch')
+    output_txt = {['X',formatValue(pos(1),event_obj)],...
+        ['Y',formatValue(pos(2),event_obj)]};
+    return
+end
 
 nNodes = size(event_obj.Target.Vertices,1);
 nElems = size(event_obj.Target.XData,2);
 Cs = event_obj.Target.FaceVertexCData;
-
 Xs = event_obj.Target.Vertices(:,1);
 Ys = event_obj.Target.Vertices(:,2);
 
 if nElems==1
-    Cs = Cs(1:3:end); 
-    Xs = (Xs(1:3:end)+Xs(2:3:end))/2; 
-    Ys = (Ys(1:3:end)+Ys(2:3:end))/2; 
-    
-    Index = geomin(Xs(:), Ys(:), pos(1), pos(2));  % need to be changed
+    Cs = Cs(1:3:end);
+    Xs = (Xs(1:3:end)+Xs(2:3:end))/2;
+    Ys = (Ys(1:3:end)+Ys(2:3:end))/2;
+
+    Index = geomin(Xs(:), Ys(:), pos(1), pos(2)); 
 
 elseif numel(Cs)==nNodes
-    Index = geomin(Xs(:), Ys(:), pos(1), pos(2));  
+    Index = geomin(Xs(:), Ys(:), pos(1), pos(2));
 
 elseif numel(Cs)==nElems
     tri = event_obj.Target.Faces;
@@ -34,7 +38,6 @@ elseif numel(Cs)==nElems
 end
 
 %********* Define the content of the data tip here *********%
-
 % Display the x and y values:
 output_txt = {['Index',formatValue(Index,event_obj)], ...
     ['X',formatValue(pos(1),event_obj)],...
@@ -43,6 +46,8 @@ output_txt = {['Index',formatValue(Index,event_obj)], ...
 % Display the C values:
 C = Cs(Index);
 output_txt{4} = ['C',formatValue(C,event_obj)];
+
+
 
 %***********************************************************%
 

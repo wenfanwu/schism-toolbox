@@ -76,9 +76,11 @@ end
 varargin = [opts(:)', varargin(:)'];
 patch('Faces',F, 'Vertices',V, 'FaceVertexCData',C(:), varargin{:});
 
-% Enable more powerful datatips
+%% Enable datatips
 dcm = datacursormode; 
 dcm.UpdateFcn = @schism_datatips;
+dcm.Enable = 'off';
+
 end
 
 function edges = get_edges(tri)

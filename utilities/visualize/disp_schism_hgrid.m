@@ -31,8 +31,8 @@ function disp_schism_hgrid(Mobj, opt_flags, varargin)
 % None
 % 
 %% Author Info
-% Created by Wenfan Wu, Virginia Institute of Marine Science in 2024. 
-% Last Updated on 6 Nov. 2024. 
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021. 
+% Last Updated on 16 Dec 2024
 % Email: wwu@vims.edu
 % 
 % See also: mesh2schism and disp_schism_var
@@ -58,18 +58,28 @@ cmap = jet(25);
 switch dep_flag
     case 0 % none color
         patch('Faces', tri,'Vertices', [Mobj.lon(:) Mobj.lat(:)], 'FaceColor', 'none', varargin{:});
+        
     case 1 % interpolated
         patch('Faces', tri,'Vertices', [Mobj.lon(:) Mobj.lat(:)], 'FaceVertexCData', -Mobj.depth(:), 'FaceColor','interp', varargin{:});
         cbar = colorbar;
         cbar.Label.String = 'depth (m)';
         colormap(cmap)
+        dcm = datacursormode;
+        dcm.UpdateFcn = @schism_datatips;
+        dcm.Enable = 'off';
+
     case 2 % color on the mesh
         trimesh(tri, Mobj.lon(:), Mobj.lat(:), -Mobj.depth(:));
         view(0, 90)
         cbar = colorbar;
         cbar.Label.String = 'depth (m)';
         colormap(cmap)
+        dcm = datacursormode;
+        dcm.UpdateFcn = @schism_datatips;
+        dcm.Enable = 'off';
+
 end
+
 box on;
 xlabel('Longitude (°E)', 'FontWeight','bold')
 ylabel('Latitude (°N)', 'FontWeight','bold')
@@ -95,14 +105,6 @@ switch bnd_flag
         scatter(lon_land, lat_land, 3,'filled','r')
         scatter(lon_island, lat_island, 3,'filled','g')
 end
-%% Enable the datatips
-% Tap the node points to display the water depth
-% if dep_flag ~= 0
-%     s =  scatter(Mobj.lon, Mobj.lat, 1, 'filled','k', 'MarkerEdgeColor', 'none', 'MarkerFaceAlpha', 0.1);
-%     row = dataTipTextRow('depth', Mobj.depth);
-%     s.DataTipTemplate.DataTipRows(end+1) = row;
-% end
-
 axis image
 hold off
 end
