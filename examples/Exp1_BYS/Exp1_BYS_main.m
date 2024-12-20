@@ -227,6 +227,9 @@ tvd_flags(Mobj.depthc<5) = 0;
 write_schism_prop(Mobj, 'tvd', tvd_flags)
 
 % define flux_flags if needed
+figure('Color', 'w')
+disp_schism_hgrid(Mobj, [0 1])
+hold on
 flux_flags = def_schism_fluxflag(Mobj, 2);
 write_schism_prop(Mobj, 'fluxflag', flux_flags)
 

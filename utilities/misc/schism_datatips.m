@@ -73,6 +73,9 @@ end
 if mod(value, 1) == 0
     % Format as an integer if the value is a whole number
     formattedValue = [valueFormat num2str(value, '%d') removeValueFormat];
+elseif abs(value) < 1e-2
+    % Format as a small floating-point number with scientific notation
+    formattedValue = [valueFormat num2str(value, '%.2e') removeValueFormat];
 else
     % Format as a floating-point number with 4 decimal places
     formattedValue = [valueFormat num2str(value, '%.4f') removeValueFormat];

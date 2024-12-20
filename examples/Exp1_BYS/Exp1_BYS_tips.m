@@ -64,9 +64,9 @@ figure('Color', 'w')
 disp_schism_var(Mobj, varTest)
 axis image
 hold on
-msk = def_schism_mask(Mobj, 'test', 'rebuild');
+msk = def_schism_mask(Mobj, 2, 'test', 'rebuild');  % "2" means two separate regions
 
-% Draw a polygon on the map and press ENTER, and the mask info. will be
+% draw a polygon on the map and press ENTER, and the mask info. will be
 % saved into the aimpath as a MAT file automatically 
 
 varTest(msk) = nan;
@@ -104,6 +104,7 @@ switch_flags = [1 1 1 1 1 1 1 1 1];
 
 % station.in file can be found in 'Exp1_BYS/inputs'
 write_schism_station_in(Mobj, xyz_data, switch_flags)
+
 %% Tip-7: interplolate variables from nodes onto elemes
 varNode = Mobj.depth;
 varElem = convert_schism_var(Mobj, varNode, 'node2elem');

@@ -382,7 +382,10 @@ tvd_flags = ones(Mobj.nElems, 1);
 tvd_flags(Mobj.depthc<5) = 0;
 write_schism_prop(Mobj, 'tvd', tvd_flags)
 
-flux_flags = def_schism_fluxflag(Mobj, 2);
+figure('Color', 'w')
+disp_schism_hgrid(Mobj, [0 1])
+hold on
+flux_flags = def_schism_fluxflag(Mobj, 2);  % "2" means two separate regions
 write_schism_prop(Mobj, 'fluxflag', flux_flags)
 ```
 
