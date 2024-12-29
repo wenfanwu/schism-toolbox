@@ -78,6 +78,7 @@ nTides = length(tide_list);
 if nTides~=0
     load('tide_fac_constants.mat', 'const');
     tide_pool = cellstr(strtrim(string(const.name)));
+    type_pool = const.doodson(:,1); type_pool = fillmissing(type_pool, 'previous'); type_pool = min(type_pool,2);
 
     tide_types = nan(nTides,1);
     tide_amps = nan(nTides,1);
@@ -86,7 +87,7 @@ if nTides~=0
         tide_name = strtrim(tide_list{iTide});
         ind_tide = find(strcmpi(tide_pool, tide_name));
 
-        tide_types(iTide) = const.doodson(ind_tide,1);
+        tide_types(iTide) = type_pool(ind_tide,1);
         tide_amps(iTide) = const.potentialamp(ind_tide);
         tide_freqs(iTide) = const.freq(ind_tide)/3600*2*pi;  % rad/s
     end
