@@ -330,7 +330,7 @@ write_schism_gr3(Mobj, 'drag', Cd)
 
 % Type-3: manning
 fmc = 0.025;
-write_schism_gr3(Mobj, 'rough', fmc)
+write_schism_gr3(Mobj, 'manning', fmc)
 ```
 
 <br>
