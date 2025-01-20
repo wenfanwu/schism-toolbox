@@ -195,7 +195,7 @@ write_schism_source_nc(Mobj, D,  tracer_list)
 > 
 > 2) add corresponding rivers in the <span style="color:green;">**match_rivers.m**</span> function.
 > 
-> River can also be added in the form of open boundaries but it is not supported in this toolbox so far.
+> If you want to add rivers in the form of open boundaries, please refer to <span style="color:green;">**add_schism_obc.m**</span> function.
 
 <br>
 
@@ -442,7 +442,6 @@ This toolbox was written referring to the [fvcom-toolbox](https://github.com/pwc
 ## Limitations (To-do List)
 
 * This toolbox is primarily used for preparing input files related to hydrological part so far, while the other modules such as CoSiNE, ICM are not fully supported. However, many interfaces have been reserved for future extensions.
-* Rivers can only be added as source points so far, although they can also be added as open boundary inflows in SCHISM.
 
 ## Copyright
 

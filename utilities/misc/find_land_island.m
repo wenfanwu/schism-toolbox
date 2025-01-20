@@ -130,17 +130,19 @@ max_len = max(sum(island_nodes~=0,1));
 island_nodes = island_nodes(1:max_len,:);
 
 ind_obc = ismember(outer_nodes, obc_nodes_tot);
+ind_cut = find(diff(ind_obc)==1, 1);
+outer_nodes2 = [outer_nodes(ind_cut+1:end); outer_nodes(1:ind_cut)];  % ensure it starts from obc nodes
 
-start_locs = find(diff([0; ind_obc]) == 1)-1;
-end_locs = find(diff([ind_obc; 0]) == -1)+1;
+ind_land = ~ismember(outer_nodes2, obc_nodes_tot);
+start_locs = find(diff(ind_land)==1);
+end_locs = [find(diff(ind_land)==-1); numel(outer_nodes2)]+1;
 
 land_nodes = zeros(numel(outer_nodes), land_counts); % land-sea adjacent nodes must be included in both land and open boundaries
 for ii = 1:land_counts
-    switch ii
-        case 1
-            land_tmp = [outer_nodes(end_locs(end)-1:end); outer_nodes(1:start_locs(ii)+1)];
-        otherwise
-            land_tmp = outer_nodes(end_locs(ii-1)-1:start_locs(ii)+1);
+    if end_locs(ii)>numel(outer_nodes2)
+        land_tmp = [outer_nodes2(start_locs(ii):end); outer_nodes2(1)];
+    else
+        land_tmp = outer_nodes2(start_locs(ii):end_locs(ii));
     end
     land_nodes(1:numel(land_tmp), ii) = land_tmp(:);
 end

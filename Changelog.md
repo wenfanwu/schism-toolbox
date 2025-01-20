@@ -16,6 +16,7 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\misc\check_lons**: check the consistency of longitude coordinates
 - **.\utilities\misc\add_grid_metrics**: add grid geometry metrics
 - **.\utilities\misc\add_bnd_metrics**: add boundary geometry metrics
+- **.\utilities\misc\add_schism_obc**: add new open boundaries
 - **.\utilities\misc\find_land_island**: find land and island nodes for unstructured grid.
 - **.\utilities\misc\schism_datatips**: enhance datatips when visualizing data.
 - **.\utilities\extract\get_era5_forcing**: extract atmospheric forcing from era5
