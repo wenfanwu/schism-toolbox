@@ -235,8 +235,13 @@ fprintf(fid, '&sflux_inputs\n');
 fprintf(fid, '/');   
 fclose(fid);
 
+if isfield(AtmForc, 'dataset')
+    dst = AtmForc.dataset;
+else
+    dst = 'ERA5';
+end
 fid = fopen([sflux_path, 'README.md'],'wt');
-fprintf(fid, 'product name: ERA5\n');  % TBD
+fprintf(fid, ['product name: ', dst, '\n']);  % TBD
 fprintf(fid, ['timespan: ',datestr(AtmForc.time(1), 'yyyymmddTHHMMSSZ'),' to ', ...
     datestr(AtmForc.time(end), 'yyyymmddTHHMMSSZ'), '\n']);  
 fprintf(fid, ['region: ',num2str(AtmForc.region(1)), '-',num2str(AtmForc.region(2)), '; ', ...

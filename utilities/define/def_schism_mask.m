@@ -1,4 +1,4 @@
-function msk = def_schism_mask(Mobj, nRegs, msk_name, def_flag)
+function msk = def_schism_mask(Mobj, nRegs, msk_name, def_flag, grd_ctr)
 % Define a mask on the SCHISM grid
 %
 %% Syntax
@@ -6,12 +6,14 @@ function msk = def_schism_mask(Mobj, nRegs, msk_name, def_flag)
 % msk = def_schism_mask(Mobj, nRegs)
 % msk = def_schism_mask(Mobj, msk_name)
 % msk = def_schism_mask(Mobj, msk_name, def_flag)
+% msk = def_schism_mask(Mobj, msk_name, def_flag, grd_ctr)
 %
 %% Description
 % msk = def_schism_mask(Mobj) defines a mask on the SCHISM mesh grid.
 % msk = def_schism_mask(Mobj, nRegs) specifies the # of defined regions
 % msk = def_schism_mask(Mobj, msk_name) specifies the mask name for saving
 % msk = def_schism_mask(Mobj, msk_name, def_flag) decides to load/rebuild a mask.
+% msk = def_schism_mask(Mobj, msk_name, def_flag, grd_ctr) defines the grid center (node/elem/edge)
 %
 %% Example
 % figure
@@ -25,7 +27,7 @@ function msk = def_schism_mask(Mobj, nRegs, msk_name, def_flag)
 % figure
 % disp_schism_var(Mobj, Mobj.nLevs);
 % axis image
-% msk = def_schism_mask(Mobj, 2, 'test', 'rebuild');
+% msk = def_schism_mask(Mobj, 2, 'test', 'rebuild', 'node');
 %
 %% Input Arguments
 % Mobj - mesh object; datastruct
@@ -36,10 +38,13 @@ function msk = def_schism_mask(Mobj, nRegs, msk_name, def_flag)
 %       the mask name for saving; default: msk_name = 'default';
 % def_flag - definition flags; char
 %       the definition flags (rebuild/load). default: def_flag = 'rebuild';
+% grd_ctr - grid center; char
+%       the grid center (node/elem/edge), which determines the mask length.
+%       default: grd_ctr = 'node'.
 % 
 %% Output Arguments
 % msk - defined mask;  logic
-%       the defined mask (nNodes*1) with logical format.
+%       the defined mask (nNodes/nElems/nEdges*1) with logical format.
 % 
 %% Tips
 % A basemap should be created first before you use this function. It's
@@ -49,7 +54,7 @@ function msk = def_schism_mask(Mobj, nRegs, msk_name, def_flag)
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
-% Last Updated on 18 Dec 2024.
+% Last Updated on 15 Feb 2025.
 % Email: wwu@vims.edu
 % 
 % See also: def_schism_fluxflag
@@ -64,11 +69,23 @@ end
 if nargin < 4
     def_flag = 'rebuild';
 end
+if nargin < 5
+    grd_ctr = 'node';
+end
+
+switch lower(grd_ctr(1:4))
+    case 'node'
+        nps = Mobj.nNodes; ux = Mobj.lon; uy = Mobj.lat;
+    case 'elem'
+        nps = Mobj.nElems; ux = Mobj.lonc; uy = Mobj.latc;
+    case {'edge', 'side'}
+        nps = Mobj.nEdges; ux = Mobj.lons; uy = Mobj.lats;
+end
 %% Define
 msk_file = fullfile(Mobj.aimpath, ['mask_', msk_name, '.mat']);
 switch def_flag
     case 'rebuild'
-        msk = zeros(Mobj.nNodes,1);
+        msk = zeros(nps,1);
         hold on
         for iReg = 1:nRegs
             disp('draw a polygon on the map and press ENTER')
@@ -77,9 +94,9 @@ switch def_flag
             latRoi = geo_handle.Position(:,2)';
             delete(geo_handle)
             
-            msk = msk+inpolygon(Mobj.lon, Mobj.lat, lonRoi, latRoi);
+            msk = msk+inpolygon(ux, uy, lonRoi, latRoi);
             msk = msk~=0;
-            scatter(Mobj.lon(msk), Mobj.lat(msk), 5, 'magenta', 'filled')
+            scatter(ux(msk), uy(msk), 5, 'magenta', 'filled')
         end
         save(msk_file, 'msk')
         disp(['mask_', msk_name, '.mat has been saved into the aimpath'])
