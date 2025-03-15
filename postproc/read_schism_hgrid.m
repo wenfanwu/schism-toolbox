@@ -30,7 +30,7 @@ function Mobj = read_schism_hgrid(Mobj, hgrid_file)
 %% Parse inputs
 Mobj.aimpath = [fileparts(hgrid_file), '\'];
 D = importdata(hgrid_file, '%/s', inf);
-D = cellfun(@(x) strtrim(x), D, 'UniformOutput',false);  % Adapt to earlier versions of MATLAB
+D = cellfun(@(x) strtrim(x), D, 'UniformOutput',false);  % Adapt to earlier MATLAB versions
 
 %% Basic mesh info.
 head_info = strsplit(D{2});
@@ -120,7 +120,29 @@ land_nodes = land_nodes(1:max_len,:);
 max_len = max(sum(island_nodes~=0,1));
 island_nodes = island_nodes(1:max_len,:);
 
-Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes);
+%% Add boundary info
+%========= open boundary=========
+Mobj.obc_nodes = obc_nodes;
+Mobj.obc_counts = size(Mobj.obc_nodes, 2);
+Mobj.obc_lens = sum(Mobj.obc_nodes~=0)';
+Mobj.obc_nodes_tot = Mobj.obc_nodes(:);
+Mobj.obc_nodes_tot(Mobj.obc_nodes_tot==0) = [];
+
+%========= land boundary=========
+Mobj.land_nodes = land_nodes;
+Mobj.land_counts = size(Mobj.land_nodes,2);
+Mobj.land_lens = sum(Mobj.land_nodes~=0)';
+Mobj.land_nodes_tot = Mobj.land_nodes(:);
+Mobj.land_nodes_tot(Mobj.land_nodes_tot==0) = [];
+
+%========= island boundary=========
+Mobj.island_nodes = island_nodes;
+Mobj.island_counts = size(Mobj.island_nodes,2);
+Mobj.island_lens = sum(Mobj.island_nodes~=0)';
+Mobj.island_nodes_tot = Mobj.island_nodes(:);
+Mobj.island_nodes_tot(Mobj.island_nodes_tot==0) = [];
+
+disp('open/land/island boundary metrics have been added')
 end
 
 function C = wisecat(A, B, maxLen, padval)

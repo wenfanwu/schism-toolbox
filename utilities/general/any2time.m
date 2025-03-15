@@ -1,101 +1,76 @@
 function time = any2time(timeRaw, time_interval, base_date)
-% Convert to datetime from any date formats
+% Convert various time formats to datetime
 %
 %% Syntax
-% time = any2time(timeRaw)
-% time = any2time(timeRaw, time_interval)
-% time = any2time(timeRaw, time_interval, base_date)
+%   time = any2time(timeRaw)
+%   time = any2time(timeRaw, time_interval)
+%   time = any2time(timeRaw, time_interval, base_date)
 %
 %% Description
-% time = any2time(timeRaw) converts the input time vector into the format
-% of datetime.
-%
-% time = any2time(timeRaw, time_interval) specifies the time resolution of
-% input time.
-% time = any2time(timeRaw, time_interval, base_date) specifies the base date.
-%
+%   time = any2time(timeRaw) converts various time formats to datetime
+%   time = any2time(timeRaw, time_interval) specifies the time interval
+%   time = any2time(timeRaw, time_interval, base_date) specifies the base date
+% 
 %% Example
-% timeRaw = datenum(2000,1,1) - datenum(1900, 1, 1);
-% time = any2time(timeRaw, 'days', [1900 1 1]);
-% 
+%   timeRaw = datenum(2000:2010,1,1) - datenum(1900, 1, 1);
+%   time = any2time(timeRaw, 'days', [1900 1 1]);
+%
 %% Input Arguments
-% timeRaw --- input time vector with any date formats (datenum/datestr/datevec/datetime)
-% 
-% time_interval --- time interval,  it can be 'days', 'hours', 'minutes', or
-% 'seconds'. Case is ignored, only the first two digits will be used.
-% 
-% base_date --- base date, e.g. base_date = [1900 1 1]; Default:
-% base_date = [1900 1 1 0 0 0];
+%   timeRaw       - Time data (datenum, datestr, datevec, datetime)
+%   time_interval - Time unit: 'days', 'hours', 'minutes', 'seconds' (optional)
+%   base_date     - Reference date for numerical conversions (optional)
 %
 %% Output Arguments
-% time --- time vector with datetime format.
-%
-%% Notes
-% this function aims to convert a time vector of any date formats into
-% 'datetime' format. Sometimes you may need to input the time
-% origin, if your time vector with 'datenum' format starts at specific
-% time origin. The time scale should be specified, if the provided vector is not
-% daily.
+%   time          - Time vector/matrix in datetime format.
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2020. 
-% Last Updated on 29 Nov. 2021. 
-% Email: wenfanwu@stu.ouc.edu.cn
-% 
-% See also: datetime
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021. 
+% Last Updated on 21 Feb 2025. 
+% Email: wwu@vims.edu
+%
+% See also: datetime, datevec, datenum, datestr
 
-%% Parse inputs
-switch nargin
-    case 1
-        time_interval = 'days';
-        base_date = [0,0,0];
-    case 2
-        base_date = [0,0,0];
-end
-size_list = size(timeRaw);
-timeRaw = timeRaw(:);
+%% Set Default Values
+if nargin < 2, time_interval = 'days'; end
+if nargin < 3, base_date = [0 0 0]; end
 
-base_date_used = [1900 1 1 0 0 0];
-base_date_used(1:length(base_date)) = base_date(:)';
-%--------- From datenum
-if isa(timeRaw,'numeric') && min(size(timeRaw,1),size(timeRaw,2)) == 1
-    timeRaw = double(timeRaw);
-    if strncmpi(time_interval,'months',2)
-        time_gap = 1/31;
-    end
-    if strncmpi(time_interval,'days',2)
-        time_gap = 1;
-    end
-    if strncmpi(time_interval,'hours',2)
-        time_gap = 24;
-    end
-    if strncmpi(time_interval,'minutes',2)
-        time_gap = 24*60;
-    end
-    if strncmpi(time_interval,'seconds',2)
-        time_gap = 24*60*60;
-    end
-    time = datetime(datevec(timeRaw/time_gap+datenum(base_date_used)));
+% Ensure base_date is in full datevec format
+base_date_full = [1900 1 1 0 0 0]; 
+base_date_full(1:length(base_date)) = base_date(:)';
+
+if ischar(timeRaw) && isscalar(timeRaw)
+    timeRaw = {timeRaw};
 end
-%--------- From datevec
-if isa(timeRaw,'numeric') && (size(timeRaw,1) == 6 || size(timeRaw,2) == 6)
-    timeRaw = double(timeRaw);
+
+% Preserve input size for reshaping later
+original_size = size(timeRaw);
+if size(timeRaw, 2) == 6 && all(timeRaw(:,2) >= 1 & timeRaw(:,2) <= 12 & mod(timeRaw(:,2), 1) == 0)
+    original_size(2) = 1;
+else
+    timeRaw = timeRaw(:);
+end
+%% Convert time based on input type
+if isnumeric(timeRaw) % If datenum or datevec
+    if size(timeRaw,2) == 6  % datevec
+        time = datetime(timeRaw);
+    else %  datenum
+        switch lower(time_interval(1:2)) % Match first two letters
+            case 'da', time_scale = 1;
+            case 'ho', time_scale = 1/24;
+            case 'mi', time_scale = 1/(24*60);
+            case 'se', time_scale = 1/(24*60*60);
+            otherwise, error('Invalid time interval: %s', time_interval);
+        end
+        time = datetime(datevec(timeRaw*time_scale + datenum(base_date_full))); %#ok<DATNM>
+    end
+elseif iscell(timeRaw) || isstring(timeRaw)% If datestr
     time = datetime(timeRaw);
-end
-%--------- From datestr
-if isa(timeRaw,'char')
-    time = datetime(datevec(timeRaw));
-end
-%--------- From datetime
-if isa(timeRaw,'datetime')
+elseif isdatetime(timeRaw) % If already datetime
     time = timeRaw;
+else
+    error('Unsupported time format: Input must be numeric, char, cell, string, or datetime.');
 end
 
-time = reshape(time, size_list);
+% Restore original shape
+time = reshape(time, original_size);
 end
-
-
-
-
-
-

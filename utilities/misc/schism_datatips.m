@@ -31,8 +31,8 @@ elseif numel(Cs)==nElems
     tri = event_obj.Target.Faces;
     i34 = sum(diff(sort(tri, 2), 1, 2) ~= 0, 2)+1;
 
-    Xcs = nan(nElems, 1); Xcs(i34==3) = mean(Xs(tri(i34==3, 1:3)), 2);Xcs(i34==4) = mean(Xs(tri(i34==4, 1:4)), 2);
-    Ycs = nan(nElems, 1); Ycs(i34==3) = mean(Ys(tri(i34==3, 1:3)), 2);Ycs(i34==4) = mean(Ys(tri(i34==4, 1:4)), 2);
+    Xcs = nan(nElems, 1); Xcs(i34==3) = mean(Xs(tri(i34==3, 1:3)), 2);Xcs(i34==4) = mean(Xs(tri(i34==4, 1:end)), 2);
+    Ycs = nan(nElems, 1); Ycs(i34==3) = mean(Ys(tri(i34==3, 1:3)), 2);Ycs(i34==4) = mean(Ys(tri(i34==4, 1:end)), 2);
 
     Index = geomin(Xcs(:), Ycs(:), pos(1), pos(2));
 end

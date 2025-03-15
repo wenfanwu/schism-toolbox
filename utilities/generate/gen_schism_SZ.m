@@ -1,50 +1,69 @@
 function Mobj = gen_schism_SZ(Mobj, s_consts, zcors)
-% Generate SZ (Sigma-Z) coordinates for SCHISM
+% Generate SZ-type (Sigma-Z) vertical grids
 % 
 %% Syntax
-% 
+% Mobj = gen_schism_SZ(Mobj)
+% Mobj = gen_schism_SZ(Mobj, s_consts)
+% Mobj = gen_schism_SZ(Mobj, s_consts, zcors)
 %
 %% Description 
-% 
+% Mobj = gen_schism_SZ(Mobj) generates sigma-z vertical grids
+% Mobj = gen_schism_SZ(Mobj, s_consts) specifies the streching constants
+% Mobj = gen_schism_SZ(Mobj, s_consts, zcors) specifies the z-coordinates
 %
 %% Examples
+% s_consts = [10, 0.7, 5, 20];
+% zcors = 20:2:(fix(max(Mobj.depth))+10);
+% Mobj = gen_schism_SZ(Mobj, s_consts, zcors); % sigma-z hybrid
 %
+% s_consts = [10, 0.7, 5, 20];
+% zcors = max(Mobj.depth)+100;
+% Mobj = gen_schism_SZ(Mobj, s_consts, zcors); % purely-sigma
+%
+% s_consts = [10, 0.7, 5, 20]; 
+% zcors = 0:2:(ceil(max(Mobj.depth))+10);
+% Mobj = gen_schism_SZ(Mobj, s_consts, zcors); % purely-z 
 %
 %% Input Arguments
-% Mobj --- mesh object
-% zcors --- z-coordinate list, input as a vector; e.g. zcors = 20:5:100;
-% the min. zcors is the transition depth between z-layers and sigma-layers.
-% s_consts --- some consts for the sigma-formula. 
-% s_consts = [h_c, theta_b, theta_f, ns]; h_c is a positive constant
-% dictating the thickness of the bottom or surface layer that needs to be
-% resolved, and theta_b and theta_f are constants that control the vertical
-% resolution near the bottom and surface; ns is the # of sigma layers.
+% Mobj - the mesh object; datastruct
+%       a datastruct storing the grid info.
+% s_consts - streching constants; double
+%       some consts for the sigma-formula. 
+%       s_consts = [h_c, theta_b, theta_f, ns]; h_c is a positive constant
+%       dictating the thickness of the bottom or surface layer that needs
+%       to be resolved, and theta_b and theta_f are constants that control
+%       the vertical resolution near the bottom and surface; ns is the # of
+%       sigma layers. default; s_consts = [10, 0.7, 5, 20];
+% zcors - z-coordinates; double
+%       the vertical coordinates used for z-layers; e.g. zcors = 20:5:100;
+%       the min. zcors is the transition depth between z-layers and
+%       sigma-layers. default: zcors = 20:2:(ceil(max(Mobj.depth))+10);
 %
 %% Output Arguments
-% Mobj --- mesh object with 'depLayers' and 'vtype' loaded.
+% Mobj - the mesh object; datastruct
+%       the mesh object with vertical layers added.
 % 
 %% Notes
-% This function aims to generate the SZ (Sigma-Z) vertical grids for SCHISM
-% model. The sigma-layers is on the top of z-layers. Purely-Z or -Sigma will
-% be taken as a particular case.
+% As for sigma-z vertical grids, the sigma-layer is on the top of z-layers,
+% and purely-z or -sigma grids will be taken as particular cases.
 %
-% If the min. values in zcors > max. model depth, then a purely-S
-% coordinate is adopted; if the min. values in zcors is zeros, a purely-Z
-% is adopted
+% If the min. values in zcors > max. model depth, then a purely-s
+% grid is used; if the min. value in zcors is zero, a purely-z grid will be
+% used instread.
 %
 % If you want to create a set of 2D vertical grids, just use zcors = 100000,
 % and s_consts = [100. 0. 1.e-4 2]; 
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2023. 
-% Last Updated on 2023-11-24.
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2023.
+% Last updated on 25 Feb 2025. 
+% Email: wwu@vims.edu
 % 
-% See also: 
-%
+% See also: gen_schism_LSC2 and write_schism_vgrid
+
 %% Parse inputs
 if isfield(Mobj, 'vtype')
-    error(['A vertical grid (',Mobj.vtype,') already exists!'])
+    error(['vertical grids (',Mobj.vtype,') already existed!'])
 end
 %% Parse inputs
 if nargin<2
@@ -93,13 +112,13 @@ z_mas(ind_nans,:) = [];
 vtype = 'SZ';
 sz_mas = [s_mas; -z_mas(2:end, :)];
 if h_s > max(Mobj.depth)
-    disp('Purely-S coordinate is adopted')
+    disp('purely-sigma coordinate is used')
     sz_mas = s_mas;
     vtype = 'S';
     zcors = zcors(1);
 end
 if h_s == 0
-    disp('Purely-Z coordinate is adopted')
+    disp('purely-z coordinate is used')
     sz_mas = -z_mas;
     vtype = 'Z';
     sigma = [0; -1];

@@ -122,9 +122,9 @@ end
 
 digits_num = length(num2str(floor(abs(nFiles))));
 %% Check data entries
-% Change theses two parameters in 'sfux_9c.F90' if needed.
+% Change the two parameters in 'sflux_9c.F90' if necessary
 max_files = 9999;             % max. total # of nc files  (default: 9999).
-max_times = 300000;        % max. # of time records from all files (default: 100000).
+max_times = 100000;        % max. # of time records from all files (default: 100000).
 
 if nFiles>max_files
     warning('nFiles is greater than the max # of nc files!')

@@ -1,57 +1,80 @@
-function indMin = geomin(lonAll, latAll, siteLon, siteLat, N)
-% Find indices of the nearest points on geographic maps
+function index = geomin(X, Y, x0, y0, N, ctype)
+% Find the indices of closet points
 %
 %% Syntax
-%
+% index = geomin(X, Y, x0, y0)
+% index = geomin(X, Y, x0, y0, N)
+% index = geomin(X, Y, x0, y0, N, ctype)
 %
 %% Description
-%
+% index = geomin(X, Y, x0, y0) finds the index of the closet points.
+% index = geomin(X, Y, x0, y0, N) specifies the # of the closest points.
+% index = geomin(X, Y, x0, y0, N, ctype) specifies the coordinate type.
 %
 %% Examples 
-%
+% X = 100:0.1:120; Y = 30:0.1:50;
+% x0 = [110, 115.2]; y0 = [33, 38];
+% index = geomin(X, Y, x0, y0);
 %
 %% Input Arguments
-% lonAll - longitude vector; double
-%       the longitude vector for searching.
-% latAll - latitude vector; double
-%       the latitude vector for searching.
-% siteLon - target longitude; double
-%       the target longitude for searching.
-% siteLat - target latitude; double
-%       the target latitude for searching.
-% N - the returned # of points; double
-%       the returned # of the first closest points. default: N=1
+% X - x-coordinate; double
+%       the searching pool of x-coordinates.
+% Y - y-coordinate; double
+%       the searching pool of y-coordinates.
+% x0 - target x-coordinate; double
+%       the target x-coordinates to be searched.
+% y0 - target y-coordinate; double
+%       the target y-coordinates to be searched.
+% N - the # of closest points; double
+%       the returned # of closest points. default: N = 1;
+% ctype - coordinate type; double/char
+%       the coordinate types (geographic/cartesian or 1/0); 
+%       default ctype = 'geographic'
 %
 %% Output Arguments
-% indMin - index matrix; double
-%       the indices of nearest points. the returned indMin is a matrix of
-%       (N*M), with M being the length of siteLon/siteLat.  
+% index - the index; double
+%       the index of closed points;
+%
+%% Notes
+% This function was created with the help of ChatGPT
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2024. 
-% Last Updated on 11 Oct 2024. 
+% Last Updated on 20 Feb 2025. 
 % Email: wwu@vims.edu
 % 
 % See also: 
 
 %% Parse inputs
-if nargin < 5 
-    N = 1;
-end
-%% Calculate
-if max(lonAll)>360
-    fcn = @(x,y) hypot(lonAll-x, latAll-y)'; % units
-else
-    fcn = @(x,y) distance(y,x, latAll, lonAll, [6378.137 0.0818191910428158])';  % km
-end
+if nargin < 5; N = 1; end
+if nargin < 6; ctype = 'geographic'; end
+if length(X) ~= length(Y); error('Input vectors must have the same length.'); end
 
-dist_cell = arrayfun(@(x,y) fcn(x,y), siteLon, siteLat, 'UniformOutput',false);
-dist = cell2mat(dist_cell);
+N = min(N, length(X));
+%% Calculate
+switch lower(ctype)
+    case {'cartesian', 0}
+        distances = hypot(X(:)-x0(:)', Y(:)-y0(:)');
+
+    case {'geographic', 1}
+        % from degree to rad
+        lat1 = Y(:)*pi/180;  % N×1
+        lon1 = X(:)*pi/180; % N×1
+        lat2 = y0(:)'*pi/180;  % 1×M
+        lon2 = x0(:)'*pi/180;  % 1×M
+
+        % Haversine formula (vectorized)
+        dlat = lat2 - lat1;  % N×M
+        dlon = lon2 - lon1;  % N×M
+        a = sin(dlat/2).^2 + cos(lat1) .* cos(lat2) .* sin(dlon/2).^2;
+        c = 2 * atan2(sqrt(a), sqrt(1-a));
+        distances = 6371000 * c; 
+end
 
 % sort distances for each target point and get the N nearest indices
-[~, sorted_indices] = sort(dist, 2);  % sort along the first dimension (across points)
+[~, sorted_indices] = sort(distances, 1);  % sort along the first dimension (across points)
 
 % return the indices of the N closest points for each target
-indMin = sorted_indices(:,1:N); 
+index = sorted_indices(1:N,:);
 
 end

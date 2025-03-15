@@ -1,46 +1,52 @@
-function Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_layers, s_consts, dz_bot_min)
-% Generate LSC2 vertical grids
+function Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_nums, s_consts, dz_bot_min)
+% Generate LSC2-type vertical grids
 % 
 %% Syntax
 % Mobj = gen_schism_LSC2(Mobj)
-% Mobj = gen_schism_LSC2(Mobj, ntype)
-% Mobj = gen_schism_LSC2(Mobj, ntype, s_consts)
-% Mobj = gen_schism_LSC2(Mobj, ntype, s_consts, dz_bot_min)
+% Mobj = gen_schism_LSC2(Mobj, dep_edges)
+% Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_layers)
+% Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_layers, s_consts)
+% Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_layers, s_consts, dz_bot_min)
 %
 %% Description 
-% Mobj = gen_schism_LSC2(Mobj) loads the basic information of LSC2 grids
-% into Mobj.
-% Mobj = gen_schism_LSC2(Mobj, ntype) specifies a vertical layer
-% scheme.
-% Mobj = gen_schism_LSC2(Mobj, ntype, s_consts) specifies the stretching
-% constants.
-% Mobj = gen_schism_LSC2(Mobj, ntype, s_consts, dz_bot_min) specifies the
-% minmum tickness for the bottom layer.
+% Mobj = gen_schism_LSC2(Mobj) generates LSC2-stype vertical layers
+% Mobj = gen_schism_LSC2(Mobj, dep_edges) specifies the depth edges
+% Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_layers) specifies the layers of each depth bin
+% Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_layers, s_consts) specifies the streching constants
+% Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_layers, s_consts, dz_bot_min) specifies the minimum BBL thickness.
 % 
 %% Example
-% Mobj = gen_schism_LSC2(Mobj, 0, [4 5 4 5], 0.35);
+% dep_edges = [10, 20, 30, 45, 55, 65, 75, 90];
+% dep_nums =  [20 21 22 23 24 25 27 28];
+% Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_nums, [4 5 3 5], 0.25);
 %
 %% Input Arguments
-% Mobj --- the mesh object
-% ntype --- select a set of vertical grids for your own simulataion. Here
-% we provide several set of grids in the code (swtich...end). Users can
-% also add their own grids here. Default: ntype = 0; 
-% s_const --- stretching constants. Default: s_const = [4 5 3 5];
-%            s_const = [VSTRETCHING, rtheta_s, rtheta_b, TCLINE];.
-% Briefly speaking, rtheta_s/rtheta_b determines the weight of the
-% refinement in surface/bottom layer. VSTRETCHING determines the stretching
-% function used here. s_const can tweak the sparsity of the vertical grids,
-% so as to realize the functionality of surface/bottom layer refinement. 
-% Here are some examples for s_const: 
+% Mobj - the mesh object; datastruct
+%       a datastruct storing the grid info.
+% dep_edges - depth edges; double
+%       depth edges used to partition the depth bins.
+% dep_nums - the # of layers; double
+%       the # of depth layers for each depth bin.
+% s_const - stretching constants. double
+%       the stretching constants used for sigma-function
+%       s_const = [VSTRETCHING, rtheta_s, rtheta_b, TCLINE]; 
+%       VSTRETCHING determines the stretching function used here.
+%       rtheta_s/rtheta_b determines the weight of the refinement in
+%       surface/bottom layer. s_const can tweak the sparsity of vertical
+%       grids, so as to realize the functionality of surface/bottom layer
+%       refinement; default: s_const = [4 5 3 5];
+%       here are some examples for s_const: 
 %       surface refinement                     bottom refinement 
 %       s_consts = [4 5 3 5];                   s_consts = [3 1 3 5]; 
 %       s_consts = [2 7 0.1 5];          
 %       s_consts = [2 9 0.1 5];          
-% dz_bot_min --- the minmum thickness (meters) of the bottom bounday layer.
-% Default: dz_bot_min = 0.35.
+% dz_bot_min - minimum thickness; double
+%       the minmum thickness (meters) of the bottom bounday layer; 
+%       default: dz_bot_min = 0.35.
 %
 %% Output Arguments
-% sigma_vqs --- normalized depth layers.
+% Mobj - the mesh object; datastruct
+%       the mesh object with vertical layers added.
 %
 %% Notes
 % This function aims to generate the LSC2 vertical grids for SCHISM
@@ -48,15 +54,15 @@ function Mobj = gen_schism_LSC2(Mobj, dep_edges, dep_layers, s_consts, dz_bot_mi
 % source code. Refer to the original FORTRAN code for more details.
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2021. 
-% Last Updated on 7 Dec. 2021. 
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
+% Last updated on 25 Feb 2025. 
+% Email: wwu@vims.edu
 % 
 % See also: gen_schism_SZ and write_schism_vgrid
 
 %% Parse inputs
 if isfield(Mobj, 'vtype')
-    error(['A vertical grid (',Mobj.vtype,') already exists!'])
+    error(['vertical grids (',Mobj.vtype,') already existed!'])
 end
 
 global TCLINE VSTRETCHING rtheta_s rtheta_b np ne xnd ynd dp hsm m_vqs nv_vqs %#ok<*GVMIS> 
@@ -70,10 +76,10 @@ end
 m_vqs= numel(dep_edges);
 
 if nargin < 3
-    dep_layers(1:m_vqs) = 18+(1:m_vqs);
+    dep_nums(1:m_vqs) = 18+(1:m_vqs);
 end
-if isempty(dep_layers)
-    dep_layers(1:m_vqs) = 18+(1:m_vqs);
+if isempty(dep_nums)
+    dep_nums(1:m_vqs) = 18+(1:m_vqs);
 end
 
 if nargin < 4
@@ -84,7 +90,7 @@ if nargin <5
 end
 
 hsm = dep_edges;
-nv_vqs = dep_layers;
+nv_vqs = dep_nums;
 
 %% ================================================
 %        ================ Streching const. =============

@@ -1,11 +1,15 @@
-function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes)
+function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes, sort_flag)
 % Add open/land/island boundary info.
 %
 %% Syntax
 % Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes)
+% Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes, sort_flag)
 %
 %% Description
-% Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes)
+% Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes) add
+%       boundary info into the mesh object
+% Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes, sort_flag) 
+%       sorts the nodes in descending order or not. 
 %
 %% Examples 
 % 
@@ -25,6 +29,8 @@ function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes)
 %       a matrix (M*N) containing the island boundary info, with M indicating
 %       the node number of the longest island boundary, while N indicating
 %       the # of island boundaries.
+% sort_flag - sort flags; double (0/1)
+%       the flag used to determine sort the nodes or not. default: sort_flag = 1;
 %
 %% Output Arguments
 % Mobj - mesh object; datastruct
@@ -42,11 +48,14 @@ function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes)
 % See also: add_grid_metrics
 
 %% Parse inputs
-% 1) arrange all boundaries in descending order based on the # of nodes
+if nargin<5
+    sort_flag = 1;
+end
+% 1) arrange all boundaries in descending order based on the # of nodes (if sort_flag=1)
 % 2) trim redundant lines that are all zeros
-obc_nodes = trim_bnd_nodes(obc_nodes);
-land_nodes = trim_bnd_nodes(land_nodes);
-island_nodes = trim_bnd_nodes(island_nodes);
+obc_nodes = trim_bnd_nodes(obc_nodes, sort_flag);
+land_nodes = trim_bnd_nodes(land_nodes, sort_flag);
+island_nodes = trim_bnd_nodes(island_nodes, sort_flag);
 
 %% Check the island loops (inner loops)
 % the islands don't need to form a loop in hgrid.gr3 or hgrid.ll
@@ -79,7 +88,9 @@ end
 obc_counts = size(obc_nodes,2);
 land_counts = size(land_nodes,2);
 
-outer_bnd_cells = cell(obc_counts+land_counts,1);
+% only work for the case that land and ocean boudaries forms a big loop,
+% and all islands are inside it so far. 
+outer_bnd_cells = cell(obc_counts+land_counts,1);  
 tmp_nodes = obc_nodes(:,1);
 tmp_nodes(tmp_nodes==0) = [];
 outer_bnd_cells{1} = tmp_nodes(:);
@@ -176,7 +187,7 @@ Mobj.island_nodes_tot(Mobj.island_nodes_tot==0) = [];
 disp('open/land/island boundary metrics have been added')
 end
 
-function bnd_nodes = trim_bnd_nodes(bnd_nodes)
+function bnd_nodes = trim_bnd_nodes(bnd_nodes, sort_flag)
 % 1) arrange all boundaries in descending order based on the # of nodes
 % 2) trim redundant lines that are all zeros
 
@@ -184,10 +195,11 @@ bnd_nodes = abs(bnd_nodes);
 max_len = max(sum(bnd_nodes~=0,1));
 bnd_nodes = bnd_nodes(1:max_len,:);
 
-bnd_lens = sum(bnd_nodes~=0,1);
-[~, ind_sorted] = sort(bnd_lens, 'descend');
-bnd_nodes = double(bnd_nodes(:, ind_sorted)); % sort by the # of loop lens
-
+if sort_flag == 1
+    bnd_lens = sum(bnd_nodes~=0,1);
+    [~, ind_sorted] = sort(bnd_lens, 'descend');
+    bnd_nodes = double(bnd_nodes(:, ind_sorted)); % sort by the # of loop lens
+end
 end
 
 %% Debug (check the direction of boundaries)
