@@ -22,6 +22,7 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\extract\get_era5_forcing**: extract atmospheric forcing from era5
 - **.\utilities\calculate\calc_schism_nudge**: calculate boundary nudging factors (TEM/SAL/ICM_nudge.gr3)
 - **.\utilities\calculate\calc_schism_reso**: calculate grid resolution with dfferent methods
+- **.\utilities\calculate\calc_schism_contour**: calculate contour lines.
 - **.\utilities\calculate\calc_schism_edge**: calculate edge length info
 - **.\utilities\calculate\calc_schism_shapiro**: renamed from *gen_slope_filter2*
 - **.\utilities\calculate\calc_schism_angles**: calculate interior angles of each cell
