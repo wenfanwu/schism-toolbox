@@ -11,9 +11,6 @@ function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes, sort_
 % Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes, sort_flag) 
 %       sorts the nodes in descending order or not. 
 %
-%% Examples 
-% 
-%
 %% Input Arguments
 % Mobj - mesh object; datastruct
 %       a datastruct containing the mesh info.
@@ -30,7 +27,7 @@ function Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes, sort_
 %       the node number of the longest island boundary, while N indicating
 %       the # of island boundaries.
 % sort_flag - sort flags; double (0/1)
-%       the flag used to determine sort the nodes or not. default: sort_flag = 1;
+%       the flag used to determine whether sort the nodes or not. default: sort_flag = 1;
 %
 %% Output Arguments
 % Mobj - mesh object; datastruct

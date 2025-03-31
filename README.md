@@ -119,7 +119,7 @@ check_schism_hydrostatic(Mobj);
   <img src="imags/fig_4.2.png" alt="image" width="400">
 </div>
 
-<p align="center"><strong>Figure 3</strong>. The theoretical coarsest resolutions as a function of water depth .</p>
+<p align="center"><strong>Figure 3</strong>. The theoretical coarsest resolutions as a function of water depth.</p>
 
 <div align="center">
   <img src="imags/fig_4.3.png" alt="image" width="400">
@@ -269,7 +269,9 @@ check_schism_bdry(Mobj, DS, BdryCnd, 'temp', 1)
 check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
 ```
 
-> This step can be quite time-consuming if you choose real-time boundary inputs with a high time resolution, especially when the timespan is long.
+> <span style="color:green;">**prep_schism_bdry.m**</span> is also a wrapper function. Add your own data sources in it according to needs. 
+> 
+> <span style="color:green;">**prep_schism_bdry.m**</span> can be time-consuming when using real-time boundary inputs at high temporal resolution, particularly over extended periods. The primary factor slowing down this step is the data input/output (I/O) overhead from repeatedly loading data from the hard disk into memory (only the first time). If possible, storing data in SSD and using parallel programming (e.g., parfor) can greatly enhance efficiency.
 
 <div align="center">
   <img src="imags/fig_8.1.png" alt="image" width="500">

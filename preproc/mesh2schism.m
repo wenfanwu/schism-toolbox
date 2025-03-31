@@ -2,7 +2,7 @@ function Mobj = mesh2schism(mesh_file, sname)
 % Load the unstructured grid from OceanMesh2D or SMS.
 %
 %% Syntax
-% Mobj = mesh2schism(mesh_file) 
+% Mobj = mesh2schism(mesh_file)
 % Mobj = mesh2schism(mesh_file, sname)
 %
 %% Description
@@ -14,16 +14,16 @@ function Mobj = mesh2schism(mesh_file, sname)
 %% Example
 % mesh_file  = 'E:\Exp2_BYES\inputs\BYES_64676.mat';
 % Mobj = mesh2schism(mesh_file);
-% 
+%
 % mesh_file = 'D:\WorkDisk\test.2dm';
 % Mobj = mesh2schism(mesh_file);
-% 
+%
 %% Input Arguments
 % mesh_file - mesh file; char
 %       the absolute filepath of mesh file from OceanMesh2D or SMS.
 % sname - software name; char
 %       the mesh generation software; By default: the function will
-%       automatically decide based on the file suffix 
+%       automatically decide based on the file suffix
 %
 %% Output Arguments
 % Mobj - mesh object; datastruct
@@ -103,45 +103,50 @@ depth = node_info(:,5);
 
 if sum(depth~=0)==0
     warning on
-    warning('depth info is missing in the 2dm file')
+    warning('No depth info in the 2dm file')
+    depth = depth+nan;
 end
 
 Mobj.aimpath = [fileparts(mesh_file), '\'];
 Mobj = add_grid_metrics(Mobj, lon, lat, tri, depth);
 
-% boundary metrics
+% boundary info
 ind_obc = cellfun(@(x) strncmp(x, 'NS', 2), D);
-obc_part = D(ind_obc);
-obc_part = cellfun(@(x) strtrim(x), obc_part, 'UniformOutput',false);  % adapt to earlier versions of MATLAB
-end_flags = cellfun(@(x) count(x, '-'), obc_part);
-end_locs = find(end_flags); end_locs = [1; end_locs(:)]; end_locs(1) = 0;
+if any(ind_obc)
+    obc_part = D(ind_obc);
+    obc_part = cellfun(@(x) strtrim(x), obc_part, 'UniformOutput',false);  % adapt to earlier versions of MATLAB
+    end_flags = cellfun(@(x) count(x, '-'), obc_part);
+    end_locs = find(end_flags); end_locs = [1; end_locs(:)]; end_locs(1) = 0;
 
-nNodes_est = length(obc_part)*10;
-obc_counts = sum(end_flags);
+    nNodes_est = length(obc_part)*10;
+    obc_counts = sum(end_flags);
 
-obc_nodes = zeros(nNodes_est, obc_counts);
-for ii = 1:obc_counts
-    loc = end_locs(ii)+1:end_locs(ii+1)-1;
+    obc_nodes = zeros(nNodes_est, obc_counts);
+    for ii = 1:obc_counts
+        loc = end_locs(ii)+1:end_locs(ii+1)-1;
 
-    obc_line = double(split(string(obc_part(loc,:))));
-    obc_line = obc_line(:, 2:end)'; obc_line = obc_line(:);
+        obc_line = double(split(string(obc_part(loc,:))));
+        obc_line = obc_line(:, 2:end)'; obc_line = obc_line(:);
 
-    obc_end = double(split(string(obc_part(end_locs(ii+1),:))));
-    obc_end = obc_end(2:end)'; obc_end = abs(obc_end(:));
+        obc_end = double(split(string(obc_part(end_locs(ii+1),:))));
+        obc_end = obc_end(2:end)'; obc_end = abs(obc_end(:));
 
-    obc_tot = [obc_line(:); abs(obc_end(:))];
+        obc_tot = [obc_line(:); abs(obc_end(:))];
 
-    obc_nodes(1:numel(obc_tot), ii) = obc_tot(:);
-end
+        obc_nodes(1:numel(obc_tot), ii) = obc_tot(:);
+    end
 
-if isempty(obc_nodes)
+    if isempty(obc_nodes)
+        warning on
+        warning('open boundary nodes are not found in the 2dm file!')
+    end
+
+    [land_nodes, island_nodes] = find_land_island(Mobj.tri, Mobj.edg, obc_nodes);
+    Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes);
+else
     warning on
-    warning('open boundary nodes are not found in the 2dm file!')
+    warning('No open boundary info in the 2dm file')
 end
-
-[land_nodes, island_nodes] = find_land_island(Mobj, obc_nodes);
-
-Mobj = add_bnd_metrics(Mobj, obc_nodes, land_nodes, island_nodes);
 end
 
 function Mobj = read_mat_info(mesh_file)

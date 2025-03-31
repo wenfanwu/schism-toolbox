@@ -48,7 +48,7 @@ obc_nodes2(1:n_nodes, :) = obc_nodes;
 
 obc_nodes_plus = [Mobj.obc_nodes obc_nodes2];
 
-[land_nodes, island_nodes] = find_land_island(Mobj, obc_nodes_plus);
+[land_nodes, island_nodes] = find_land_island(Mobj.tri, Mobj.edg, obc_nodes_plus);
 Mobj = add_bnd_metrics(Mobj, obc_nodes_plus, land_nodes, island_nodes);
 
 end

@@ -1,4 +1,4 @@
-function AtmForc = get_era5_forcing(Mobj, varList)
+function AtmForc = get_era5_forcing(Mobj, varList, src_file)
 % Extract ERA5 atmopheric forcing
 %
 %% Syntax
@@ -28,6 +28,9 @@ function AtmForc = get_era5_forcing(Mobj, varList)
 %       A datastruct containing mesh info.
 % varList - variable list; cell
 %       varList provides the variable names to be extracted.
+% src_file - source file; char
+%       the absolute filepath of ERA5 file, with **** indicating the variable name.
+%       e.g., src_file = 'E:\data\ERA5_hourly_****_1980_2024.nc';
 %
 %% Output Arguments
 % AtmForc - atmospheric forcing; datastruct
@@ -35,7 +38,7 @@ function AtmForc = get_era5_forcing(Mobj, varList)
 %
 %% Notes
 % Three things to note before using this function.
-%   1) All ERA5 nc files are saved by variable classification in 'datapath' ('ERA5_hourly_', long_name, '_1980_2024.nc', as below).
+%   1) All ERA5 nc files are saved by variable classification in the same directory ('ERA5_hourly_', long_name, '_1980_2024.nc', as below).
 %   2) Three dimensional variables are included (lon, lat, time), and the time
 %       vector is obtained from 'datenum', indicating the days since datenum(0,0,0).  
 %       Note that the time vector in raw ERA5 data represents the secs
@@ -60,16 +63,14 @@ function AtmForc = get_era5_forcing(Mobj, varList)
 % See also: write_schism_sflux
 
 %% Parse inputs
-if ischar(varList)
-    varList = {varList};
-end
-
+if ischar(varList); varList = {varList}; end
 AtmForc.aimpath = Mobj.aimpath;
 AtmForc.region = Mobj.force_region;
 AtmForc.time = Mobj.force_time;
 
-datapath = 'E:\ECMWF\ERA5\Hourly_single_level_chesbay\L1_data\';  % download ERA5 data first!
-
+if nargin<3
+    src_file = 'E:\ECMWF\ERA5\Hourly_single_level_chesbay\L1_data\ERA5_hourly_****_1980_2024.nc';  % download ERA5 data first!
+end
 %% Extract
 lon_test = []; lat_test = [];
 
@@ -81,21 +82,21 @@ for iVar = 1:length(varList)
             sflux_name = 'uwind'; % variable names in sflux nc
             long_name = '10m_u_component_of_wind';  % long variable names in ERA5 nc files (default)
             short_name = 'u10';    % short variable names in the ERA5 nc files (default)
-            filepath = [datapath, 'ERA5_hourly_', long_name, '_1979_2024.nc']; % m/s
+            filepath = strrep(src_file, '****', long_name); % m/s
             [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
 
         case {'vwind', 'v10'} % m/s
             sflux_name = 'vwind'; 
             long_name = '10m_v_component_of_wind';
             short_name = 'v10';
-            filepath = [datapath, 'ERA5_hourly_', long_name, '_1979_2024.nc']; % m/s
+            filepath = strrep(src_file, '****', long_name); % m/s
             [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name); 
 
         case {'dswrf', 'swrad_down', 'short_wave_down'}  % W/m^2
             sflux_name = 'dswrf'; 
             long_name = 'surface_solar_radiation_downwards'; 
             short_name = 'ssrd'; 
-            filepath = [datapath, 'ERA5_hourly_', long_name, '_1979_2024.nc'];  % J/m^2
+            filepath = strrep(src_file, '****', long_name);  % J/m^2
             [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
             varReg = varReg/3600; % convert to W/m^2
 
@@ -103,7 +104,7 @@ for iVar = 1:length(varList)
             sflux_name = 'dlwrf'; 
             long_name = 'surface_thermal_radiation_downwards';
             short_name = 'strd';
-            filepath = [datapath, 'ERA5_hourly_', long_name, '_1979_2024.nc']; % J/m^2
+            filepath = strrep(src_file, '****', long_name); % J/m^2
             [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
             varReg = varReg/3600; % convert to W/m^2
 
@@ -111,18 +112,18 @@ for iVar = 1:length(varList)
             sflux_name = 'prmsl'; 
             long_name = 'mean_sea_level_pressure';
             short_name = 'msl';
-            filepath = [datapath, 'ERA5_hourly_', long_name, '_1979_2024.nc']; % Pa, or mbar/100
+            filepath = strrep(src_file, '****', long_name); % Pa, or mbar/100
             [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
 
         case {'spfh', 'shum', 'specific_humidity'}   % specific humidity calculated at the sea level
             long_name = 'surface_pressure'; % Pa
             short_name = 'sp';
-            filepath = [datapath, 'ERA5_hourly_', long_name, '_1979_2024.nc'];
+            filepath = strrep(src_file, '****', long_name);
             [~, ~, sp] = subset_era5(AtmForc, filepath, short_name);
 
             long_name = '2m_dewpoint_temperature';  % K
             short_name = 'd2m';
-            filepath = [datapath, 'ERA5_hourly_', long_name, '_1979_2024.nc'];
+            filepath = strrep(src_file, '****', long_name);
             [lonReg, latReg, d2m] = subset_era5(AtmForc, filepath, short_name);
             sp = sp/100; d2m = d2m-273.15;
             sflux_name = 'spfh';
@@ -132,14 +133,14 @@ for iVar = 1:length(varList)
             sflux_name = 'prate'; % kg/m^2/s
             long_name = 'mean_total_precipitation_rate'; % kg/m^2/s
             short_name = 'mtpr';
-            filepath = [datapath, 'ERA5_hourly_', long_name, '_1979_2024.nc'];
+            filepath = strrep(src_file, '****', long_name);
             [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
 
         case {'stmp',  'air_temp'} % K
             sflux_name= 'stmp';  
             long_name = '2m_temperature';
             short_name = 't2m';
-            filepath = [datapath, 'ERA5_hourly_', long_name, '_1979_2024.nc']; % K
+            filepath = strrep(src_file, '****', long_name);
             [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
 
     end
@@ -226,17 +227,7 @@ short_name = nc_vars{ind_var};
 
 end
 
-function q = calc_shum(d2m, sp)
-% calculate the specific humidify
 
-%% Parse inputs
-% calculate the vapor pressure
-e = 6.11.*10.^(7.5.*d2m./(237.7+d2m));
-
-% calculate the specific humidity
-q = 0.622.*e./(sp-0.378.*e);
-
-end
 
 
 

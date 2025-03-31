@@ -1339,7 +1339,7 @@ hold on
   <img width="400" alt="image" src="imags/fig_4.2.png">
 </div>
 
-<p align="center"><strong>Figure 3</strong>. The theoretical coarsest resolutions as a function of water depth .</p>
+<p align="center"><strong>Figure 3</strong>. The theoretical coarsest resolutions as a function of water depth.</p>
 
 <div align="center">
   <img width="400" alt="image" src="imags/fig_4.3.png">
@@ -1470,7 +1470,8 @@ BdryCnd <span class="token operator">=</span> <span class="token function">inter
 <span class="token comment">% check the consistency between initial fields and boundary inputs</span>
 <span class="token function">check_schism_icbc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'temp'</span><span class="token punctuation">,</span> Mobj<span class="token punctuation">.</span>maxLev<span class="token punctuation">)</span></code></pre>
 <blockquote>
-<p>This step can be quite time-consuming if you choose real-time boundary inputs with a high time resolution, especially when the timespan is long.</p>
+<p><span style="color:green;"><strong>prep_schism_bdry.m</strong></span> is also a wrapper function. Add your own data sources in it according to needs. </p>
+<p><span style="color:green;"><strong>prep_schism_bdry.m</strong></span> can be time-consuming when using real-time boundary inputs at high temporal resolution, particularly over extended periods. The primary factor slowing down this step is the data input/output (I/O) overhead from repeatedly loading data from the hard disk into memory (only the first time). If possible, storing data in SSD and using parallel programming (e.g., parfor) can greatly enhance efficiency.</p>
 </blockquote>
 <div align="center">
   <img width="500" alt="image" src="imags/fig_8.1.png">
