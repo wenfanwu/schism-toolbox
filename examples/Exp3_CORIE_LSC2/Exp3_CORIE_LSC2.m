@@ -50,13 +50,8 @@ disp_schism_vgrid(Mobj, sect_info)
 
 %% Tide Forcing (bctides.in)
 tideList = {'S2','M2','N2','K2', 'K1','P1','O1','Q1'};
-TideForc = get_fes2014_tide(Mobj, tideList);    % Global dataset
-
-field_list = fieldnames(TideForc);
-for ii = 1:numel(field_list)
-    tide_var = field_list{ii};
-    TideForc.(tide_var) = fillmissing(TideForc.(tide_var), 'previous', 1);
-end
+obc_bnds = 1; % only the first open boundary has tidal forcing.
+TideForc = get_fes2014_tide(Mobj, tideList, obc_bnds);   
 
 TideForc.cutoff_depth = 30;
 TideForc.nf_temp = [0.8 0.6 0.6 0.6];

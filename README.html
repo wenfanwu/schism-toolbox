@@ -1488,17 +1488,11 @@ BdryCnd <span class="token operator">=</span> <span class="token function">inter
 <br>
 
 <h3 class="atx" id="step-9-tidal-forcing">Step-9: Tidal forcing</h3>
-<p>This part aims to implement tidal forcing at the open boundary (e.g., bctides.in).</p>
+<p>This part aims to implement tidal forcing at the specified open boundaries and generate <strong>bctides.in</strong> file. All open boundaries will be included by default.</p>
 <pre><code class="fenced-code-block language-matlab"><span class="token comment">% extract tidal forcing</span>
 tideList <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">'S2'</span><span class="token punctuation">,</span><span class="token string">'M2'</span><span class="token punctuation">,</span><span class="token string">'N2'</span><span class="token punctuation">,</span><span class="token string">'K2'</span><span class="token punctuation">,</span> <span class="token string">'K1'</span><span class="token punctuation">,</span><span class="token string">'P1'</span><span class="token punctuation">,</span><span class="token string">'O1'</span><span class="token punctuation">,</span><span class="token string">'Q1'</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
-TideForc <span class="token operator">=</span> <span class="token function">get_fes2014_tide</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> tideList<span class="token punctuation">)</span><span class="token punctuation">;</span>   
-
-<span class="token comment">% kill the potential NaN values adjacent to the coast</span>
-field_list <span class="token operator">=</span> <span class="token function">fieldnames</span><span class="token punctuation">(</span>TideForc<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token keyword">for</span> ii <span class="token operator">=</span> <span class="token number">2</span><span class="token operator">:</span><span class="token function">numel</span><span class="token punctuation">(</span>field_list<span class="token punctuation">)</span>
-    tide_var <span class="token operator">=</span> field_list<span class="token punctuation">{</span>ii<span class="token punctuation">}</span><span class="token punctuation">;</span>
-    TideForc<span class="token punctuation">.</span><span class="token punctuation">(</span>tide_var<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token function">fillmissing</span><span class="token punctuation">(</span>TideForc<span class="token punctuation">.</span><span class="token punctuation">(</span>tide_var<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">'previous'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token keyword">end</span>
+obc_bnds <span class="token operator">=</span> <span class="token number">1</span><span class="token operator">:</span>Mobj<span class="token punctuation">.</span>obc_counts<span class="token punctuation">;</span>
+TideForc <span class="token operator">=</span> <span class="token function">get_fes2014_tide</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> tideList<span class="token punctuation">,</span> obc_bnds<span class="token punctuation">)</span><span class="token punctuation">;</span>   
 
 TideForc<span class="token punctuation">.</span>cutoff_depth <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
 TideForc<span class="token punctuation">.</span>nf_temp <span class="token operator">=</span> <span class="token number">0.8</span><span class="token punctuation">;</span>
@@ -1507,7 +1501,7 @@ TideForc<span class="token punctuation">.</span>nf_salt <span class="token opera
 bc_flags <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">5</span> <span class="token number">5</span> <span class="token number">4</span> <span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
 <span class="token function">write_schism_bctides</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> TideForc<span class="token punctuation">,</span> bc_flags<span class="token punctuation">)</span></code></pre>
 <blockquote>
-<p>Download the fes2014 tidal products first, and change the directory in the function <span style="color:green;"><strong>get_fes2014_tide.m</strong></span> (Lines 40–42).</p>
+<p>Download the fes2014 tidal products first, and change the directory in the function <span style="color:green;"><strong>get_fes2014_tide.m</strong></span> (Lines 58–60).</p>
 <p>It is easy to create another function if you want to change tide products, just make sure the returned <strong>TidaForc</strong> has the same format for the fields inside.</p>
 </blockquote>
 <br>

@@ -162,16 +162,10 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
 
 %% Step-9: Tide Forcing (bctides.in)
 % download the fes2014 tidal products first, and change the directory in
-% 'get_fes2014_tide.m' (Lines 40–42).
+% 'get_fes2014_tide.m' (Lines 58–60).
 tideList = {'S2','M2','N2','K2', 'K1','P1','O1','Q1'};
-TideForc = get_fes2014_tide(Mobj, tideList);   
-
-% kill potential NaN values adjacent to the coast
-field_list = fieldnames(TideForc);
-for ii = 2:numel(field_list)
-    tide_var = field_list{ii};
-    TideForc.(tide_var) = fillmissing(TideForc.(tide_var), 'previous', 1);
-end
+obc_bnds = 1:Mobj.obc_counts;
+TideForc = get_fes2014_tide(Mobj, tideList, obc_bnds);   
 
 TideForc.cutoff_depth = 10;
 TideForc.nf_temp = 0.8;

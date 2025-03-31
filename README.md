@@ -289,19 +289,13 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
 
 ### Step-9: Tidal forcing
 
-This part aims to implement tidal forcing at the open boundary (e.g., bctides.in).
+This part aims to implement tidal forcing at the specified open boundaries and generate **bctides.in** file. All open boundaries will be included by default.
 
 ```matlab
 % extract tidal forcing
 tideList = {'S2','M2','N2','K2', 'K1','P1','O1','Q1'};
-TideForc = get_fes2014_tide(Mobj, tideList);   
-
-% kill the potential NaN values adjacent to the coast
-field_list = fieldnames(TideForc);
-for ii = 2:numel(field_list)
-    tide_var = field_list{ii};
-    TideForc.(tide_var) = fillmissing(TideForc.(tide_var), 'previous', 1);
-end
+obc_bnds = 1:Mobj.obc_counts;
+TideForc = get_fes2014_tide(Mobj, tideList, obc_bnds);   
 
 TideForc.cutoff_depth = 10;
 TideForc.nf_temp = 0.8;
@@ -311,7 +305,7 @@ bc_flags = [5 5 4 4];
 write_schism_bctides(Mobj, TideForc, bc_flags)
 ```
 
-> Download the fes2014 tidal products first, and change the directory in the function <span style="color:green;">**get_fes2014_tide.m**</span> (Lines 40–42).
+> Download the fes2014 tidal products first, and change the directory in the function <span style="color:green;">**get_fes2014_tide.m**</span> (Lines 58–60).
 > 
 > It is easy to create another function if you want to change tide products, just make sure the returned **TidaForc** has the same format for the fields inside.
 
