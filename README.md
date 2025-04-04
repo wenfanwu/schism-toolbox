@@ -2,7 +2,7 @@
 
 This is a MATLAB toolbox designed for the Semi-implicit Cross-scale Hydroscience Integrated System Model ([SCHISM](http://ccrm.vims.edu/schismweb/)).
 
-Last updated on 6 Nov 2024 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), CCRM, Virginia Institute of Marine Science.
+Last updated on 3 Apr 2025 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), CCRM, Virginia Institute of Marine Science.
 
 ### New features!!!
 
@@ -97,11 +97,8 @@ write_schism_hgrid(Mobj)
 This part aims to check the inverse CFL constraints and hydrostatic assumption.
 
 ```matlab
-% check the invese CFL constraints
-check_schism_metrics(Mobj);
-
-% display the theoretical coarsest resolutions as a function of water depth 
-calc_schism_CFL(Mobj)
+% check the inverse CFL constraints
+check_schism_CFL(Mobj);
 
 % check the hydrostatic assumption
 check_schism_hydrostatic(Mobj);
@@ -399,17 +396,19 @@ This part aims to prepare sflux files (netcdf) as atmospheric forcing.
 % 2) variable matrix should be of nLons*nLats*nTimes
 % 3) the 'region' and 'time' fields must cover your simulation period and model domain.
 
-nFiles = 5; 
+time_steps = 30; % time steps in each netcdf file
 
 load('example_AtmForc_era5.mat')
-write_schism_sflux(AtmForc, 'prc', nFiles)
-write_schism_sflux(AtmForc, 'rad', nFiles)
-write_schism_sflux(AtmForc, 'air', nFiles)
+AtmForc.aimpath = Mobj.aimpath;
+
+write_schism_sflux(AtmForc, 'prc', time_steps)
+write_schism_sflux(AtmForc, 'rad', time_steps)
+write_schism_sflux(AtmForc, 'air', time_steps)
 ```
 
-> nFiles is the estimated # of sflux_prc/air/rad_*.nc files. Note that the nFiles can not be too small, since the **time_steps** of each sflux nc file can not exceed 1000 by default. In addition, <span style="color:green;">**write_schism_sflux.m**</span> will slightly adjust this value to ensure that each file starts at 0 o'clock in certain day, since the 'hour' component of 'base_date' property is unused in each nc file.
+> Note that the **time_steps** of each sflux nc file can not exceed 1000 in the model. In addition, the 'hour' component of 'base_date' attribute is unused in each nc file.
 > 
-> AtmForc was created by the function <span style="color:green;">**get_era5_forcing.m**</span>. However, you need to modify/replace this function carefully based on your own data sources, just make sure the outputed AtmForc meets the required format above.
+> AtmForc was created by the function <span style="color:green;">**get_era5_forcing.m**</span>. However, you need to modify/replace this function carefully based on your own data sources, just make sure the obtained AtmForc meets the required format above.
 
 ### Step-14: Boundary nudging (optional)
 

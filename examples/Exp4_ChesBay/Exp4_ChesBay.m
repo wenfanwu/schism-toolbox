@@ -20,8 +20,7 @@ Mobj = read_schism_hgrid(Mobj, hgrid_file);
 Mobj = read_schism_vgrid(Mobj, vgrid_file, 'v5.10'); 
 
 %% Check the grid quality
-check_schism_metrics(Mobj);
-calc_schism_CFL(Mobj)
+check_schism_CFL(Mobj);
 check_schism_hydrostatic(Mobj);
 
 %% Horizontal grids

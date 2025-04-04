@@ -30,6 +30,7 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\calculate\calc_schism_grad**: calculate the gradient of variable
 - **.\utilities\interp\convert_schism_var**: convert variables between different mesh centers
 - **.\preproc\write_schism_nu_nc**: write nudging files (TEM/SAL/ICM_nu.nc)
+- **.\preproc\check\check_schism_CFL**: check the inverse CFL constraints
 - **.\postproc\read_schism_gr3**: read "depth" info from the *gr3 file
 - **.\postproc\read_schism_prop**: read the *prop file
 - **.\examples\Exp4_ChesBay**: new example with mixed triangular/quad grid
@@ -79,3 +80,5 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\interp\interp_schism_elem2node**: replaced by *convert_schism_var*
 - **.\utilities\interp\interp_schism_node2elem**: replaced by *convert_schism_var*
 - **.\utilities\calculate\calc_schism_sidelen**: replaced by *calc_schism_edge*
+- **.\utilities\calculate\calc_schism_CFL**: replaced by *check_schism_CFL*
+- **.\preproc\check\check_schism_metrics**: replaced by *check_schism_CFL*

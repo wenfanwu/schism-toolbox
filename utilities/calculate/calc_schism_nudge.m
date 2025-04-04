@@ -77,6 +77,8 @@ end
 if cutoff_dist<=bnd_width
     error('the cutoff_dist must be greater than bnd_width!')
 end
+
+nudge_bnds = sort(nudge_bnds);
 %% Calculation
 uy = Mobj.lat; ux = Mobj.lon;
 obc_nodes = Mobj.obc_nodes(:, nudge_bnds);

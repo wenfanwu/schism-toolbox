@@ -43,10 +43,7 @@ plot_schism_bnds(Mobj, [1 1 1], 'Color', 'k')
 write_schism_hgrid(Mobj)
 %% Step-4: Check the grid quality
 % check the invese CFL constraints
-check_schism_metrics(Mobj);
-
-% display the Max. acceptable resolutions as a function of water depth 
-calc_schism_CFL(Mobj)
+check_schism_CFL(Mobj);
 
 % check the hydrostatic assumption
 check_schism_hydrostatic(Mobj);
@@ -101,8 +98,8 @@ write_schism_source_nc(Mobj, D,  tracer_list)
 % In this case, the provided 'example_river_data.mat' is just a sample,
 % and the tracer data inside it are set to be constant for simplicity.
 
-% River can also be added in the form of open boundaries but it is not
-% supported in this toolbox so far.
+% If you want to add rivers in the form of open boundaries, please refer to
+% add_schism_obc.m function. 
 
 %% Step-7: Initial Conditions (elev/temp/salinity) (time-depedent)
 % DS contains the original initial fields with a fixed format:
@@ -233,28 +230,22 @@ write_schism_prop(Mobj, 'fluxflag', flux_flags)
 % 2) variable matrix should be of nLons*nLats*nTimes
 % 3) the 'region' and 'time' fields must cover your simulation period, model domain, respectively.
 
-nFiles = 5; 
+time_steps = 30; % time steps in each netcdf file
 
 load('example_AtmForc_era5.mat')
 AtmForc.aimpath = Mobj.aimpath;
 
-write_schism_sflux(AtmForc, 'prc', nFiles)
-write_schism_sflux(AtmForc, 'rad', nFiles)
-write_schism_sflux(AtmForc, 'air', nFiles)
+write_schism_sflux(AtmForc, 'prc', time_steps)
+write_schism_sflux(AtmForc, 'rad', time_steps)
+write_schism_sflux(AtmForc, 'air', time_steps)
 
-% nFiles is the estimated # of sflux_prc/air/rad_*.nc files. Note that the
-% nFiles can not be two small, since the time_steps of each sflux nc file
-% can not exceed 1000 by default. In addition, write_schism_sflux.m will
-% slightly adjust this value to ensure that each file starts at 0 o'clock
-% in certain day, since the 'hour' component of 'base_date' property is
-% unused in each nc file.     
+% Note the "time_steps" of each sflux nc file can not exceed 1000 in the
+% model. In addition, the 'hour' component of 'base_date' attribute is
+% unused in each nc file.
 
-% Considering that the raw data of atmospheric forcing is too large, this
-% toolbox does not offer the function to create 'AtmForc', but directly
-% uploads the result.
-
-% You need to prepare the AtmForc variable by yourself based on the
-% required format, and then use 'write_schism_sflux.m' to create the nc files.
+% AtmForc was created by the function get_era5_forcing.m. However, you need to
+% modify/replace this function carefully based on your own data sources,
+% just make sure the obtained AtmForc meets the required format above.    
 
 %% Step-14: Boundary nudging (optional)
 % define a boundary nuding zone (90-km width)

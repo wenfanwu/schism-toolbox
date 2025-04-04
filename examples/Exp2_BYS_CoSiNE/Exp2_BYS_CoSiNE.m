@@ -36,9 +36,8 @@ hold on
 plot_schism_bnds(Mobj, [1 1 1], 'Color', 'k')
 
 write_schism_hgrid(Mobj)
-%% Step-4: Check the inverse CFL constraints and Hydrostatic
-check_schism_metrics(Mobj);
-calc_schism_CFL(Mobj)
+%% Step-4: Check the inverse CFL constraints and hydrostatic assumption
+check_schism_CFL(Mobj);
 check_schism_hydrostatic(Mobj);
 
 %% Step-5: Vertical grids

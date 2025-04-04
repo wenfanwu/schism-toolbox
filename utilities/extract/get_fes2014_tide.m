@@ -49,9 +49,10 @@ end
 if strcmpi(obc_bnds, 'all')
     obc_bnds = 1:Mobj.obc_counts;
 end
+
+obc_bnds = sort(obc_bnds);
 obc_nodes = Mobj.obc_nodes(:, obc_bnds);
 obc_nodes(obc_nodes==0) = [];
-
 %% Paths to FES2014 NetCDF files
 % Make sure you have downloaded the fes2014 data set from AVISO website!!!
 % https://www.aviso.altimetry.fr/en/data/products/auxiliary-products/global-tide-fes.html

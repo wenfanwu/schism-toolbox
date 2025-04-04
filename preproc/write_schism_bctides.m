@@ -71,6 +71,15 @@ end
 if ~isfield(TideForc, 'cutoff_depth')
     error('cutoff_depth is not available!')
 end
+%% Check the validity of the data
+field_list = fieldnames(TideForc);
+for ii = 1:numel(field_list)
+    tide_var = field_list{ii};
+    if strcmpi(tide_var, 'tide_list'); continue; end
+    if any(isnan(TideForc.(tide_var)(:)))
+        error(['NaNs were found in the variable "', tide_var, '"'])
+    end
+end
 %% Prepare tide info.
 tide_list = TideForc.tide_list;
 nTides = length(tide_list);
