@@ -33,6 +33,7 @@ function write_schism_th(Mobj, prefix_name, varRaw, timeRaw)
 if isnan(sum(varRaw(:)))
     error('NaNs were found in the data, please check!')
 end
+
 timeRaw = timeRaw(:);
 if size(varRaw,1) ~= numel(timeRaw)
     varRaw = varRaw';
@@ -49,6 +50,8 @@ time_steps = seconds(timeRaw-timeRaw(1));
 if min(diff(time_steps))<Mobj.dt
     error(['the time interval should be greater than ', num2str(Mobj.dt)])
 end
+
+prefix_name = regexprep(prefix_name, '\.th$', '');
 %% BEGIN TO WRITE
 filepath = [Mobj.aimpath, prefix_name, '.th'];
 fid = fopen(filepath,'wt');

@@ -12,16 +12,16 @@ function AtmForc = get_era5_forcing(Mobj, varList, src_file)
 % Mobj = read_schism_hgrid(Mobj, hgrid_file);
 % Mobj.force_time = (datetime(1990,12,1):hours(1):datetime(2001,2,1))';
 % Mobj.force_region = Mobj.region;
-% nFiles = 90;
+% time_steps = 900;
 % 
 % AtmForc = get_era5_forcing(Mobj, 'prate');
-% write_schism_sflux(AtmForc, 'prc', nFiles)
+% write_schism_sflux(AtmForc, 'prc', time_steps)
 % 
 % AtmForc = get_era5_forcing(Mobj, {'dlwrf', 'dswrf'});
-% write_schism_sflux(AtmForc, 'rad', nFiles)
+% write_schism_sflux(AtmForc, 'rad', time_steps
 % 
 % AtmForc = get_era5_forcing(Mobj, {'spfh', 'uwind', 'vwind', 'prmsl', 'stmp'});
-% write_schism_sflux(AtmForc, 'air', nFiles)
+% write_schism_sflux(AtmForc, 'air', time_steps
 %
 %% Input Arguments
 % Mobj - mesh object; datastruct

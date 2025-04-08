@@ -28,6 +28,8 @@ function write_schism_prop(Mobj, prefix_name, prop_flags)
 % See also: fprintf
 
 %% Parse inputs
+prefix_name = regexprep(prefix_name, '\.prop$', '');
+
 fileName = [Mobj.aimpath, prefix_name, '.prop'];
 fid = fopen(fileName,'wt');
 

@@ -28,6 +28,7 @@ function write_schism_gr3(Mobj, prefix_name, varData)
 % See also: fprintf
 
 %% Parse inputs
+prefix_name = regexprep(prefix_name, '\.gr3$', '');
 fileName = [Mobj.aimpath, prefix_name, '.gr3'];
 headLine = datestr(now); %#ok<DATST>
 

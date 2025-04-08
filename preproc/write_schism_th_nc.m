@@ -30,6 +30,7 @@ function write_schism_th_nc(Mobj, prefix_name, BdryCnd)
 %% Parse inputs
 BdryCnd = std_bdry_inputs(Mobj, BdryCnd);
 
+prefix_name = regexprep(prefix_name, '\.th.nc$', '');
 switch prefix_name
     case 'elev2D'
         D = BdryCnd.ssh;

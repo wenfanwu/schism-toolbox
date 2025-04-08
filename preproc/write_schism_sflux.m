@@ -119,8 +119,8 @@ max_files = 9999;             % max. total # of nc files  (default: 9999).
 max_times = 100000;        % max. # of time records from all files (default: 100000).
 
 warning on
-if nFiles > max_files; warning('nFiles is greater than the max # of nc files!'); end
-if total_steps > max_times; warning('nFiles is greater than max. # of time records from all files!'); end
+if nFiles > max_files; warning('total # of nc files is greater than the max_files!'); end
+if total_steps > max_times; warning('total # of time steps is greater than the max_times!'); end
 
 n_digits = length(num2str(floor(abs(nFiles))));
 %% sflux nc files
@@ -238,7 +238,7 @@ fid = fopen([sflux_path, 'README.md'],'wt');
 fprintf(fid, ['product name: ', dst, '\n']);  % TBD
 fprintf(fid, ['timespan: ',datestr(AtmForc.time(1), 'yyyymmddTHHMMSSZ'),' to ', ...
     datestr(AtmForc.time(end), 'yyyymmddTHHMMSSZ'), '\n']);  
-fprintf(fid, ['region: ',num2str(AtmForc.region(1)), '-',num2str(AtmForc.region(2)), '; ', ...
-    num2str(AtmForc.region(3)), '-', num2str(AtmForc.region(4)), '\n']);  
+fprintf(fid, ['region: ',num2str(AtmForc.region(1)), ' – ',num2str(AtmForc.region(2)), '; ', ...
+    num2str(AtmForc.region(3)), ' – ', num2str(AtmForc.region(4)), '\n']);  
 fclose(fid);
 end

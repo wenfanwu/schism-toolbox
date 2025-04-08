@@ -54,6 +54,7 @@ if nTimes ~=  length(D.time)
     error('the nudging time is inconsistent!')
 end
 
+prefix_name = regexprep(prefix_name, '\_nu.nc$', '');
 %% Begin to write
 filepath = [Mobj.aimpath, prefix_name, '_nu.nc'];
 if exist(filepath,'file')==2; delete(filepath); end

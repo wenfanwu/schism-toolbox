@@ -38,6 +38,8 @@ if isscalar(varData)
     varData = varData*ones(1, Mobj.nNodes);
 end
 head_line = datestr(Mobj.time(1), 'mmm/dd/yyyy'); %#ok<*DATST>
+prefix_name = regexprep(prefix_name, '\.ic$', '');
+
 %% Check
 switch prefix_name
     case 'temp'
