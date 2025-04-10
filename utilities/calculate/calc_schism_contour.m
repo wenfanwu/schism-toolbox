@@ -1,5 +1,5 @@
 function S = calc_schism_contour(Mobj, z, levels)
-% Extract contour lines from SCHISM grid.
+% Calculate contour lines based on SCHISM grid
 %
 %% Syntax
 % S = calc_schism_contour(Mobj, z, levels)

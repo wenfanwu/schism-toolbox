@@ -1,5 +1,5 @@
 function DS = get_hycom_bdry_clim(Mobj) %#ok<*STOUT>
-% 
+% Extract climatology boundary inputs from HYCOM data
 % 
 %% Syntax
 % 

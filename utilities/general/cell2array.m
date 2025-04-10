@@ -1,5 +1,5 @@
 function comArray = cell2array(inputCell, specDim)
-% this function aims to integrate all the components in the given cell
+% Convert the numeric vectors inside a cell to an array.
 % struct. By default, it is assumed that all the components are of the same
 % size, and then it will integrate them along a new dimension. For
 % example, if the components are 3-D, the resulting intergrated array will

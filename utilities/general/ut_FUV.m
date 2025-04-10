@@ -1,6 +1,5 @@
 function [F,U,V] = ut_FUV(t,tref,lind,lat,ngflgs)
-% UT_FUV()
-% compute nodal/satellite correction factors and astronomical argument
+% Compute nodal/satellite correction factors and astronomical argument
 % inputs
 %   t = times [datenum UTC] (nt x 1)
 %   tref = reference time [datenum UTC] (1 x 1)

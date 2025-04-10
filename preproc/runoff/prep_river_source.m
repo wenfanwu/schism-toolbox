@@ -1,5 +1,5 @@
 function DS = prep_river_source(river_info, tracer_list)
-% 
+% Prepare river sources based on river_info
 % 
 %% Syntax
 % 

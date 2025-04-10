@@ -1,8 +1,8 @@
 function DS = get_hycom_bdry_bys(Mobj) %#ok<*STOUT>
-% HYCOM data in the Bohai, and Yellow Seas
+% Extract HYCOM data as boundary inputs in Bohai, and Yellow Seas
 
 %% Parse inputs
-datapath = 'C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\test_env\schism-toolbox\data\hycom\';  % NEED TO BE CHANGED
+datapath = '.\schism-toolbox\data\hycom\';  % NEED TO BE CHANGED
 
 time_unit = 'days';
 bdry_time = unique(dateshift(Mobj.time, 'start', time_unit));

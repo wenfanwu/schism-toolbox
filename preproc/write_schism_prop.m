@@ -1,5 +1,5 @@
 function write_schism_prop(Mobj, prefix_name, prop_flags)
-% Create *.prop file for SCHISM.
+% Write *.prop file for SCHISM.
 %
 %% Syntax 
 % write_schism_prop(Mobj, prefix_name, prop_flags)

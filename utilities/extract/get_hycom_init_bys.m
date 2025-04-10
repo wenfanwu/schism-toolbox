@@ -1,5 +1,5 @@
 function DS = get_hycom_init_bys(Mobj) 
-% Get the hycom data as intial inputs
+% Extract HYCOM data as initial inpus for the Bohai and Yellow Seas.
 % 
 %% Syntax
 % 

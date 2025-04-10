@@ -1,5 +1,5 @@
 function river_info = add_river_tracer(river_info, tracer_list, flux_type)
-% 
+% Add tracers for river inputs
 % 
 %% Syntax
 % 
