@@ -224,7 +224,7 @@ end
 
 disp([num2str(nFiles), ' stacked sflux files has been created !'])
 %% sflux_inputs.txt (default)
-fid = fopen([sflux_path, 'sflux_inputs.txt'],'wt');
+fid = fopen([sflux_path, 'sflux_inputs.txt'],'w');
 fprintf(fid, '&sflux_inputs\n');   
 fprintf(fid, '/');   
 fclose(fid);

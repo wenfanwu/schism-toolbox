@@ -57,7 +57,7 @@ switch upper(Mobj.vtype)
         end
         if strcmp(version_num, 'v5.10')   % new format of vgrid.in for the version v5.10 and above
             disp('vgird.in (LSC2) for the version v5.10 and above')
-            fid = fopen(filepath,'wt');
+            fid = fopen(filepath,'w');
             fprintf(fid, '%d !ivcor\n', 1);
             fprintf(fid, '%d !nvrt (=Nz) \n', Mobj.maxLev);
             vgrids = flipud(Mobj.vgrids);
@@ -83,7 +83,7 @@ switch upper(Mobj.vtype)
         kz = numel(Mobj.zcors);
         nvrt = kz+ks-1;
         
-        fid = fopen(filepath,'wt');
+        fid = fopen(filepath,'w');
         fprintf(fid, '%d %s \n', 2, ' ! ivcor (1: LSC2; 2: SZ)');
         fprintf(fid, '%d %d %d. %s \n', nvrt, kz, h_s , '!nvrt, kz (# of Z-levels); h_s (transition depth between S and Z)');
         fprintf(fid, '%s \n', 'Z levels');

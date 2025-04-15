@@ -1,68 +1,64 @@
 function write_schism_gr3(Mobj, prefix_name, varData)
-% Write *.gr3 file for SCHISM
+% Write the *.gr3 file for SCHISM
 %
 %% Syntax 
 % write_schism_gr3(Mobj, prefix_name, varData)
 %
 %% Description
 % write_schism_gr3(Mobj, prefix_name, varData) writes a <prefix_name>.gr3
-% file for SCHISM with 'varData'.
+%       file for SCHISM using 'varData'.
 %
 %% Input Arguments
-% Mobj --- the mesh object
-% prefix_name --- prefix name of the gr3 file. e.g. prefix_name = 'drag'.
-% varData --- a scalar or vector of data to be written. If the 'varData' is a
-% scalar, it will be automatically expanded to a vector, and the data at
-% all nodes will the same.
+% Mobj - mesh object; datastruct
+%       the datastruct used to store mesh info.
+% prefix_name - prefix name; char
+%       prefix name of the *gr3 file, e.g. prefix_name = 'drag', or
+%       'drag.gr3'; the file extension will be omitted automatically.
+% varData - input data; numeric
+%       the input data to be written. If '' is a scalar, it will
+%       be expanded to a vector automatically , and the data at all nodes
+%       are the same.in this case.
+% 
+%% Output Arguments
+% None
 %
 %% Notes
-% this function aims to generate the input files with the suffix
-% "gr3", eg. watertype.gr3, albedo.gr3, windrot_geo2proj.gr3,
+% This function aims to generate the input files ending with
+% "gr3", e.g., watertype.gr3, albedo.gr3, windrot_geo2proj.gr3,
 % diffmin.gr3, diffmax.gr3, bdef.gr3, windfactor.gr3, hdif.gr3, and so on.
 %
 %% Author Info
 % Created by Wenfan Wu,Virginia Institute of Marine Science in 2021. 
-% Last Updated on 17 Sep 2024. 
+% Last Updated on 15 Apr 2025. 
 % Email: wwu@vims.edu
 % 
-% See also: fprintf
+% See also: write_schism_prop and write_schism_ic
 
 %% Parse inputs
 prefix_name = regexprep(prefix_name, '\.gr3$', '');
-fileName = [Mobj.aimpath, prefix_name, '.gr3'];
-headLine = datestr(now); %#ok<DATST>
+filepath = fullfile(Mobj.aimpath, [prefix_name, '.gr3']);
+head_line = datestr(now, 'mmm/dd/yyyy HH:MM:SS'); %#ok<TNOW1,DATST>
 
-if isscalar(varData)
-    varData = varData*ones(1, Mobj.nNodes);
-end
-if numel(find(isnan(varData(:))))~=0
-    error('There are NaNs in the input data!')
-end
+%% Check inputs
+if isscalar(varData); varData = varData*ones(Mobj.nNodes, 1); end
+if any(isnan(varData(:))); error('NaNs were found in the input data!'); end
 
-fid = fopen(fileName,'wt');
-fprintf(fid, [headLine, '\n']);                                                              
-fprintf(fid, [num2str(Mobj.nElems),' ',num2str(Mobj.nNodes), '\n']); 
+%% Begin to write
+fid = fopen(filepath,'w');
+fprintf(fid, [head_line, '\n']);
+fprintf(fid,'%d %d\n', Mobj.nElems, Mobj.nNodes);
 
-% Node Info
-node_part = [(1:Mobj.nNodes)', Mobj.lon(:), Mobj.lat(:), varData(:)]';
-node_fmt = repmat('%d   %14.6f   %14.6f    %13.7e\n', 1, size(node_part,2));
-fprintf(fid, node_fmt, node_part(:));
-
-tri = Mobj.tri; 
-if size(tri, 1)~=Mobj.nElems; tri = tri'; end
-
-% Elem Info
-elem_part = [(1:Mobj.nElems)', Mobj.i34(:).*ones(Mobj.nElems,1), tri]';
-elem_part_1d = elem_part(:);
-elem_part_1d(isnan(elem_part_1d)) = [];
-
-elem_fmt = repmat('%d %d %d %d %d %d\n', Mobj.nElems, 1);
-elem_fmt(Mobj.i34==3, :) = repmat('%d %d %d %d %d   \n', sum(Mobj.i34==3), 1);
-elem_fmt = elem_fmt'; elem_fmt_1d = elem_fmt(:);
-
-fprintf(fid, elem_fmt_1d, elem_part_1d);
-
+% Node and Elem
+fprintf(fid, '%d   %14.6f   %14.6f    %13.7e\n', [(1:Mobj.nNodes)', Mobj.lon(:), Mobj.lat(:), varData(:)]');
+fprintf(fid, '%d %d %d %d %d %d\n', [(1:Mobj.nElems)', Mobj.i34(:), Mobj.tri]');  % include NaN values
 fclose(fid);
+
+% Remove NaNs
+fileText = fileread(filepath);
+fid = fopen(filepath, 'w');
+fwrite(fid, strrep(fileText, 'NaN', '')); % case-sensitive
+fclose(fid);
+
 disp([prefix_name, '.gr3 has been created successfully!'])
 end
 
@@ -81,3 +77,14 @@ end
 % it is generally set to be 0.06;
 % ----------windrot_geo2proj.gr3
 %  zero is ok for most cases;
+
+% Elem part
+% elem_part = [(1:Mobj.nElems)', Mobj.i34(:).*ones(Mobj.nElems,1), Mobj.tri]';
+% elem_part_1d = elem_part(:);
+% elem_part_1d(isnan(elem_part_1d)) = [];
+
+% elem_fmt = repmat('%d %d %d %d %d %d\n', Mobj.nElems, 1);
+% elem_fmt(Mobj.i34==3, :) = repmat('%d %d %d %d %d   \n', sum(Mobj.i34==3), 1);
+% elem_fmt = elem_fmt'; elem_fmt_1d = elem_fmt(:);
+
+% fprintf(fid, elem_fmt_1d, elem_part_1d);

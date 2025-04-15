@@ -1496,9 +1496,13 @@ TideForc<span class="token punctuation">.</span>nf_temp <span class="token opera
 TideForc<span class="token punctuation">.</span>nf_salt <span class="token operator">=</span> <span class="token number">0.8</span><span class="token punctuation">;</span>
 
 bc_flags <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">5</span> <span class="token number">5</span> <span class="token number">4</span> <span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
-<span class="token function">write_schism_bctides</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> TideForc<span class="token punctuation">,</span> bc_flags<span class="token punctuation">)</span></code></pre>
+<span class="token function">write_schism_bctides</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> TideForc<span class="token punctuation">,</span> bc_flags<span class="token punctuation">)</span>
+
+<span class="token comment">% Add self-attracting and loading tide (optional) </span>
+SAL <span class="token operator">=</span> <span class="token function">get_fes2014_SAL</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> tideList<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">write_schism_SAL</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> SAL<span class="token punctuation">)</span></code></pre>
 <blockquote>
-<p>Download the fes2014 tidal products first, and change the directory in the function <span style="color:green;"><strong>get_fes2014_tide.m</strong></span> (Lines 58–60).</p>
+<p>Download the fes2014 tidal products first, and change the directory in the functions <span style="color:green;"><strong>get_fes2014_tide.m</strong></span> and <span style="color:green;"><strong>get_fes2014_SAL.m</strong></span>.</p>
 <p>It is easy to create another function if you want to change tide products, just make sure the returned <strong>TidaForc</strong> has the same format for the fields inside.</p>
 </blockquote>
 <br>

@@ -170,6 +170,11 @@ TideForc.nf_salt = 0.8;
 
 bc_flags = [5 5 4 4];
 write_schism_bctides(Mobj, TideForc, bc_flags)
+
+% Add self-attracting and loading tide (optional)
+% download fes2014 data and change the directory in 'get_fes2014_SAL,m' (Line 40) 
+SAL = get_fes2014_SAL(Mobj, tideList);
+write_schism_SAL(Mobj, SAL)
 %% Step-10: Bottom friction
 % Type-1: roughness
 z0 = 0.001;  % set constant roughness in the model domain

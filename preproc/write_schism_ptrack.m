@@ -101,7 +101,7 @@ disp('particle locations have been saved as MAT file!')
 nps = size(xyz_data, 1);
 filename = fullfile(Mobj.aimpath, 'particle.bp');
 
-fid = fopen(filename,'wt');
+fid = fopen(filename,'w');
 fprintf(fid, 'Input for ptrack*\n');
 fprintf(fid, [num2str(nscreen),' !nscreen\n']);
 fprintf(fid, [num2str(mod_part),' !mod_part (0: passive; 1: oil spill)\n']);

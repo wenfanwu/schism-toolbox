@@ -61,8 +61,8 @@ ubar_path = 'E:\Tidal-Models\FES2014\aviso\L1_data\fes2014a_eastward_velocity\';
 vbar_path = 'E:\Tidal-Models\FES2014\aviso\L1_data\fes2014a_northward_velocity\';
 
 % Load lon/lat grid
-lonTide = ncread([elev_path, 'm2.nc'], 'lon');   % [0, 360]
-latTide = ncread([elev_path, 'm2.nc'], 'lat');   % [-90, 90]
+lonTide = ncread(fullfile(elev_path, 'm2.nc'), 'lon');   % [0, 360]
+latTide = ncread(fullfile(elev_path, 'm2.nc'), 'lat');   % [-90, 90]
 
 % Adjust lon if needed
 [lon_adjust, lon_flag] = check_lons(Mobj.lon, lonTide);

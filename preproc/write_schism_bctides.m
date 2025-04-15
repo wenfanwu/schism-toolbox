@@ -112,7 +112,7 @@ used_mods = check_tracer_module(Mobj);
 head_line = datestr(Mobj.time(1), 'mm/dd/yyyy HH:MM:SS UTC'); %#ok<*DATST>
 
 filepath = [Mobj.aimpath, 'bctides.in'];
-fid = fopen(filepath,'wt');
+fid = fopen(filepath,'w');
 fprintf(fid, [head_line, '\n']);
 
 % earth tidal potential and cut-off depth

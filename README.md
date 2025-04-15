@@ -300,9 +300,13 @@ TideForc.nf_salt = 0.8;
 
 bc_flags = [5 5 4 4];
 write_schism_bctides(Mobj, TideForc, bc_flags)
+
+% Add self-attracting and loading tide (optional) 
+SAL = get_fes2014_SAL(Mobj, tideList);
+write_schism_SAL(Mobj, SAL)
 ```
 
-> Download the fes2014 tidal products first, and change the directory in the function <span style="color:green;">**get_fes2014_tide.m**</span> (Lines 58–60).
+> Download the fes2014 tidal products first, and change the directory in the functions <span style="color:green;">**get_fes2014_tide.m**</span> and <span style="color:green;">**get_fes2014_SAL.m**</span>.
 > 
 > It is easy to create another function if you want to change tide products, just make sure the returned **TidaForc** has the same format for the fields inside.
 

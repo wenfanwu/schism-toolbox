@@ -50,7 +50,7 @@ ysta = xyz_data(:,2);
 zsta = xyz_data(:,3);  % (from vertical datum; <0 is below)
 
 filepath = [Mobj.aimpath, 'station.in'];
-fid = fopen(filepath,'wt');
+fid = fopen(filepath,'w');
 fprintf(fid, '%d% d% d% d% d% d% d% d% d !on (1)|off(0) flags for elev, air pressure, windx, windy, T, S, u, v, w\n', switch_flags);
 fprintf(fid, '%d\n', nsta);
 for ii = 1:nsta

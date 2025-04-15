@@ -20,6 +20,7 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\misc\find_land_island**: find land and island nodes for unstructured grid.
 - **.\utilities\misc\schism_datatips**: enhance datatips when visualizing data.
 - **.\utilities\extract\get_era5_forcing**: extract atmospheric forcing from era5
+- **.\utilities\extract\get_fes2014_SAL**: extract SAL data from FES2014
 - **.\utilities\calculate\calc_schism_nudge**: calculate boundary nudging factors (TEM/SAL/ICM_nudge.gr3)
 - **.\utilities\calculate\calc_schism_reso**: calculate grid resolution with dfferent methods
 - **.\utilities\calculate\calc_schism_contour**: calculate contour lines.
@@ -30,6 +31,8 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\calculate\calc_schism_grad**: calculate the gradient of variable
 - **.\utilities\interp\convert_schism_var**: convert variables between different mesh centers
 - **.\preproc\write_schism_nu_nc**: write nudging files (TEM/SAL/ICM_nu.nc)
+- **.\preproc\write_schism_SAL**: write load tide files.
+- **.\preproc\write_schism_HA**: write the harm.in file.
 - **.\preproc\check\check_schism_CFL**: check the inverse CFL constraints
 - **.\postproc\read_schism_gr3**: read "depth" info from the *gr3 file
 - **.\postproc\read_schism_prop**: read the *prop file

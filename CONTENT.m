@@ -1,6 +1,6 @@
 %% CONTENT.m - List of functions grouped by subfolder
 % Scanned base folder: C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\schism-toolbox
-% Created on 10-Apr-2025 13:43:14
+% Created on 15-Apr-2025 15:17:18
 
 %% \examples\Exp1_BYS
 % Exp1_BYS_main.m                - This program is an EXAMPLE (Exp1_BYS) in the schism-toolbox
@@ -27,19 +27,23 @@
 % mesh2schism.m                  - Load the unstructured grid from OceanMesh2D or SMS.
 % prep_schism_bdry.m             - Prepare boundary inputs (Hydrological part)
 % prep_schism_init.m             - Prepare initial data for SCHISM
+% write_schism_HA.m              - Write the harm.in file for SCHISM
+% write_schism_LSC2.m            - DESCRIPTION
+% write_schism_SAL.m             - Write loadtide_[FREQ].gr3 files for SCHISM
+% write_schism_SZ.m              - Need improvements Later
 % write_schism_bctides.m         - Write the bctides.in file for SCHISM.
-% write_schism_gr3.m             - Write *.gr3 file for SCHISM
-% write_schism_hgrid.m           - Write the hgrid.gr3&hgrid.ll file for SCHISM.
+% write_schism_gr3.m             - Write the *.gr3 file for SCHISM
+% write_schism_hgrid.m           - Write the hgrid.gr3 & hgrid.ll files for SCHISM.
 % write_schism_hotstart.m        - Write hotstart.nc for SCHISM (NOT Completed Yet)
-% write_schism_ic.m              - Write the *ic files for SCHISM
+% write_schism_ic.m              - Write the *ic file for SCHISM
 % write_schism_nu_nc.m           - Write nudging files for SCHISM (TEM/SAL/ICM_nu.nc)
-% write_schism_prop.m            - Write *.prop file for SCHISM.
+% write_schism_prop.m            - Write the *.prop file for SCHISM.
 % write_schism_ptrack.m          - Write the particle.bp file for SCHISM (Not Completed Now)
 % write_schism_sflux.m           - Write sflux nc files for SCHISM
 % write_schism_source.m          - Write source_sink.in and relevant files for SCHISM
 % write_schism_source_nc.m       - Write the source.nc file for SHCISM
 % write_schism_station_in.m      - Write station.in file for SCHISM model
-% write_schism_th.m              - Write *.th file for SCHISM
+% write_schism_th.m              - Write the *.th file for SCHISM
 % write_schism_th_nc.m           - Write *.th_nc files for SCHISM
 % write_schism_vgrid.m           - Write the vgrid.in file for SCHISM.
 
@@ -79,6 +83,7 @@
 
 %% \utilities\extract
 % get_era5_forcing.m             - Extract ERA5 atmopheric forcing
+% get_fes2014_SAL.m              - Extract self-attracting and loading tide (SAL) from FES2014
 % get_fes2014_tide.m             - Extract the FES2014 tidal data
 % get_hycom_bdry_bys.m           - Extract HYCOM data as boundary inputs in Bohai, and Yellow Seas
 % get_hycom_bdry_clim.m          - Extract climatology boundary inputs from HYCOM data
