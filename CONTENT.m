@@ -28,9 +28,7 @@
 % prep_schism_bdry.m             - Prepare boundary inputs (Hydrological part)
 % prep_schism_init.m             - Prepare initial data for SCHISM
 % write_schism_HA.m              - Write the harm.in file for SCHISM
-% write_schism_LSC2.m            - DESCRIPTION
 % write_schism_SAL.m             - Write loadtide_[FREQ].gr3 files for SCHISM
-% write_schism_SZ.m              - Need improvements Later
 % write_schism_bctides.m         - Write the bctides.in file for SCHISM.
 % write_schism_gr3.m             - Write the *.gr3 file for SCHISM
 % write_schism_hgrid.m           - Write the hgrid.gr3 & hgrid.ll files for SCHISM.

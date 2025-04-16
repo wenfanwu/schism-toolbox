@@ -55,7 +55,7 @@ switch prefix_name
             varData = min(40, varData);
         end
     case 'salt'
-        if min(varData)<-2 || max(varData)>40
+        if min(varData)<9 || max(varData)>42
             warning on
             warning('Invalid salt. values have been removed!')
             varData = max(9, varData);

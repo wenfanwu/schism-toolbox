@@ -109,9 +109,9 @@ end
 
 used_mods = check_tracer_module(Mobj);
 %% Write tide data
-head_line = datestr(Mobj.time(1), 'mm/dd/yyyy HH:MM:SS UTC'); %#ok<*DATST>
+head_line = datestr(now, 'mmm/dd/yyyy HH:MM:SS'); %#ok<TNOW1,DATST>
 
-filepath = [Mobj.aimpath, 'bctides.in'];
+filepath = fullfile(Mobj.aimpath, 'bctides.in');
 fid = fopen(filepath,'w');
 fprintf(fid, [head_line, '\n']);
 
@@ -120,7 +120,7 @@ fprintf(fid, '%d %d.  !# of tidal potential and cut-off depths\n', nTides, TideF
 
 for iTide = 1:nTides
     % tidal constituent name
-    fprintf(fid, [tide_list{iTide}, '\n']);
+    fprintf(fid, [upper(tide_list{iTide}), '\n']);
     % tidal species # (0: declinational; 1: diurnal; 2: semi-diurnal), amplitude constants, angular frequency, nodal factor, earth equilibrium argument (in degrees);
     fprintf(fid, '%d% 8.6f% 12.6e% 8.5f% 9.5f\n', tide_types(iTide), tide_amps(iTide), tide_freqs(iTide), nodal_factor(iTide), eq_arg(iTide));
 end
@@ -130,7 +130,7 @@ fprintf(fid, [num2str(nTides, '%d'), ' ! total # of tidal boundary forcing frequ
 
 for iTide = 1:nTides
     % tidal constituent name
-    fprintf(fid, [tide_list{iTide}, '\n']);
+    fprintf(fid, [upper(tide_list{iTide}), '\n']);
     % angular frequency (rad/s), nodal factor, earth equilibrium argument (in degrees) for constituent
     fprintf(fid, '%13.6e% 8.5f% 9.5f\n', tide_freqs(iTide), nodal_factor(iTide), eq_arg(iTide));
 end

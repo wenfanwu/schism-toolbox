@@ -42,7 +42,7 @@ for iTide = 1:nTides
     filepath = fullfile(Mobj.aimpath, filename);
 
     fid = fopen(filepath, 'w');
-    fprintf(fid,'%s\n',tide_list{iTide});
+    fprintf(fid,'%s\n', upper(tide_list{iTide}));
 
     amp = SAL.sal_amp(:, iTide);
     pha = SAL.sal_pha(:, iTide);
