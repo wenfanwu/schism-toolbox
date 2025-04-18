@@ -20,6 +20,9 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\misc\find_land_island**: find land and island nodes for unstructured grid.
 - **.\utilities\misc\schism_datatips**: enhance datatips when visualizing data.
 - **.\utilities\extract\get_era5_forcing**: extract atmospheric forcing from era5
+- **.\utilities\extract\get_hycom_init**: extract initial data from hycom
+- **.\utilities\extract\get_hycom_bdry**: extract boundary inputs from hycom (Mat)
+- **.\utilities\extract\get_hycom_bdry_nc**: extract boundary inputs from hycom (NetCDF)
 - **.\utilities\extract\get_fes2014_SAL**: extract SAL data from FES2014
 - **.\utilities\calculate\calc_schism_nudge**: calculate boundary nudging factors (TEM/SAL/ICM_nudge.gr3)
 - **.\utilities\calculate\calc_schism_reso**: calculate grid resolution with dfferent methods

@@ -1,5 +1,5 @@
 function DS = prep_schism_init(Mobj, dst)
-% Prepare initial data for SCHISM
+% Prepare the initial data for SCHISM.
 %
 %% Syntax
 % DS = prep_schism_init(Mobj, dst)
@@ -11,51 +11,72 @@ function DS = prep_schism_init(Mobj, dst)
 % DS = prep_schism_init(Mobj, 'hycom')
 %
 %% Input Arguments
-% Mobj --- the mesh object
-% dst --- the data set name;
+% Mobj - mesh object; datastruct
+%       the datastruct used to store mesh info.
+% dst - dateset; char
+%       the dateset name.
 %
 %% Output Arguments
-% DS --- a datastruct contains the variable data.
+% DS - data object; datastruct
+%       the datastruct used to store the initial data.
 %
 %% Notes
-% All the variables are stored into the datastruct ('DS') as sub-datastructs,
-% thus each variable can have its own independent coordinate system. This
-% means that the variables can come from different products.
+% All variables are stored in the datastruct 'DS' as individual sub-structures,
+% allowing each variable to have its own coordinate system. This design
+% supports input from multiple data sources or products.
 %
-% This is just a simple packaging function, so you can add your own data
-% set in this function if needed, just make sure the output format is the
-% same.
+% This is a simple wrapper function, allowing users to integrate additional
+% datasets easily, as long as they follow the same output format.
 %
-% There are TWO things to note about the format:
-% (1) the longitude and latitude vectors must be in an ascending order.
-% (2) the dimensions of the variables must be (lon*lat*depth) or (lon*lat)
+% Important format requirements:
+% (1) Longitude and latitude vectors must be in strictly ascending order.
+% (2) Variable dimensions must be either (lon × lat × depth) or (lon × lat).
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2022.
-% Last Updated on 2022-05-17.
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2022.
+% Last Updated on 18 Apr 2025.
+% Email: wwu@vims.edu
 %
-% See also: switch
+% See also: prep_schism_bdry
 
-%% Parse inputs
-clear DS
+%% Select the database
 switch dst
-    case 'hycom_bys'
-        DS = get_hycom_init_bys(Mobj);
-    case 'hycom_clim'
-        DS = get_hycom_init_clim(Mobj);
-    case 'hycom_online' % directly download the hycom data from the internet
+    case 'hycom_online' % directly download hycom data from the internet
         varList = {'ssh','temp','salt'};
-        hycom_data = get_hycom_online(Mobj.aimpath, Mobj.region, Mobj.time(1), varList);
+        C = get_hycom_online(Mobj.aimpath, Mobj.region, Mobj.time(1), varList);
         for iVar = 1:numel(varList)
             clear D
             varName = varList{iVar};
-            D.lon = hycom_data.lon;
-            D.lat = hycom_data.lat;
-            D.depth = hycom_data.depth;
-            D.time = hycom_data.time;
-            D.var = hycom_data.(varName);
+            D.lon = C.lon;
+            D.lat = C.lat;
+            D.depth = C.depth;
+            D.time = C.time;
+            D.var = C.(varName);
             DS.(varName) = D;
         end
+
+    case 'hycom_bys_clim'
+        filepath = 'example_hycom_clim_1995_2020.mat'; % regional dataset for the BYS
+        C = load(filepath); iMon = month(Mobj.time(1));
+        hd.lon = C.lon; hd.lat = C.lat; hd.depth = abs(C.depth); hd.time = Mobj.time(1);
+        DS.ssh = hd; DS.ssh.var = squeeze(C.ssh(:,:,:,iMon));
+        DS.temp = hd; DS.temp.var = squeeze(C.temp(:,:,:,iMon));
+        DS.salt = hd; DS.salt.var = squeeze(C.salt(:,:,:,iMon));
+
+    case 'hycom_bys'
+        meta_data.src_file = 'C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\schism-toolbox\data\hycom\W117E127S33N41_****.mat';
+        meta_data.raw_list = {'ssh','salt','temp'};      % original variable name in the file
+        meta_data.new_list = {'ssh','salt','temp'};      % standard variable name for output
+        meta_data.dim_vars = {'lon', 'lat', 'depth'};    % dimensional variables in the file
+        meta_data.date_fmt = 'yyyymmddTHHMMZ';  % the date format of filename
+        DS = get_hycom_init(Mobj, meta_data);
+
+    case 'hycom_chesbay'
+        meta_data.src_file = 'E:\HYCOM\HYCOM_ChesBay\Wn79En72S33N41_****.mat';
+        meta_data.raw_list = {'ssh','salt','temp'};      % original variable name in the file
+        meta_data.new_list = {'ssh','salt','temp'};      % standard variable name for output
+        meta_data.dim_vars = {'lon', 'lat', 'depth'};    % dimensional variables in the file
+        meta_data.date_fmt = 'yyyymmddTHHMMZ';  % the date format of filename
+        DS = get_hycom_init(Mobj, meta_data);
 end
 end

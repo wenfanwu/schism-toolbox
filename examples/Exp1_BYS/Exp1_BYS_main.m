@@ -13,10 +13,10 @@
 % from other softwares, please use 'read_schism_hgrid.m' and refer to Exp3_CORIE_LSC2.  
 clc;clearvars
 % option-1: Load mesh grid created by OceanMesh2D
-% mesh_file = 'Exp1_BYS\inputs\BYS_20814.mat';  % NEED TO BE CHANGED
+mesh_file = 'Exp1_BYS\inputs\BYS_20814.mat';  % NEED TO BE CHANGED
 
 % option-2: Load mesh grid created by SMS
-mesh_file = 'Exp1_BYS\inputs\BYS_20814.2dm';  % NEED TO BE CHANGED
+% mesh_file = 'Exp1_BYS\inputs\BYS_20814.2dm';  % NEED TO BE CHANGED
 
 Mobj = mesh2schism(mesh_file); 
 Mobj.expname = 'Exp1_BYS';      
@@ -47,6 +47,7 @@ check_schism_CFL(Mobj);
 
 % check the hydrostatic assumption
 check_schism_hydrostatic(Mobj);
+
 %% Step-5: Vertical grids
 % option-1: LSC2 coordinates
 dep_edges = [10, 20, 30, 45, 55, 65, 75, 90];
@@ -102,22 +103,22 @@ write_schism_source_nc(Mobj, D,  tracer_list)
 % add_schism_obc.m function. 
 
 %% Step-7: Initial Conditions (elev/temp/salinity) (time-depedent)
-% DS contains the original initial fields with a fixed format:
-% 1) 'lon', 'lat', 'depth' vectors must be in ascending order;
-% 2) 'depth' vector should be positive; and ensure the range of lon/latcovers you model domain
-% 3) 'var' must in the dimension of lon*lat or lon&lat*depth.
+% DS contains raw data in a standardized format:
+% 1) 'lon', 'lat', and 'depth' vectors must be in ascending order;
+% 2) 'depth' must be positive; ensure the 'lon' and 'lat' ranges fully cover your model domain;
+% 3) variable matrix ('var') must have dimensions of either [lon x lat] or [lon x lat x depth].
 
-% prep_schism_init is just a packing function, and thus you can easily add
-% more options in it according to your needs. Just make sure the format of
-% DS meets the requirements above.
+% prep_schism_init is a simple wrapper function, so you can add more data
+% sources in it as needed, just make sure the format of DS complies with
+% the requirements above.
 
-% option-1: real-time initial field from hycom.
+% option-1: real-time hycom data
 DS = prep_schism_init(Mobj, 'hycom_bys'); 
 
-% option-2: monthly clim. initial field from hycom.
-% DS = prep_schism_init(Mobj, 'hycom_clim'); 
+% option-2: monthly climatology hycom data
+% DS = prep_schism_init(Mobj, 'hycom_bys_clim');
 
-% option-3: directly download the real-time hycom data from the internet
+% option-3: directly download real-time hycom data from the internet
 % DS = prep_schism_init(Mobj, 'hycom_online'); 
 
 varList = {'ssh', 'temp', 'salt'};  % it can be changed if you only want to interpolate for partial variables.
@@ -135,13 +136,19 @@ write_schism_ic(Mobj, 'salt', InitCnd.salt(:,1))
 start_time = Mobj.time(1);
 hst_data = write_schism_hotstart(Mobj, InitCnd, start_time);
 %% Step-8: Boundary Conditions (elev/temp/salinity/velocity/module-tracers)
-% This step can be quite time-consuming if you choose real-time boundary
-% inputs with a high time resolution, especially when the timespan is long.
-% option-1: real-time boundary inputs from hycom.
-DS = prep_schism_bdry(Mobj, 'hycom_bys'); 
+% This step can be time-consuming when using high-resolution, real-time boundary
+% inputs, particularly over long time periods.
 
-% option-2: monthly clim. boundary inputs from hycom.
-% DS = prep_schism_bdry(Mobj, 'hycom_clim');
+% prep_schism_bdry is also a wrapper function. It integrates two general-purpose 
+% functions for handling HYCOM data: get_hycom_bdry and get_hycom_bdry_nc.
+% These functions support both serial and parallel data extraction.
+obc_bnds = 1:Mobj.obc_counts;  % extract data for all open boundaries.
+
+% option-1: real-time boundary inputs from hycom.
+DS = prep_schism_bdry(Mobj, 'hycom_bys', obc_bnds);  % supoort parallel extraction
+
+% option-2: monthly climatology boundary inputs from hycom.
+% DS = prep_schism_bdry(Mobj, 'hycom_bys_clim', obc_bnds);
 
 varList = {'ssh', 'temp', 'salt', 'uvel', 'vvel'}; 
 BdryCnd = interp_schism_bdry(Mobj, DS, varList);
@@ -152,10 +159,10 @@ write_schism_th_nc(Mobj, 'SAL_3D', BdryCnd)
 write_schism_th_nc(Mobj, 'uv3D', BdryCnd)
 
 % check the interpolation
-check_schism_bdry(Mobj, DS, BdryCnd, 'temp', 1)
+check_schism_bdry(Mobj, DS, BdryCnd, 'temp', Mobj.time(1))
 
 % check the consistency between initial fields and boundary inputs
-check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
+check_schism_icbc(Mobj, 'temp', 1)
 
 %% Step-9: Tide Forcing (bctides.in)
 % download the fes2014 tidal products first, and change the directory in

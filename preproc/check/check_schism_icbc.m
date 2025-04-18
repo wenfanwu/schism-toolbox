@@ -90,7 +90,7 @@ nexttile
 plot(var_init(obc_nodes)-var_bnd, 'LineWidth',1, 'Color','m', 'Marker','.', 'MarkerSize', 10)
 box on; grid on
 xlabel('Along open boundary nodes', 'FontWeight', 'bold')
-ylabel([varName, ' (IC-BC)'], 'FontWeight', 'bold')
+ylabel([varName, ' (IC - BC)'], 'FontWeight', 'bold')
 
 end
 

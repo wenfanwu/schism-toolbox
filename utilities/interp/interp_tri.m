@@ -1,60 +1,72 @@
-function var_tri = interp_tri(lon_tri, lat_tri, lon_grid, lat_grid, var_grid, nan_flag)
-% Interpolates data from an orthogonal grid onto scattered points
+function c_pts = interp_tri(x_pts, y_pts, x_grd, y_grd, c_grd, nan_flags, method)
+% Interpolate gridded data onto scattered points
 %
 %% Syntax
-% var_tri = interp_tri(lon_tri, lat_tri, lon_grid, lat_grid, var_grid, nan_flag)
+% c_pts = interp_tri(x_pts, y_pts, x_grd, y_grd, c_grd)
+% c_pts = interp_tri(x_pts, y_pts, x_grd, y_grd, c_grd, nan_flags)
 %
 %% Description
-% var_tri = interp_tri(lon_tri, lat_tri, lon_grid, lat_grid, var_grid, nan_flag)
-%       uses the original orthogonal grid to build a gridded interpolant and
-%       directly interpolate values at the (lon_tri, lat_tri) locations.
+% c_pts = interp_tri(x_pts, y_pts, x_grd, y_grd, c_grd) interpolates
+%       gridded data onto scattered points
+% c_pts = interp_tri(x_pts, y_pts, x_grd, y_grd, c_grd, nan_flags)
+%       specifies the nan flags
 %
 %% Input Arguments
-% lon_tri, lat_tri: P x 1 scattered x- and y-coordinates
-% lon_grid, lat_grid : M x 1 and N x 1 arrays of original grid longitudes and latitudes.
-% var_grid : M x N x K array of variable values on the orthogonal grid. K means the depth dimension.
-% nan_flag: fill the nan values adjacent to the coast or not (0/1).
+% x_pts - x-coordinates of points; numeric
+% y_pts - y-coordinates of points; numeric
+% x_grd - x-coordinates of gridded data; numeric
+% y_grd - y-coordinates of gridded data; numeric
+% c_grd - the gridded data (nx*ny*nz or nx*ny); numeric
+% nan_flags - the nan flags (optional); numeric
+%       a two-element vector used to determine whether to fill NaN values
+%       or not. Default: nan_flags = [1 1], the first '1' will fill NaNs
+%       near the coast while the second one will fill NaNs near the bottom.
+% method - interpolate method (optional); char
+%       the interpolate function; Default: method = 'linear'.
 %
 %% Output Arguments
-% var_tri : P x K array of interpolated values at each target point and depth level.
+% c_pts -  interpolated scattered data.
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
-% Last Updated on 11 Mar 2025.
+% Last Updated on 15 Apr 2025.
 % Email: wwu@vims.edu
 %
 % See also: interp_deps
 
 %% Parse inputs
-if size(var_grid,1) ~= length(lon_grid) || size(var_grid,2) ~= length(lat_grid)
-    error('The first two dimensions of var_grid must match the lengths of lon_grid and lat_grid.');
+if size(c_grd,1) ~= length(x_grd) || size(c_grd,2) ~= length(y_grd)
+    error('the gridded data can not match with the provided coordinates');
 end
-if nargin < 6; nan_flag = 1; end
+if nargin < 6; nan_flags = [1 1]; end
+if nargin < 7; method = 'linear'; end
 
-nNodes = length(lon_tri);
-nLevs  = size(var_grid, 3);
-var_tri = NaN(nNodes, nLevs);
-%% Fill NaN values near the bottom
-var_grid = fillmissing(var_grid, 'previous', 3, 'EndValues', 'previous');
+%% Fill NaN values horizontally/vertically
+% Fill missing values at the coast
+if nan_flags(1)==1; c_grd(:,:,1) = inpaint_nans(c_grd(:,:,1)); end 
+% Fill missing values at the deep layers
+if nan_flags(2)==1; c_grd = fillmissing(c_grd, 'previous', 3, 'EndValues', 'previous'); end
 
 %% Begin to interp
-% If your data contains NaN and you want to fill them, you can use inpaint_nans:
-% For each depth level, build the interpolant and perform interpolation
+% Pre-allocate the matrix
+nps = length(x_pts); nz  = size(c_grd, 3);
+c_pts = nan(nps, nz);
 
-% Create the full grid (M x N)
-[LonGrid, LatGrid] = ndgrid(lon_grid, lat_grid);
-
-for iLev = 1:nLevs
-    V = var_grid(:,:,iLev);
-    if nan_flag == 1
-        V = inpaint_nans(V);  % fill missing values at the coast
-    end
-    F = griddedInterpolant(LonGrid, LatGrid, V, 'linear', 'none');
-    var_tri(:, iLev) = F(lon_tri, lat_tri);
+% Pre-set the interpolate function
+F = griddedInterpolant();  
+F.GridVectors = {x_grd, y_grd}; 
+F.Method = method;
+F.ExtrapolationMethod = 'none';
+for iz = 1:nz
+    F.Values = c_grd(:,:,iz);
+    c_pts(:, iz) = F(x_pts, y_pts);
 end
 
 % Avoid extrapolating outliers
-min_val = min(var_grid(:), [],'omitnan'); 
-max_val = max(var_grid(:),[], 'omitnan');
-var_tri = min(max(var_tri, min_val), max_val);
+is_nan = isnan(c_pts);
+min_val = min(c_grd(:), [],'omitnan'); 
+max_val = max(c_grd(:),[], 'omitnan');
+c_pts = min(max(c_pts, min_val), max_val);
+c_pts(is_nan) = nan;
+
 end

@@ -2,7 +2,7 @@
 
 This is a MATLAB toolbox designed for the Semi-implicit Cross-scale Hydroscience Integrated System Model ([SCHISM](http://ccrm.vims.edu/schismweb/)).
 
-Last updated on 3 Apr 2025 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), CCRM, Virginia Institute of Marine Science.
+Last updated on 18 Apr 2025 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), CCRM, Virginia Institute of Marine Science.
 
 ### New features!!!
 
@@ -54,7 +54,7 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate
 
 > All input files generated afterwards will be placed in the directory where the **mesh_file** is located; 
 > 
-> <span style="color:cornflowerblue;">If your mesh grid is generated from softwares other than OceanMesh2D or SMS, just use the '**read_schism_hgrid.m**' function to generate the '**Mobj**' datastruct, and the remaining workflow is the same. Refer to **Exp3_CORIE_LSC2.m** for more details.</span>
+> <span style="color:cornflowerblue;">If your mesh grid is generated using software other than OceanMesh2D or SMS, use the **read_schism_hgrid.m** to create **Mobj**. The rest of workflow is the same. See **Exp3_CORIE_LSC2.m** for more details.</span>
 
 <br>
 
@@ -201,18 +201,18 @@ write_schism_source_nc(Mobj, D,  tracer_list)
 This part aims to prepare the initial fields (e.g., elev.ic, temp.ic, and hotstart.nc).
 
 ```matlab
-% DS contains the original initial fields with a fixed format:
-% 1) 'lon', 'lat', 'depth' vectors must be in ascending order;
-% 2) 'depth' vector must be positive; and ensure the range of lon/lat covers you model domain
-% 3) 'var' must have dimensions of lon*lat or lon*lat*depth.
+% DS contains raw data in a standardized format:
+% 1) 'lon', 'lat', and 'depth' vectors must be in ascending order;
+% 2) 'depth' must be positive; ensure the 'lon' and 'lat' ranges fully cover your model domain;
+% 3) variable matrix ('var') must have dimensions of either [lon x lat] or [lon x lat x depth] above.
 
-% option-1: real-time initial field from hycom.
+% option-1: real-time hycom data.
 DS = prep_schism_init(Mobj, 'hycom_bys'); 
 
-% option-2: monthly clim. initial field from hycom.
-% DS = prep_schism_init(Mobj, 'hycom_clim'); 
+% option-2: monthly climatology hycom data.
+% DS = prep_schism_init(Mobj, 'hycom_bys_clim'); 
 
-% option-3: directly download the real-time hycom data from the internet
+% option-3: directly download real-time hycom data from the internet.
 % DS = prep_schism_init(Mobj, 'hycom_online'); 
 
 varList = {'ssh', 'temp', 'salt'};  % it can be changed if you only want to interpolate for partial variables.
@@ -228,10 +228,12 @@ write_schism_ic(Mobj, 'salt', InitCnd.salt(:,1))
 
 % option-2: 3D initial fields (hotstart.nc)
 start_time = Mobj.time(1);
-Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);
+hst_data = write_schism_hotstart(Mobj, InitCnd, start_time);
 ```
 
-> <span style="color:green;">**prep_schism_init.m**</span> is a simple wrapper function, and thus you can easily add more data sources in it according to your needs. Just make sure the format of **DS** meets the requirements given above.
+> <span style="color:green;">**prep_schism_init.m**</span> is a simple wrapper function, so you can add more data sources in it as needed, just make sure the format of **DS** complies with the requirements above.
+> 
+> <span style="color:green;">**get_hycom_online.m**</span> can be used to create the HYCOM database easily.
 
 <div align="center">
   <img src="imags/fig_7.1.png" alt="image" width="700">
@@ -246,29 +248,33 @@ Hotstart = write_schism_hotstart(Mobj, InitCnd, start_time);
 This part aims to prepare the boundary inputs (e.g., elev2d.th.nc and TEM_3D.th.nc).
 
 ```matlab
-% option-1: prepare real-time boundary inputs using hycom data.
-DS = prep_schism_bdry(Mobj, 'hycom_bys');
+% Extract data for all open boundaries
+obc_bnds = 1:Mobj.obc_counts; 
 
-% option-2: prepare monthly clim. boundary inputs using hycom data.
-% DS = prep_schism_bdry(Mobj, 'hycom_clim');
+% option-1: real-time boundary inputs from hycom.
+DS = prep_schism_bdry(Mobj, 'hycom_bys', obc_bnds);
 
-BdryCnd = interp_schism_bdry(Mobj, DS);
+% option-2: monthly climatology boundary inputs from hycom.
+% DS = prep_schism_bdry(Mobj, 'hycom_bys_clim', obc_bnds);
+
+varList = {'ssh','temp','salt','uvel','vvel'}; 
+BdryCnd = interp_schism_bdry(Mobj, DS, varList);
 
 write_schism_th_nc(Mobj, 'elev2D', BdryCnd)
 write_schism_th_nc(Mobj, 'TEM_3D', BdryCnd)
 write_schism_th_nc(Mobj, 'SAL_3D', BdryCnd)
 write_schism_th_nc(Mobj, 'uv3D', BdryCnd)
 
-% check the temperature interpolation at the begining
-check_schism_bdry(Mobj, DS, BdryCnd, 'temp', 1)
+% check the temperature interpolation on the first day.
+check_schism_bdry(Mobj, DS, BdryCnd, 'temp', Mobj.time(1))
 
-% check the consistency between initial fields and boundary inputs
-check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
+% check the consistency between initial fields and boundary inputs.
+check_schism_icbc(Mobj, 'temp', 1) % surface layer
 ```
 
-> <span style="color:green;">**prep_schism_bdry.m**</span> is also a wrapper function. Add your own data sources in it according to needs. 
-> 
-> <span style="color:green;">**prep_schism_bdry.m**</span> can be time-consuming when using real-time boundary inputs at high temporal resolution, particularly over extended periods. The primary factor slowing down this step is the data input/output (I/O) overhead from repeatedly loading data from the hard disk into memory (only the first time). If possible, storing data in SSD and using parallel programming (e.g., parfor) can greatly enhance efficiency.
+> <span style="color:green;">**prep_schism_bdry.m**</span> is also a wrapper function. It integrates two general-purpose functions for handling HYCOM data: **get_hycom_bdry** and **get_hycom_bdry_nc**. These functions support both serial and parallel data extraction.
+
+> This step can be time-consuming when using high-resolution, real-time boundary inputs over long periods. The main bottleneck is I/O overhead from repeatedly loading data (only first time). Using an SSD and parallel processing can significantly speed up the process.
 
 <div align="center">
   <img src="imags/fig_8.1.png" alt="image" width="500">
@@ -280,7 +286,13 @@ check_schism_icbc(Mobj, 'temp', Mobj.maxLev)
   <img src="imags/fig_8.2.png" alt="image" width="500">
 </div>
 
-<p align="center"><strong>Figure 8</strong>. Check the consistency of SST in the initial field and the boundary input.</p>
+<p align="center"><strong>Figure 8</strong>. Check the consistency of SST in the initial condition (hotstart.nc) and boundary condition file (TEM_3D.th.nc).</p>
+
+<div align="center">
+  <img src="imags/fig_8.3.png" alt="image" width="500">
+</div>
+
+<p align="center"><strong>Figure 9</strong>. SST at open boundary nodes in the initial condition (hotstart.nc) and boundary condition file (TEM_3D.th.nc).</p>
 
 <br>
 

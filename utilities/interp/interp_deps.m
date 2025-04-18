@@ -1,5 +1,5 @@
 function varDeps = interp_deps(depRec, varRec, depLayers)
-% interpolate data from standard layers onto sigma layers
+% Interpolate data from z-layers onto sigma-layers
 % 
 %% Syntax
 % varDeps = interp_deps(Mobj, varRec, depRec)
@@ -28,15 +28,21 @@ function varDeps = interp_deps(depRec, varRec, depLayers)
 % See also: interp_tri
 
 %% Parse inputs
-if size(varRec, 2) ~= length(depRec)
-    varRec = varRec';
+[nNodes, nLevs] = size(varRec);  % # of points; # of z-layers
+maxLev = size(depLayers, 1); % # of sigma-layers
+
+%% Check inputs
+if nLevs ~= length(depRec)
+    if nNodes == length(depRec)
+        varRec = varRec';
+    else
+        error('size mismatch between varRec and depRec.');
+    end
 end
-depRec = abs(depRec);
-depRec = depRec-min(depRec);
+depRec = abs(depRec) - min(abs(depRec));  % Make sure depth starts from zero
+depLayers = abs(depLayers);  % Negative depth is not supported so far
 
-depLayers = abs(depLayers);
-[maxLev, nNodes] = size(depLayers);
-
+%% Interpolate vertically
 varDeps = nan(nNodes, maxLev);
 for iNode = 1:nNodes
     progressbar(iNode/nNodes)
@@ -45,7 +51,10 @@ for iNode = 1:nNodes
     varTmp = varRec(iNode,:);
     varDeps(iNode,:) = interp1(depRec, varTmp, depTri);
 end
+
+% Fill NaN values near the bottom
 varDeps = fillmissing(varDeps, 'previous', 2, 'EndValues', 'previous');
+
 end
 
 

@@ -1250,7 +1250,7 @@ pre[class*="language-"] {
 <body>
   <article class="markdown-body"><h1 class="atx" id="schism-toolbox-v11-beta">SCHISM-toolbox (v1.1-beta)</h1>
 <p>This is a MATLAB toolbox designed for the Semi-implicit Cross-scale Hydroscience Integrated System Model (<a href="http://ccrm.vims.edu/schismweb/">SCHISM</a>).</p>
-<p>Last updated on 3 Apr 2025 by <a href="https://www.researchgate.net/profile/Wenfan-Wu/research">Wenfan Wu</a>, CCRM, Virginia Institute of Marine Science.</p>
+<p>Last updated on 18 Apr 2025 by <a href="https://www.researchgate.net/profile/Wenfan-Wu/research">Wenfan Wu</a>, CCRM, Virginia Institute of Marine Science.</p>
 <h3 class="atx" id="new-features">New features!!!</h3>
 <ul>
 <li>work for mixed triangular/quadrangular grid</li>
@@ -1287,7 +1287,7 @@ Mobj<span class="token punctuation">.</span>dt <span class="token operator">=</s
 Mobj<span class="token punctuation">.</span>coord <span class="token operator">=</span> <span class="token string">'geographic'</span><span class="token punctuation">;</span>  <span class="token comment">% geographic or Cartesian coordinate</span></code></pre>
 <blockquote>
 <p>All input files generated afterwards will be placed in the directory where the <strong>mesh_file</strong> is located; </p>
-<p><span style="color:cornflowerblue;">If your mesh grid is generated from softwares other than OceanMesh2D or SMS, just use the '<strong>read_schism_hgrid.m</strong>' function to generate the '<strong>Mobj</strong>' datastruct, and the remaining workflow is the same. Refer to <strong>Exp3_CORIE_LSC2.m</strong> for more details.</span></p>
+<p><span style="color:cornflowerblue;">If your mesh grid is generated using software other than OceanMesh2D or SMS, use the <strong>read_schism_hgrid.m</strong> to create <strong>Mobj</strong>. The rest of workflow is the same. See <strong>Exp3_CORIE_LSC2.m</strong> for more details.</span></p>
 </blockquote>
 <br>
 
@@ -1407,18 +1407,18 @@ D <span class="token operator">=</span> <span class="token function">prep_river_
 
 <h3 class="atx" id="step-7-initial-conditions">Step-7: Initial Conditions</h3>
 <p>This part aims to prepare the initial fields (e.g., elev.ic, temp.ic, and hotstart.nc).</p>
-<pre><code class="fenced-code-block language-matlab"><span class="token comment">% DS contains the original initial fields with a fixed format:</span>
-<span class="token comment">% 1) 'lon', 'lat', 'depth' vectors must be in ascending order;</span>
-<span class="token comment">% 2) 'depth' vector must be positive; and ensure the range of lon/lat covers you model domain</span>
-<span class="token comment">% 3) 'var' must have dimensions of lon*lat or lon*lat*depth.</span>
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% DS contains raw data in a standardized format:</span>
+<span class="token comment">% 1) 'lon', 'lat', and 'depth' vectors must be in ascending order;</span>
+<span class="token comment">% 2) 'depth' must be positive; ensure the 'lon' and 'lat' ranges fully cover your model domain;</span>
+<span class="token comment">% 3) variable matrix ('var') must have dimensions of either [lon x lat] or [lon x lat x depth] above.</span>
 
-<span class="token comment">% option-1: real-time initial field from hycom.</span>
+<span class="token comment">% option-1: real-time hycom data.</span>
 DS <span class="token operator">=</span> <span class="token function">prep_schism_init</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'hycom_bys'</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
 
-<span class="token comment">% option-2: monthly clim. initial field from hycom.</span>
-<span class="token comment">% DS = prep_schism_init(Mobj, 'hycom_clim'); </span>
+<span class="token comment">% option-2: monthly climatology hycom data.</span>
+<span class="token comment">% DS = prep_schism_init(Mobj, 'hycom_bys_clim'); </span>
 
-<span class="token comment">% option-3: directly download the real-time hycom data from the internet</span>
+<span class="token comment">% option-3: directly download real-time hycom data from the internet.</span>
 <span class="token comment">% DS = prep_schism_init(Mobj, 'hycom_online'); </span>
 
 varList <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">'ssh'</span><span class="token punctuation">,</span> <span class="token string">'temp'</span><span class="token punctuation">,</span> <span class="token string">'salt'</span><span class="token punctuation">}</span><span class="token punctuation">;</span>  <span class="token comment">% it can be changed if you only want to interpolate for partial variables.</span>
@@ -1434,9 +1434,10 @@ InitCnd <span class="token operator">=</span> <span class="token function">inter
 
 <span class="token comment">% option-2: 3D initial fields (hotstart.nc)</span>
 start_time <span class="token operator">=</span> Mobj<span class="token punctuation">.</span><span class="token function">time</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-Hotstart <span class="token operator">=</span> <span class="token function">write_schism_hotstart</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> InitCnd<span class="token punctuation">,</span> start_time<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+hst_data <span class="token operator">=</span> <span class="token function">write_schism_hotstart</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> InitCnd<span class="token punctuation">,</span> start_time<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 <blockquote>
-<p><span style="color:green;"><strong>prep_schism_init.m</strong></span> is a simple wrapper function, and thus you can easily add more data sources in it according to your needs. Just make sure the format of <strong>DS</strong> meets the requirements given above.</p>
+<p><span style="color:green;"><strong>prep_schism_init.m</strong></span> is a simple wrapper function, so you can add more data sources in it as needed, just make sure the format of <strong>DS</strong> complies with the requirements above.</p>
+<p><span style="color:green;"><strong>get_hycom_online.m</strong></span> can be used to create the HYCOM database easily.</p>
 </blockquote>
 <div align="center">
   <img width="700" alt="image" src="imags/fig_7.1.png">
@@ -1448,27 +1449,33 @@ Hotstart <span class="token operator">=</span> <span class="token function">writ
 
 <h3 class="atx" id="step-8-boundary-conditions">Step-8: Boundary Conditions</h3>
 <p>This part aims to prepare the boundary inputs (e.g., elev2d.th.nc and TEM_3D.th.nc).</p>
-<pre><code class="fenced-code-block language-matlab"><span class="token comment">% option-1: prepare real-time boundary inputs using hycom data.</span>
-DS <span class="token operator">=</span> <span class="token function">prep_schism_bdry</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'hycom_bys'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% Extract data for all open boundaries</span>
+obc_bnds <span class="token operator">=</span> <span class="token number">1</span><span class="token operator">:</span>Mobj<span class="token punctuation">.</span>obc_counts<span class="token punctuation">;</span> 
 
-<span class="token comment">% option-2: prepare monthly clim. boundary inputs using hycom data.</span>
-<span class="token comment">% DS = prep_schism_bdry(Mobj, 'hycom_clim');</span>
+<span class="token comment">% option-1: real-time boundary inputs from hycom.</span>
+DS <span class="token operator">=</span> <span class="token function">prep_schism_bdry</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'hycom_bys'</span><span class="token punctuation">,</span> obc_bnds<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-BdryCnd <span class="token operator">=</span> <span class="token function">interp_schism_bdry</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> DS<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">% option-2: monthly climatology boundary inputs from hycom.</span>
+<span class="token comment">% DS = prep_schism_bdry(Mobj, 'hycom_bys_clim', obc_bnds);</span>
+
+varList <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">'ssh'</span><span class="token punctuation">,</span><span class="token string">'temp'</span><span class="token punctuation">,</span><span class="token string">'salt'</span><span class="token punctuation">,</span><span class="token string">'uvel'</span><span class="token punctuation">,</span><span class="token string">'vvel'</span><span class="token punctuation">}</span><span class="token punctuation">;</span> 
+BdryCnd <span class="token operator">=</span> <span class="token function">interp_schism_bdry</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> DS<span class="token punctuation">,</span> varList<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 <span class="token function">write_schism_th_nc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'elev2D'</span><span class="token punctuation">,</span> BdryCnd<span class="token punctuation">)</span>
 <span class="token function">write_schism_th_nc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'TEM_3D'</span><span class="token punctuation">,</span> BdryCnd<span class="token punctuation">)</span>
 <span class="token function">write_schism_th_nc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'SAL_3D'</span><span class="token punctuation">,</span> BdryCnd<span class="token punctuation">)</span>
 <span class="token function">write_schism_th_nc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'uv3D'</span><span class="token punctuation">,</span> BdryCnd<span class="token punctuation">)</span>
 
-<span class="token comment">% check the temperature interpolation at the begining</span>
-<span class="token function">check_schism_bdry</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> DS<span class="token punctuation">,</span> BdryCnd<span class="token punctuation">,</span> <span class="token string">'temp'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+<span class="token comment">% check the temperature interpolation on the first day.</span>
+<span class="token function">check_schism_bdry</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> DS<span class="token punctuation">,</span> BdryCnd<span class="token punctuation">,</span> <span class="token string">'temp'</span><span class="token punctuation">,</span> Mobj<span class="token punctuation">.</span><span class="token function">time</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
 
-<span class="token comment">% check the consistency between initial fields and boundary inputs</span>
-<span class="token function">check_schism_icbc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'temp'</span><span class="token punctuation">,</span> Mobj<span class="token punctuation">.</span>maxLev<span class="token punctuation">)</span></code></pre>
+<span class="token comment">% check the consistency between initial fields and boundary inputs.</span>
+<span class="token function">check_schism_icbc</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'temp'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token comment">% surface layer</span></code></pre>
 <blockquote>
-<p><span style="color:green;"><strong>prep_schism_bdry.m</strong></span> is also a wrapper function. Add your own data sources in it according to needs. </p>
-<p><span style="color:green;"><strong>prep_schism_bdry.m</strong></span> can be time-consuming when using real-time boundary inputs at high temporal resolution, particularly over extended periods. The primary factor slowing down this step is the data input/output (I/O) overhead from repeatedly loading data from the hard disk into memory (only the first time). If possible, storing data in SSD and using parallel programming (e.g., parfor) can greatly enhance efficiency.</p>
+<p><span style="color:green;"><strong>prep_schism_bdry.m</strong></span> is also a wrapper function. It integrates two general-purpose functions for handling HYCOM data: <strong>get_hycom_bdry</strong> and <strong>get_hycom_bdry_nc</strong>. These functions support both serial and parallel data extraction.</p>
+</blockquote>
+<blockquote>
+<p>This step can be time-consuming when using high-resolution, real-time boundary inputs over long periods. The main bottleneck is I/O overhead from repeatedly loading data (only first time). Using an SSD and parallel processing can significantly speed up the process.</p>
 </blockquote>
 <div align="center">
   <img width="500" alt="image" src="imags/fig_8.1.png">
@@ -1480,7 +1487,13 @@ BdryCnd <span class="token operator">=</span> <span class="token function">inter
   <img width="500" alt="image" src="imags/fig_8.2.png">
 </div>
 
-<p align="center"><strong>Figure 8</strong>. Check the consistency of SST in the initial field and the boundary input.</p>
+<p align="center"><strong>Figure 8</strong>. Check the consistency of SST in the initial condition (hotstart.nc) and boundary condition file (TEM_3D.th.nc).</p>
+
+<div align="center">
+  <img width="500" alt="image" src="imags/fig_8.3.png">
+</div>
+
+<p align="center"><strong>Figure 9</strong>. SST at open boundary nodes in the initial condition (hotstart.nc) and boundary condition file (TEM_3D.th.nc).</p>
 
 <br>
 

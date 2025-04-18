@@ -29,12 +29,12 @@ function write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx, ind_dst
 %       Default: time_steps = 995. The upper limit of time_steps is set to
 %       995 rather than 1000, in order to make sure the time steps of the
 %       last file will not exceed 1000.
-% start_idx - the starrt index (optional); numeric
+% start_idx - the start index (optional); numeric
 %       the start index of the first stacked NetCDF files. default: start_idx = 1
 % ind_dst - the index of dataset (optional); numeric
 %       the index of used dataset. Default: ind_dst = 1.  
 %       In SCHISM, if multiple datasets are available in sflux files, the
-%       files with larger index with overwrite the previous one when they
+%       files with larger index will overwrite the previous one when they
 %       are overlapped in space. 
 % 
 %% Output Arguments

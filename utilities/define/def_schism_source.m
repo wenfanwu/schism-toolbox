@@ -110,8 +110,8 @@ disp_schism_hgrid(Mobj, [0 0])
 hold on
 plot_schism_bnds(Mobj)
 box on;
-xlabel('Longitude (°E)', 'FontWeight','bold')
-ylabel('Latitude (°N)', 'FontWeight','bold')
+xlabel('Longitude', 'FontWeight','bold')
+ylabel('Latitude', 'FontWeight','bold')
 title(title_str)
 hold on
 scatter(Mobj.lonc, Mobj.latc,3,'filled', 'k')
