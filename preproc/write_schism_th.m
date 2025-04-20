@@ -41,7 +41,7 @@ if any(isnan(varRaw(:))); error('NaNs were found in the input data!'); end
 if size(varRaw,1) ~= numel(timeRaw); varRaw = varRaw'; end
 if size(varRaw,1) ~= numel(timeRaw); error('time vector is inconsistent with the data matrix!'); end
 
-[~, nps] = size(varRaw);  % # of time steps
+[~, nps] = size(varRaw);  % # of nodes
 time_secs = seconds(timeRaw-timeRaw(1));
 if min(diff(time_secs))<Mobj.dt; error(['time interval should be greater than ', num2str(Mobj.dt)]); end
 

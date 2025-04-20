@@ -1,23 +1,27 @@
-function bp = read_schism_bp(filepath)
-% Read the *bp file.
+function [c, x, y] = read_schism_bp(filepath)
+% Read the *.bp file.
 %
 %% Syntax
-% varData = read_schism_bp(filepath)
+% [c, x, y] = read_schism_bp(filepath)
 %
 %% Description
-% varData = read_schism_bp(filepath) reads bp file
+% [c, x, y] = read_schism_bp(filepath) reads data from the *.bp file
 %
 %% Input Arguments
 % filepath - filepath; char
-%       absolute filepath of the *.bp file
+%       the absolute filepath of the *.bp file
 %
 %% Output Arguments
-% bp - variable datastruct; double
-%       datastruct containing the bp info.
+% c - variable data; numeric
+%       the variable data from the *.bp file.
+% x - x-coordinate; numeric
+%       x-coordinate vector from the *.bp file.
+% y - y-coordinate; numeric
+%       y-coordinate vector from the *.bp file.
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2025. 
-% Last Updated on 21 Feb 2025. 
+% Last Updated on 19 Apr 2025. 
 % Email: wwu@vims.edu
 % 
 % See also: read_schism_prop
@@ -30,8 +34,6 @@ end
 %% Read data
 D = importdata(filepath, '%/s', inf);
 vm = double(split(string(D(3:end))));
+x = vm(:,2); y = vm(:,3); c = vm(:,4);
 
-bp.x = vm(:,2);
-bp.y = vm(:,3);
-bp.c = vm(:,4);
 end

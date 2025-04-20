@@ -278,7 +278,7 @@ else
     end
     switch fmt
         case 'mat'
-            save(aimfile, '-struct', 'D')
+            save(aimfile, '-struct', 'D', '-v7.3')  % v7.3 supports partial loading
         case 'nc'
             save_nc(aimfile, D)
     end

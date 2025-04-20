@@ -245,7 +245,7 @@ hst_data = write_schism_hotstart(Mobj, InitCnd, start_time);
 
 ### Step-8: Boundary Conditions
 
-This part aims to prepare the boundary inputs (e.g., elev2d.th.nc and TEM_3D.th.nc).
+This part aims to prepare the boundary inputs (e.g., elev2D.th.nc and TEM_3D.th.nc).
 
 ```matlab
 % Extract data for all open boundaries

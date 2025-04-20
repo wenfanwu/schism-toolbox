@@ -1,6 +1,6 @@
 %% CONTENT.m - List of functions grouped by subfolder
-% Scanned base folder: C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\schism-toolbox
-% Created on 15-Apr-2025 15:17:18
+% Scanned base folder: C:\Users\15641\OneDrive - vims.edu\GitHub_Projects\schism-toolbox
+% Created on 19-Apr-2025 20:59:56
 
 %% \examples\Exp1_BYS
 % Exp1_BYS_main.m                - This program is an EXAMPLE (Exp1_BYS) in the schism-toolbox
@@ -16,24 +16,25 @@
 % Exp4_ChesBay.m                 - This program is an EXAMPLE (Exp4_ChesBay) in the schism-toolbox
 
 %% \postproc
-% read_schism_bp.m               - Read the *bp file.
-% read_schism_gr3.m              - Read the *gr3 or *ic file.
+% read_schism_bp.m               - Read the *.bp file.
+% read_schism_gr3.m              - Read the *.gr3 file.
 % read_schism_hgrid.m            - Read the horizontal grids from hgrid.gr3/hgrid.ll (works for triangular/quad)
-% read_schism_prop.m             - Read the *prop file.
+% read_schism_ic.m               - Read the *.ic file (hvar or vvar).
+% read_schism_prop.m             - Read the *.prop file.
 % read_schism_vgrid.m            - Read the vertical grids
 
 %% \preproc
 % call_schism_tracers.m          - Load the Info. of activated tracers
 % mesh2schism.m                  - Load the unstructured grid from OceanMesh2D or SMS.
-% prep_schism_bdry.m             - Prepare boundary inputs (Hydrological part)
-% prep_schism_init.m             - Prepare initial data for SCHISM
+% prep_schism_bdry.m             - Prepare the boundary iniputs for SCHISM.
+% prep_schism_init.m             - Prepare the initial data for SCHISM.
 % write_schism_HA.m              - Write the harm.in file for SCHISM
 % write_schism_SAL.m             - Write loadtide_[FREQ].gr3 files for SCHISM
 % write_schism_bctides.m         - Write the bctides.in file for SCHISM.
 % write_schism_gr3.m             - Write the *.gr3 file for SCHISM
 % write_schism_hgrid.m           - Write the hgrid.gr3 & hgrid.ll files for SCHISM.
 % write_schism_hotstart.m        - Write hotstart.nc for SCHISM (NOT Completed Yet)
-% write_schism_ic.m              - Write the *ic file for SCHISM
+% write_schism_ic.m              - Write the *ic file for SCHISM (hvar or vvar)
 % write_schism_nu_nc.m           - Write nudging files for SCHISM (TEM/SAL/ICM_nu.nc)
 % write_schism_prop.m            - Write the *.prop file for SCHISM.
 % write_schism_ptrack.m          - Write the particle.bp file for SCHISM (Not Completed Now)
@@ -42,7 +43,7 @@
 % write_schism_source_nc.m       - Write the source.nc file for SHCISM
 % write_schism_station_in.m      - Write station.in file for SCHISM model
 % write_schism_th.m              - Write the *.th file for SCHISM
-% write_schism_th_nc.m           - Write *.th_nc files for SCHISM
+% write_schism_th_nc.m           - Write *th.nc files for SCHISM
 % write_schism_vgrid.m           - Write the vgrid.in file for SCHISM.
 
 %% \preproc\check
@@ -83,10 +84,9 @@
 % get_era5_forcing.m             - Extract ERA5 atmopheric forcing
 % get_fes2014_SAL.m              - Extract self-attracting and loading tide (SAL) from FES2014
 % get_fes2014_tide.m             - Extract the FES2014 tidal data
-% get_hycom_bdry_bys.m           - Extract HYCOM data as boundary inputs in Bohai, and Yellow Seas
-% get_hycom_bdry_clim.m          - Extract climatology boundary inputs from HYCOM data
-% get_hycom_init_bys.m           - Extract HYCOM data as initial inpus for the Bohai and Yellow Seas.
-% get_hycom_init_clim.m          - Extract climatological hycom data as initial field
+% get_hycom_bdry.m               - Parallel extraction of boundary inputs from MAT (v7.3) database.
+% get_hycom_bdry_nc.m            - Parallel extraction of boundary inputs from NetCDF database.
+% get_hycom_init.m               - Extract real-time hycom data as the initial field.
 % get_hycom_online.m             - Download the hycom data in a flexible way
 
 %% \utilities\general
@@ -97,8 +97,9 @@
 % dimnum.m                       - Calculate the # of valid dimensions
 % geomin.m                       - Find the indices of closet points
 % minfind.m                      - Find the position of the closest value
-% multi_interp1.m                - Excecute interp1 along one dimension of a 2-D matrix
+% multi_interp1.m                - Interpolate along a specific dimension of an N-D array.
 % nannum.m                       - Calculate the # of NaNs
+% sub_region.m                   - Extract the index and coordinates of sub-region.
 % tripcolor.m                    - Visualize the variable on an unstructured grid.
 % ut_FUV.m                       - Compute nodal/satellite correction factors and astronomical argument
 
@@ -108,11 +109,10 @@
 
 %% \utilities\interp
 % convert_schism_var.m           - Convert variables between different mesh centeres
-% interp_deps.m                  - interpolate data from standard layers onto sigma layers
+% interp_deps.m                  - Interpolate data from z-layers onto sigma-layers
 % interp_schism_bdry.m           - Interpolate boundary data onto SCHISM vertical layers.
 % interp_schism_init.m           - Interpolate initial data onto SCHISM grids
-% interp_tri.m                   - Interpolates data from an orthogonal grid onto scattered points
-% interp_zcors.m                 - Interp SCHISM outputs onto standard z levels
+% interp_tri.m                   - Interpolate gridded data onto scattered points
 
 %% \utilities\mesh
 % add_bnd_metrics.m              - Add open/land/island boundary info.
@@ -144,4 +144,5 @@
 % drag2rough.m                   - Convert from Cd to roughness [m] in SCHISM model
 % get_bnd_vars.m                 - Find the variable matrix along the boundary nodes
 % get_schout_btm.m               - Get the variable at the near-bottom layer
+% interp_zcors.m                 - Interp SCHISM outputs onto standard z levels
 

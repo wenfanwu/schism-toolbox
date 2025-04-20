@@ -53,7 +53,7 @@ varTmp = ncread(bdry_file, 'time_series');  % not complete
 var_bnd = squeeze(varTmp(1, Mobj.maxLev-ind_lev+1, :, idx_time));
 
 % Determine the open boundary segments
-cum_lens = [0, cumsum(Mobj.obc_lens)];
+cum_lens = [0; cumsum(Mobj.obc_lens(:))];
 obc_bnds = 1:(find(cum_lens==size(varTmp,3))-1);
 obc_nodes = Mobj.obc_nodes(:, obc_bnds);
 obc_nodes(obc_nodes==0) = [];
@@ -71,7 +71,7 @@ colormap(jet(25))
 box on
 caxis(vm)
 title(varName, 'FontWeight', 'bold')
-% auto_center
+auto_center
 
 figure('Color', 'w')
 tiledlayout(2,1,'TileSpacing','tight')
@@ -84,6 +84,7 @@ legend({'IC', 'BC'})
 box on; grid on
 xlabel('Along open boundary nodes', 'FontWeight', 'bold')
 ylabel(varName, 'FontWeight', 'bold')
+axis tight
 
 nexttile  
 % subplot(212)
@@ -91,6 +92,7 @@ plot(var_init(obc_nodes)-var_bnd, 'LineWidth',1, 'Color','m', 'Marker','.', 'Mar
 box on; grid on
 xlabel('Along open boundary nodes', 'FontWeight', 'bold')
 ylabel([varName, ' (IC - BC)'], 'FontWeight', 'bold')
+axis tight
 
 end
 
