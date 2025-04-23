@@ -33,82 +33,53 @@ function InitCnd = interp_schism_init(Mobj, DS, varList)
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2022. 
-% Last Updated on 1 Apr 2025. 
+% Last Updated on 22 Apr 2025. 
 % Email: wwu@vims.edu
 % 
 % See also: interp_schism_bdry
 
 %% Parse inputs
 if ~isfield(Mobj, 'depLayers'); error('Please add vertical grids first!'); end
-if nargin < 3; varList = fieldnames(DS); end
+if nargin < 3; varList = {DS.Variable}; end
 
 %% Interpolation
 nVars = numel(varList);
+InitCnd(nVars, 1) = struct('Variable', [], 'Data', [], 'Time', []);
+
 for iVar = 1:nVars
     varName = varList{iVar};
-    D = standard_output(DS.(varName)); % ensure the format of D is standard.
-    lonRaw = D.lon; latRaw = D.lat; varRaw = squeeze(D.var);
-
     disp(['begin to interp the ', varName])
+    
+    ind_var = strcmp({DS.Variable}, varName);
+    D = DS(ind_var);
+    lonRaw = D.Lon; latRaw = D.Lat; varRaw = squeeze(D.Data);
     switch dimnum(varRaw)
         case 2
             varNew = interp_tri(Mobj.lon, Mobj.lat, lonRaw, latRaw, varRaw);
         case 3
-            depRaw = abs(D.depth);  % this will be fixed in the future to consider "negative depth"
-            varTmp = interp_tri(Mobj.lon, Mobj.lat, lonRaw, latRaw, varRaw);
-            varNew = interp_deps(depRaw, varTmp, Mobj.depLayers);
+            depRaw = abs(D.Depth);  % this will be fixed in the future to consider "negative depth"
+            varTmp = interp_tri(Mobj.lon, Mobj.lat, lonRaw, latRaw, varRaw, [1 1]);
+            varNew = interp_deps(depRaw, varTmp, abs(Mobj.depLayers));
         otherwise
             error(['dimension error for ', varName, '!'])
     end
-    InitCnd.(varName) = varNew;
+    InitCnd(iVar).Variable = varName;
+    InitCnd(iVar).Data = varNew;
+    InitCnd(iVar).Time = Mobj.time(1);
 end
 %% T/S Contraints in SCHISM
-if isfield(InitCnd, 'temp')
+ind_var = find(strcmp({InitCnd.Variable}, 'temp'));
+if ~isempty(ind_var)
     disp('temp is clipped to [-2, 40] ')
     temp_min = -2; temp_max = 40;
-    InitCnd.temp = max(temp_min, InitCnd.temp);
-    InitCnd.temp = min(temp_max, InitCnd.temp);
+    InitCnd(ind_var).Data = min(temp_max, max(temp_min, InitCnd(ind_var).Data));
 end
-if isfield(InitCnd, 'salt')
+
+ind_var = strcmp({InitCnd.Variable}, 'salt');
+if ~isempty(ind_var)
     disp('salt is clipped to [0, 42] ')
     salt_min = 0; salt_max = 42;
-    InitCnd.salt = max(salt_min, InitCnd.salt);
-    InitCnd.salt = min(salt_max, InitCnd.salt);
-end
-end
-
-function D = standard_output(D)
-% 1) 'lon', 'lat', 'depth' vectors must be in ascending order;
-% 2) the region defined by lon/lat must cover you model domain
-% 3) 'var' must have the dimensions of lon*lat or lon*lat*depth.
-
-% Ensure "var" is lon x lat (x depth)
-if length(D.lon)==length(D.lat)
-    warning on
-    warning('the lengths of longitude and latitude are the same, be careful')
-end
-if dimnum(D.var)==2
-    if size(D.var,1) == length(D.lat) && size(D.var,2) == length(D.lon)
-        D.var = D.var';  % transpose to lon x lat
-    end
-elseif dimnum(D.var) == 3
-    if size(D.var,1) == length(D.lat) && size(D.var,2) == length(D.lon)
-        D.var = permute(D.var, [2 1 3]);  % permute to lon x lat x depth
-    end
-end
-
-% Ensure "lon" is in ascending order
-if ~issorted(D.lon); [D.lon, ix] = sort(D.lon); D.var = D.var(ix,:,:); end
-
-% Ensure "lat" is in ascending order
-if ~issorted(D.lat); [D.lat, iy] = sort(D.lat); D.var = D.var(:,iy,:); end
-
-% Ensure depth is in ascending order and positive
-if dimnum(D.var) == 3 && isfield(D, 'depth') && ~isempty(D.depth)
-    if ~issorted(D.depth)
-        [D.depth, iz] = sort(D.depth);
-        D.var = D.var(:,:,iz);
-    end
+    InitCnd(ind_var).Data = min(salt_max, max(salt_min, InitCnd(ind_var).Data));
 end
 end
 

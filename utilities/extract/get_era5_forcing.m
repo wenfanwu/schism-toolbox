@@ -72,8 +72,6 @@ if nargin<3
     src_file = 'E:\ECMWF\ERA5\Hourly_single_level_chesbay\L1_data\ERA5_hourly_****_1980_2024.nc';  % download ERA5 data first!
 end
 %% Extract
-lon_test = []; lat_test = [];
-
 for iVar = 1:length(varList)
     varName = varList{iVar};  % input variable names
 
@@ -83,21 +81,21 @@ for iVar = 1:length(varList)
             long_name = '10m_u_component_of_wind';  % long variable names in ERA5 nc files (default)
             short_name = 'u10';    % short variable names in the ERA5 nc files (default)
             filepath = strrep(src_file, '****', long_name); % m/s
-            [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
+            [lonReg, latReg, varReg, time] = subset_era5(AtmForc, filepath, short_name);
 
         case {'vwind', 'v10'} % m/s
             sflux_name = 'vwind'; 
             long_name = '10m_v_component_of_wind';
             short_name = 'v10';
             filepath = strrep(src_file, '****', long_name); % m/s
-            [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name); 
+            [lonReg, latReg, varReg, time] = subset_era5(AtmForc, filepath, short_name); 
 
         case {'dswrf', 'swrad_down', 'short_wave_down'}  % W/m^2
             sflux_name = 'dswrf'; 
             long_name = 'surface_solar_radiation_downwards'; 
             short_name = 'ssrd'; 
             filepath = strrep(src_file, '****', long_name);  % J/m^2
-            [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
+            [lonReg, latReg, varReg, time] = subset_era5(AtmForc, filepath, short_name);
             varReg = varReg/3600; % convert to W/m^2
 
         case {'dlwrf','lwrad_down', 'long_wave_down'} % W/m^2
@@ -105,7 +103,7 @@ for iVar = 1:length(varList)
             long_name = 'surface_thermal_radiation_downwards';
             short_name = 'strd';
             filepath = strrep(src_file, '****', long_name); % J/m^2
-            [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
+            [lonReg, latReg, varReg, time] = subset_era5(AtmForc, filepath, short_name);
             varReg = varReg/3600; % convert to W/m^2
 
         case {'prmsl', 'sea_level_press', 'slp'}  % Pa, or mbar/100
@@ -113,7 +111,7 @@ for iVar = 1:length(varList)
             long_name = 'mean_sea_level_pressure';
             short_name = 'msl';
             filepath = strrep(src_file, '****', long_name); % Pa, or mbar/100
-            [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
+            [lonReg, latReg, varReg, time] = subset_era5(AtmForc, filepath, short_name);
 
         case {'spfh', 'shum', 'specific_humidity'}   % specific humidity calculated at the sea level
             long_name = 'surface_pressure'; % Pa
@@ -124,7 +122,7 @@ for iVar = 1:length(varList)
             long_name = '2m_dewpoint_temperature';  % K
             short_name = 'd2m';
             filepath = strrep(src_file, '****', long_name);
-            [lonReg, latReg, d2m] = subset_era5(AtmForc, filepath, short_name);
+            [lonReg, latReg, d2m, time] = subset_era5(AtmForc, filepath, short_name);
             sp = sp/100; d2m = d2m-273.15;
             sflux_name = 'spfh';
             varReg = calc_shum(d2m, sp);
@@ -134,14 +132,14 @@ for iVar = 1:length(varList)
             long_name = 'mean_total_precipitation_rate'; % kg/m^2/s
             short_name = 'mtpr';
             filepath = strrep(src_file, '****', long_name);
-            [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
+            [lonReg, latReg, varReg, time] = subset_era5(AtmForc, filepath, short_name);
 
         case {'stmp',  'air_temp'} % K
             sflux_name= 'stmp';  
             long_name = '2m_temperature';
             short_name = 't2m';
             filepath = strrep(src_file, '****', long_name);
-            [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name);
+            [lonReg, latReg, varReg, time] = subset_era5(AtmForc, filepath, short_name);
 
     end
 
@@ -152,11 +150,12 @@ for iVar = 1:length(varList)
     disp(['the variable ''', sflux_name, ''' has been successfully extracted from ERA5 data set !'])
     AtmForc.(sflux_name) = varReg;
 end
-
 [AtmForc.lat, AtmForc.lon] = meshgrid(latReg, lonReg);
+AtmForc.time = time(:); % time subset from the raw data.
+
 end
 
-function [lonReg, latReg, varReg] = subset_era5(AtmForc, filepath, short_name)
+function [lonReg, latReg, varReg, time] = subset_era5(AtmForc, filepath, short_name)
 % subset the era5 data based on your region and time period.
 base_date = datenum(0,0,0); %#ok<*DATNM>
 
@@ -195,6 +194,7 @@ lonReg = lonAll(min(indLons):max(indLons));
 latReg = latAll(min(indLats):max(indLats));
 varReg = ncread(filepath, short_name, ...
     [min(indLons) min(indLats) min(indTimes)], [abs(diff(indLons))+1 abs(diff(indLats))+1 abs(diff(indTimes))+1]); %#ok<*NASGU>
+time = timeAll(min(indTimes):max(indTimes));
 
 % ensure the lon/lat vectors are in ascending orders.
 if ~issorted(lonReg)
@@ -224,6 +224,16 @@ nc_vars = {nc_info.Variables.Name};
 nc_dims = cellfun(@(x) numel(x), {nc_info.Variables.Size});
 ind_var = nc_dims==max(nc_dims);
 short_name = nc_vars{ind_var};
+
+end
+
+function q = calc_shum(d2m, sp)
+% Calculate the specific humidify.
+
+% the vapor pressure
+e = 6.11.*10.^(7.5.*d2m./(237.7+d2m));
+% the specific humidity
+q = 0.622.*e./(sp-0.378.*e);
 
 end
 

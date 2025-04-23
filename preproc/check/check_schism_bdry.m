@@ -46,46 +46,43 @@ function check_schism_bdry(Mobj, DS, BdryCnd, varName, timeTick, obc_bnds)
 if nargin < 4; varName = 'temp'; end
 if nargin < 5; timeTick = Mobj.time(1); end
 
-D = DS.(varName);
-% determine the open boundary segments
-obc_bnds_all = find(ismember(Mobj.obc_nodes(1,:), D.ind));
+D1 = DS(strcmp({DS.Variable}, varName));
+D2 = BdryCnd(strcmp({BdryCnd.Variable}, varName));
 
-if nargin < 6; obc_bnds = 'all'; end
-if strcmpi(obc_bnds, 'all'); obc_bnds = obc_bnds_all; end
-
+%% Determine the open boundaries
+obc_bnds_all = find(ismember(Mobj.obc_nodes(1,:), D1.Nodes));
+if nargin < 6; obc_bnds = obc_bnds_all; end
 idx_bnds = ismember(obc_bnds, obc_bnds_all);
 if numel(find(idx_bnds==0))>0
     error('some open boundary segments in obc_bnds are unused or inexistent!')
 end
+
 %% Prepare data
-obc_nodes = Mobj.obc_nodes(:, obc_bnds); 
-obc_nodes = obc_nodes(:);
-obc_nodes(obc_nodes==0) = [];
+obc_nodes = Mobj.obc_nodes(:, obc_bnds);  obc_nodes = obc_nodes(:); obc_nodes(obc_nodes==0) = [];
 nps = numel(obc_nodes);
 
-nz_new = Mobj.maxLev;
-nz_raw = numel(D.depth);
+nz_new = Mobj.maxLev; nz_raw = numel(D1.Depth);
+v1 = D1.Data; v2 = D2.Data; 
 
-v1 = BdryCnd.(varName);
-v2 = D.var; 
-
-idx_time1 = minfind(Mobj.time, timeTick);
-var_new = squeeze(v1(:,:,idx_time1))';
+idx_time1 = minfind(D2.Time, timeTick);
+var_new = squeeze(v2(:,:,idx_time1));
 dep_new = fillmissing(-abs(Mobj.depLayers(:, obc_nodes)), 'previous',1);
 dist_new = repmat(1:nps, nz_new, 1);
 
-idx_time2 = minfind(D.time, Mobj.time(idx_time1));  % time index in the raw data.
-var_raw = squeeze(v2(:,:, idx_time2))';
-dep_raw = -abs(repmat(D.depth(:), 1, nps));
+idx_time2 = minfind(D1.Time, Mobj.time(idx_time1));  % time index in the raw data.
+var_raw = squeeze(v1(:,:, idx_time2));
+dep_raw = -abs(repmat(D1.Depth(:), 1, nps));
 dist_raw =  repmat(1:nps, nz_raw, 1);
 
 %% Display
+bdep = -abs(Mobj.depth(obc_nodes));
+
 figure('Color', 'w')
 subplot(211)
 pcolor(dist_new, dep_new, var_new)
 shading flat
 hold on
-plot(-abs(Mobj.depth(obc_nodes)), 'LineWidth', 1, 'Color', 'k')
+plot(bdep, 'LineWidth', 1, 'Color', 'k')
 colormap(jet(25))
 colorbar
 cm = caxis; %#ok<*CAXIS>
@@ -95,11 +92,14 @@ ylabel('Depth (m)', 'FontWeight','bold')
 set(gca, 'Layer', 'top')
 title(['SCHISM (', datestr(Mobj.time(idx_time1), 'yyyy-mm-dd HH:MM:SS'), ')']) %#ok<*DATST>
 
+is_nan = dep_raw<repmat(bdep(:)', [size(dep_raw,1) 1]);
+var_raw(is_nan) = nan;
+
 subplot(212)
 pcolor(dist_raw, dep_raw, var_raw)
 shading flat
 hold on
-plot(-abs(Mobj.depth(obc_nodes)), 'LineWidth', 1, 'Color', 'k')
+plot(bdep, 'LineWidth', 1, 'Color', 'k')
 colormap(jet(25))
 colorbar
 caxis(cm)
@@ -107,7 +107,7 @@ ylim(ym)
 xlabel('Along open boundary nodes', 'FontWeight','bold')
 ylabel('Depth (m)', 'FontWeight','bold')
 set(gca, 'Layer', 'top')
-title(['Raw Data (', datestr(D.time(idx_time2), 'yyyy-mm-dd HH:MM:SS'), ')'])
+title(['Raw Data (', datestr(D1.Time(idx_time2), 'yyyy-mm-dd HH:MM:SS'), ')'])
 
 end
 

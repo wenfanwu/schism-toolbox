@@ -1,5 +1,5 @@
 function write_schism_th_nc(Mobj, prefix_name, BdryCnd)
-% Write *th.nc files for SCHISM
+% Write *th.nc files for SCHISM.
 % 
 %% Syntax
 % write_schism_th_nc(Mobj, prefix_name, BdryCnd)
@@ -9,6 +9,7 @@ function write_schism_th_nc(Mobj, prefix_name, BdryCnd)
 %       <prefix_name>.th.nc file for SCHISM.
 %
 %% Examples
+% bdry_time = Mobj.time(1):Mobj.time(end);
 % write_schism_th_nc(Mobj, 'elev2D', BdryCnd)
 % write_schism_th_nc(Mobj, 'COS_3D', BdryCnd)
 % 
@@ -19,15 +20,14 @@ function write_schism_th_nc(Mobj, prefix_name, BdryCnd)
 %       prefix name of the *th.nc file, e.g., elev2D, uv3D, TEM_3D, COS_3D;
 %       the file extension will be omitted automatically.
 % BdryCnd - the boundary data; datastruct
-%       the datastruct used to store the boundary inputs, with fields
-%       repsenting the variable matrix (nps*nz*nt).
+%       the datastruct array used to store boundary inputs.
 % 
 %% Output Arguments
 % None
 % 
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2022.
-% Last Updated on 17 Apr 2025.
+% Last Updated on 21 Apr 2025.
 % Email: wwu@vims.edu
 % 
 % See also: write_schism_th
@@ -52,7 +52,7 @@ switch prefix_name
         varList = Mobj.tracer_sheet(3:end, 7);
 end
 % Merge boundary variables into "time_series"
-D = merge_bdry_vars(Mobj, BdryCnd, varList);
+D = merge_bdry_vars(BdryCnd, varList);
 
 %% Begin to write
 if exist(filepath,'file')==2; delete(filepath); end  % over-write
@@ -71,21 +71,32 @@ ncwrite(filepath,'time_series', D.time_series);
 disp([prefix_name, '.nc has been successfully created!'])
 end
 
-function D = merge_bdry_vars(Mobj, BdryCnd, varList)
+function D = merge_bdry_vars(BdryCnd, varList)
 % Merge boundary variables into "time_series"
+% All variables in "varList" must have the same size (nz*nps*nt)
 
 if ischar(varList); varList = {varList}; end
-D = struct();
-D.time_step = seconds(Mobj.time(2) - Mobj.time(1));
-D.time = seconds(Mobj.time- Mobj.time(1));
-for iVar = 1:numel(varList)
-    varName = varList{iVar};
-    if isfield(BdryCnd,varName)
-        varData = BdryCnd.(varName);
+nVars = numel(varList);  bdry_times = cell(nVars,1);
+for iVar = 1:nVars
+    varName = lower(varList{iVar});
+    ind_var = find(strcmp({BdryCnd.Variable}, varName), 1);
+    % check the existence of variable
+    if ~isempty(ind_var)
+        bdry_times{iVar} = BdryCnd(ind_var).Time;
+        varData = BdryCnd(ind_var).Data;
     else
         error('Variable %s not found in BdryCnd', varName);
     end
-    % the last row indicates the surface layer.
-    D.time_series(iVar,:,:,:) = flip(permute(varData, [2 1 3]), 1);   
+    D.time_series(iVar,:,:,:) = flip(varData, 1);  % the last row indicates the surface layer.
 end
+
+% Check the time vector
+if all(cellfun(@(x) isequal(x, bdry_times{1}), bdry_times))
+    bdry_time = bdry_times{1};
+else
+    error('"Time" fields must be identical in the same NetCDF file!')
+end
+D.time_step = seconds(bdry_time(2) - bdry_time(1));
+D.time = seconds(bdry_time - bdry_time(1));
+
 end

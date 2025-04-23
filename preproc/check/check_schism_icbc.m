@@ -24,7 +24,7 @@ function check_schism_icbc(Mobj, varName, ind_lev)
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2021. 
-% Last Updated on 1 Apr 2025. 
+% Last Updated on 22 Apr 2025. 
 % Email: wwu@vims.edu
 % 
 % See also: check_schism_init and check_schism_bdry
@@ -35,7 +35,7 @@ idx_time = 1; datapath = Mobj.aimpath;
 
 %% Load data
 init_file = fullfile(datapath, 'hotstart.nc');
-switch varName
+switch lower(varName)
     case {'elev', 'ssh'}
         bdry_file = fullfile(datapath, 'elev2D.th.nc');
         var_init = squeeze(ncread(init_file, 'eta2'));
@@ -49,7 +49,7 @@ switch varName
     otherwise
         disp('not comple now!')
 end
-varTmp = ncread(bdry_file, 'time_series');  % not complete
+varTmp = ncread(bdry_file, 'time_series'); 
 var_bnd = squeeze(varTmp(1, Mobj.maxLev-ind_lev+1, :, idx_time));
 
 % Determine the open boundary segments
@@ -57,9 +57,8 @@ cum_lens = [0; cumsum(Mobj.obc_lens(:))];
 obc_bnds = 1:(find(cum_lens==size(varTmp,3))-1);
 obc_nodes = Mobj.obc_nodes(:, obc_bnds);
 obc_nodes(obc_nodes==0) = [];
+lon = Mobj.lon(obc_nodes); lat = Mobj.lat(obc_nodes);
 
-lon = Mobj.lon(obc_nodes);
-lat = Mobj.lat(obc_nodes);
 %% Display
 figure('Color', 'w');
 disp_schism_var(Mobj, var_init)
@@ -76,7 +75,6 @@ auto_center
 figure('Color', 'w')
 tiledlayout(2,1,'TileSpacing','tight')
 nexttile
-% subplot(211)
 plot(var_init(obc_nodes), 'LineWidth',2, 'Color','b', 'Marker','.', 'MarkerSize',15)
 hold on
 plot(var_bnd, 'LineWidth',1, 'Color','r', 'Marker','.', 'MarkerSize',10)
@@ -87,7 +85,6 @@ ylabel(varName, 'FontWeight', 'bold')
 axis tight
 
 nexttile  
-% subplot(212)
 plot(var_init(obc_nodes)-var_bnd, 'LineWidth',1, 'Color','m', 'Marker','.', 'MarkerSize', 10)
 box on; grid on
 xlabel('Along open boundary nodes', 'FontWeight', 'bold')

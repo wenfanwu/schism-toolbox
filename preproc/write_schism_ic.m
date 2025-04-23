@@ -65,9 +65,9 @@ switch prefix_name
             warning('Invalid temp. values have been removed!')
             varData(:,2) = min(40, max(-2, varData(:,2)));
         end
-        if min(varData(:,3))<-2 || max(varData(:,3))>40
-            warning('Invalid temp. values have been removed!')
-            varData(:,3) = min(40, max(-2, varData(:,3)));
+        if min(varData(:,3))<0 || max(varData(:,3))>42
+            warning('Invalid salt. values have been removed!')
+            varData(:,3) = min(42, max(0, varData(:,3)));
         end
     case 'temp'
         if min(varData)<-2 || max(varData)>40

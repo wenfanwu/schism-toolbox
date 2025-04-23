@@ -1,1 +1,0 @@
-This hycom database was created using the function "get_hycom_online.m".

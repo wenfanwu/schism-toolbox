@@ -31,9 +31,10 @@ function write_cosine_ic(Mobj, InitCnd)
 varList = {'NO3','SiO4','NH4','S1'	'S2','Z1','Z2','DN','DSi','PO4','DOX','CO2','ALK'}; % DO NOT change the order
 
 for iVar = 1:numel(varList)
-    varName = lower(varList{iVar});
-    if isfield(InitCnd, varName)
-        varTmp = InitCnd.(varName)(:,1);
+    varName = varList{iVar};
+    ind_var = find(strcmpi({InitCnd.Variable}, varName));
+    if ~isempty(ind_var)
+        varTmp = InitCnd(ind_var).Data(1,:);
         varTmp(varTmp<0) = 0;
         write_schism_ic(Mobj, ['COS_hvar_', num2str(iVar)], varTmp)
     end

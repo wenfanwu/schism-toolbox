@@ -127,12 +127,18 @@ InitCnd = interp_schism_init(Mobj, DS, varList);
 % check the interpolation
 check_schism_init(Mobj, DS, InitCnd, 'temp')
 
-% option-1: space-varying but vertically uniform initial field (temp.ic&salt.ic)
-write_schism_ic(Mobj, 'elev', InitCnd.ssh)
-write_schism_ic(Mobj, 'temp', InitCnd.temp(:,1))
-write_schism_ic(Mobj, 'salt', InitCnd.salt(:,1))
+% option-1: horizontally varying but vertically uniform (temp.ic & salt.ic)
+write_schism_ic(Mobj, 'elev', InitCnd(1).Data)
+write_schism_ic(Mobj, 'temp', InitCnd(2).Data(1,:))
+write_schism_ic(Mobj, 'salt', InitCnd(3).Data(2,:))
 
-% option-2: 3D initial fields (hotstart.nc)
+% option-2: vertically varying but horizontally uniform (ts.ic)
+z_layers = 0:-3:-max(Mobj.depth);
+temp_prof = 15+10*(1+tanh((z_layers+20)/10))/2;
+salt_prof = 34-(1+tanh((z_layers+10)/7))/2;
+write_schism_ic(Mobj, 'ts', [z_layers(:), temp_prof(:), salt_prof(:)])
+
+% option-3: 3-D inputs (hotstart.nc)
 start_time = Mobj.time(1);
 hst_data = write_schism_hotstart(Mobj, InitCnd, start_time);
 %% Step-8: Boundary Conditions (elev/temp/salinity/velocity/module-tracers)
@@ -142,16 +148,20 @@ hst_data = write_schism_hotstart(Mobj, InitCnd, start_time);
 % prep_schism_bdry is also a wrapper function. It integrates two general-purpose 
 % functions for handling HYCOM data: get_hycom_bdry and get_hycom_bdry_nc.
 % These functions support both serial and parallel data extraction.
-obc_bnds = 1:Mobj.obc_counts;  % extract data for all open boundaries.
+
+% Note that obc_bnds can be specified as "cell", which means that the open
+% boundaries to be extracted will vary from variables. 
+obc_bnds = 1:Mobj.obc_counts;  % extract data for all open boundaries; 
 
 % option-1: real-time boundary inputs from hycom.
-DS = prep_schism_bdry(Mobj, 'hycom_bys', obc_bnds);  % supoort parallel extraction
+DS = prep_schism_bdry(Mobj, 'hycom_bys_clim', obc_bnds);  % supoort parallel extraction
 
 % option-2: monthly climatology boundary inputs from hycom.
 % DS = prep_schism_bdry(Mobj, 'hycom_bys_clim', obc_bnds);
 
 varList = {'ssh', 'temp', 'salt', 'uvel', 'vvel'}; 
-BdryCnd = interp_schism_bdry(Mobj, DS, varList);
+bdry_time = Mobj.time(1):hours(3):Mobj.time(end); % 3-hourly inputs (can also be "cell")
+BdryCnd = interp_schism_bdry(Mobj, DS, varList, bdry_time);
 
 write_schism_th_nc(Mobj, 'elev2D', BdryCnd)
 write_schism_th_nc(Mobj, 'TEM_3D', BdryCnd)
@@ -197,7 +207,7 @@ write_schism_gr3(Mobj, 'manning', fmc)
 
 %% Step-11: Misc. files ending in gr3
 % shapiro.gr3
-shapiro_val = calc_schism_shapiro(Mobj, [0.001, 0.05], 0.5, 'on');
+shapiro_val = calc_schism_shapiro(Mobj, [0.001, 0.01], 0.5, 'on');
 write_schism_gr3(Mobj, 'shapiro', shapiro_val)
 
 % windrot_geo2proj.gr3
@@ -244,11 +254,20 @@ write_schism_prop(Mobj, 'fluxflag', flux_flags)
 
 time_steps = 30; % time steps in each netcdf file
 
-load('example_AtmForc_era5.mat')
-AtmForc.aimpath = Mobj.aimpath;
+% load('example_AtmForc_era5.mat')
+% AtmForc.aimpath = Mobj.aimpath;
 
+Mobj.force_time = [datetime(2020,5,28), datetime(2020,6,11)];
+Mobj.force_region = Mobj.region;
+
+src_file = 'E:\ECMWF\ERA5\ERA5_hourly_****_1979_2024.nc';  % download ERA5 data first!
+AtmForc = get_era5_forcing(Mobj, 'prate', src_file);
 write_schism_sflux(AtmForc, 'prc', time_steps)
+
+AtmForc = get_era5_forcing(Mobj, {'dlwrf', 'dswrf'}, src_file);
 write_schism_sflux(AtmForc, 'rad', time_steps)
+
+AtmForc = get_era5_forcing(Mobj, {'spfh', 'uwind', 'vwind', 'prmsl', 'stmp'}, src_file);
 write_schism_sflux(AtmForc, 'air', time_steps)
 
 % Note the "time_steps" of each sflux nc file can not exceed 1000 in the
@@ -262,15 +281,17 @@ write_schism_sflux(AtmForc, 'air', time_steps)
 %% Step-14: Boundary nudging (optional)
 % define a boundary nuding zone (90-km width)
 % 20 km is the width of max-nudging zone adjacent to the boundary
-[nudge_factor, nudge_nodes] = calc_schism_nudge(Mobj, [20, 90, 4e-5], 'all', 'on');
-
-nudge_time = Mobj.time(1):Mobj.time(end); % daily inputs
-D.time = seconds(nudge_time-nudge_time(1));
-D.map_to_global_node = nudge_nodes;
-D.tracer_concentration = 25*ones(1,Mobj.maxLev, numel(nudge_nodes), numel(nudge_time));  % constant temperature
+obc_bnds = 1:Mobj.obc_counts; % all open boundaries
+[nudge_factor, nudge_nodes] = calc_schism_nudge(Mobj, [20, 90, 4e-5], obc_bnds, 'on');
 
 write_schism_gr3(Mobj, 'TEM_nudge', nudge_factor)
-write_schism_nu_nc(Mobj, 'TEM', D)
+write_schism_gr3(Mobj, 'SAL_nudge', nudge_factor)
+
+DS = get_hycom_nudge(Mobj, nudge_nodes); % support parallel extraction
+nudge_time = Mobj.time(1):Mobj.time(end);  % daily inputs
+NdgCnd = interp_schism_bdry(Mobj, DS, {'temp', 'salt'}, nudge_time);
+
+write_schism_nu_nc(Mobj, 'SAL', NdgCnd)
 %% END
 
 

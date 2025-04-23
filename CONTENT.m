@@ -1,6 +1,6 @@
 %% CONTENT.m - List of functions grouped by subfolder
-% Scanned base folder: C:\Users\15641\OneDrive - vims.edu\GitHub_Projects\schism-toolbox
-% Created on 19-Apr-2025 20:59:56
+% Scanned base folder: C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\schism-toolbox
+% Created on 23-Apr-2025 10:13:05
 
 %% \examples\Exp1_BYS
 % Exp1_BYS_main.m                - This program is an EXAMPLE (Exp1_BYS) in the schism-toolbox
@@ -33,9 +33,9 @@
 % write_schism_bctides.m         - Write the bctides.in file for SCHISM.
 % write_schism_gr3.m             - Write the *.gr3 file for SCHISM
 % write_schism_hgrid.m           - Write the hgrid.gr3 & hgrid.ll files for SCHISM.
-% write_schism_hotstart.m        - Write hotstart.nc for SCHISM (NOT Completed Yet)
+% write_schism_hotstart.m        - Write hotstart.nc for SCHISM (Not completed yet)
 % write_schism_ic.m              - Write the *ic file for SCHISM (hvar or vvar)
-% write_schism_nu_nc.m           - Write nudging files for SCHISM (TEM/SAL/ICM_nu.nc)
+% write_schism_nu_nc.m           - Write the *_nu.nc files for SCHISM.
 % write_schism_prop.m            - Write the *.prop file for SCHISM.
 % write_schism_ptrack.m          - Write the particle.bp file for SCHISM (Not Completed Now)
 % write_schism_sflux.m           - Write sflux nc files for SCHISM
@@ -43,7 +43,7 @@
 % write_schism_source_nc.m       - Write the source.nc file for SHCISM
 % write_schism_station_in.m      - Write station.in file for SCHISM model
 % write_schism_th.m              - Write the *.th file for SCHISM
-% write_schism_th_nc.m           - Write *th.nc files for SCHISM
+% write_schism_th_nc.m           - Write *th.nc files for SCHISM.
 % write_schism_vgrid.m           - Write the vgrid.in file for SCHISM.
 
 %% \preproc\check
@@ -87,15 +87,16 @@
 % get_hycom_bdry.m               - Parallel extraction of boundary inputs from MAT (v7.3) database.
 % get_hycom_bdry_nc.m            - Parallel extraction of boundary inputs from NetCDF database.
 % get_hycom_init.m               - Extract real-time hycom data as the initial field.
+% get_hycom_nudge.m              - Parallel extraction of boundary inputs from MAT (v7.3) database.
 % get_hycom_online.m             - Download the hycom data in a flexible way
 
 %% \utilities\general
-% add_structs.m                  - Merge two structs
 % any2time.m                     - Convert various time formats to datetime
 % auto_center.m                  - Automatically center the figure
 % cell2array.m                   - Convert the numeric vectors inside a cell to an array.
 % dimnum.m                       - Calculate the # of valid dimensions
 % geomin.m                       - Find the indices of closet points
+% merge_structs.m                - Merges multiple datastructs.
 % minfind.m                      - Find the position of the closest value
 % multi_interp1.m                - Interpolate along a specific dimension of an N-D array.
 % nannum.m                       - Calculate the # of NaNs
@@ -135,7 +136,6 @@
 % plot_schism_bnds.m             - Plot the land/island/ocean boundaries for SCHISM
 
 %% \modules\CoSiNE
-% get_cosine_init_test.m         - Extract BGC data from the fake dataset
 % prep_cosine_bdry.m             - Prepare boundary inputs for the CoSiNE module
 % prep_cosine_init.m             - Prepare initial data for the CoSiNE module
 % write_cosine_ic.m              - Write the COS_hvar_*.ic files for the CoSiNE module

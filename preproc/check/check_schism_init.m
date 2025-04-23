@@ -31,28 +31,25 @@ function check_schism_init(Mobj, DS, InitCnd, varName)
 % See also: interp_schism_init
 
 %%  Parse inputs
-D = DS.(varName);
+ind_var = strcmp({DS.Variable}, varName); D1 = DS(ind_var);
+ind_var = strcmp({InitCnd.Variable}, varName); D2 = InitCnd(ind_var);
 switch varName
     case 'ssh'
-        varRaw_b = D.var; varRaw_s = D.var;
-        varNew_s = InitCnd.ssh; varNew_b = InitCnd.ssh;
+        varRaw_b = D1.Data; varRaw_s = D1.Data;
+        varNew_s = D2.Data; varNew_b = D2.Data;
     otherwise
-        msk_3d = isnan(Mobj.depLayers)';
-        InitCnd.(varName)(msk_3d) = nan;
+        varRaw = D1.Data;  varNew = D2.Data;
 
-        varRaw = D.var;
-        varNew = InitCnd.(varName);
+        [nx, ny, nz] = size(varRaw);
+        var2d = reshape(varRaw, nx*ny, nz);
+        idx = sum(~isnan(var2d), 2); idx(idx == 0) = 1;  
+        linIdx = sub2ind([nx*ny, nz], (1:nx*ny)', idx);
 
-        varRaw_2d = reshape(varRaw, [size(varRaw, 1)*size(varRaw,2) size(varRaw,3)]);
-        ind_btm_2d = sum(~isnan(varRaw_2d'));ind_btm_2d(ind_btm_2d==0) = 1;
-        varTmp = arrayfun(@(x) varRaw_2d(x, ind_btm_2d(x)), 1:size(varRaw_2d,1));
-
-        varRaw_b = reshape(varTmp, size(varRaw, [1 2]));
+        varRaw_b = reshape(var2d(linIdx), nx, ny);
         varRaw_s = squeeze(varRaw(:,:, 1));
-        
-        ind_btm = sum(~isnan(Mobj.depLayers));
-        varNew_b = arrayfun(@(x) varNew(x, ind_btm(x)), 1:Mobj.nNodes);
-        varNew_s = varNew(:, 1);
+
+        varNew_b = varNew(sub2ind(size(varNew), sum(~isnan(Mobj.depLayers)), 1:size(varNew,2)));
+        varNew_s = varNew(1,:);
 end
 %% Display
 cmap = jet(25);
@@ -60,8 +57,6 @@ cmap = jet(25);
 figure('Color', 'w')
 tiledlayout(2,2,'TileSpacing','tight')
 nexttile
-
-% subplot(221)
 disp_schism_var(Mobj, varNew_s)
 hold on
 plot_schism_bnds(Mobj)
@@ -77,8 +72,7 @@ cb.TickLabels = compose('%.2f', cb.Ticks);
 title(['SCHISM (surface ', varName,')'], 'FontWeight','bold')
 
 nexttile
-% subplot(222)
-pcolor(D.lon, D.lat, varRaw_s')
+pcolor(D1.Lon, D1.Lat, varRaw_s')
 shading flat
 hold on
 plot_schism_bnds(Mobj)
@@ -96,7 +90,6 @@ ylabel('Latitude', 'FontWeight','bold')
 title(['Raw data (surface ', varName,')'], 'FontWeight','bold')
 
 nexttile
-% subplot(223)
 disp_schism_var(Mobj, varNew_b)
 hold on
 plot_schism_bnds(Mobj)
@@ -112,8 +105,7 @@ cb.TickLabels = compose('%.2f', cb.Ticks);
 title(['SCHISM (bottom ', varName,')'], 'FontWeight','bold')
 
 nexttile
-% subplot(224)
-pcolor(D.lon, D.lat, varRaw_b')
+pcolor(D1.Lon, D1.Lat, varRaw_b')
 shading flat
 hold on
 plot_schism_bnds(Mobj)

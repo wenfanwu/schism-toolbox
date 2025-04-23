@@ -1,77 +1,95 @@
-function BdryCnd = interp_schism_bdry(Mobj, DS, varList)
+function BdryCnd = interp_schism_bdry(Mobj, DS, varList, bdry_time)
 % Interpolate boundary data onto SCHISM vertical layers.
 %
 %% Syntax
+% BdryCnd = interp_schism_bdry(Mobj, DS)
 % BdryCnd = interp_schism_bdry(Mobj, DS, varList)
+% BdryCnd = interp_schism_bdry(Mobj, DS, varList, bdry_time)
 %
 %% Description
-% BdryCnd = interp_schism_bdry(Mobj, DS, varList) interpolates boundary
-%       data onto the vertical layers of SCHISM grid.
+% BdryCnd = interp_schism_bdry(Mobj, DS) interpolates boundary data onto
+%       the vertical layers of SCHISM grid.
+% BdryCnd = interp_schism_bdry(Mobj, DS, varList) specifies the variables
+%        to be interpolated. 
+% BdryCnd = interp_schism_bdry(Mobj, DS, varList, bdry_time) specifies the
+%        time series for intertpolation at open boundaries. 
 %
 %% Input Arguments
-%   Mobj    - Mesh object containing SCHISM mesh and metadata
-%   DS      - Struct containing boundary input data (fields: var, depth, time, etc.)
-%   varList - Cell array of variable names to interpolate (optional)
+% Mobj - mesh object; datastruct
+%       the data struct used to store mesh info.
+% DS - data struct; datastruct
+%       the datastruct containing raw boundary input data (fields: var,
+%       depth, time, etc.).
+% varList - variable list (optional); cell
+%       the variable to be interpolated. Default: varList = fieldnames(DS).
+% bdry_time - interpolation time; datetime/cell
+%       the time series for intertpolation at open boundaries. bdry_time
+%       can be specified as "cell", which means that the time resolution
+%       vary from variables. Default: bdry_time = Mobj.time; 
 %
 %% Output Arguments
-%   BdryCnd - Struct containing interpolated variables on SCHISM vertical layers
+% BdryCnd - boundry data; datastruct
+%       the datastruct containing interpolated variables on SCHISM vertical
+%       layers.
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2022. 
-% Last Updated on 17 Apr 2025. 
+% Last Updated on 22 Apr 2025.
 % Email: wwu@vims.edu
 % 
 % See also: interp_schism_init
 
 %% Parse inputs
-if nargin < 3; varList = fieldnames(DS); end
+if nargin < 3; varList = {DS.Variable}; end
+nVars = numel(varList);
+if nargin < 4; bdry_time = repmat({Mobj.time}, [nVars, 1]); end
+if isdatetime(bdry_time); bdry_time = repmat({bdry_time}, [nVars, 1]); end
 
 %% Begin to interpolate
-nVars = numel(varList);
+BdryCnd(nVars, 1) = struct('Variable', [], 'Data', [], 'Depth', [], 'Nodes', [], 'Time', []);
+
 for iVar = 1:nVars
     varName = varList{iVar};
-    D = DS.(varName);
+    disp(['begin to interp the ', varName])
 
+    ind_var = strcmp({DS.Variable}, varName);
+    D = DS(ind_var);
     % =============== Chek the inputs ================
     % check the open boundary nodes
-     [obc_bnds, idx] = ismember(Mobj.obc_nodes(1,:), D.ind); 
+     [obc_bnds, idx] = ismember(Mobj.obc_nodes(1,:), D.Nodes); 
      obc_bnds = find(obc_bnds);
     if ~issorted(idx(obc_bnds))
         error('the index of open boundary segments is not consistent with hgrid files')
     end
     % check the time range
-    if max(Mobj.time) > max(D.time) || min(Mobj.time) < min(D.time)
+    if max(bdry_time{iVar}) > max(D.Time) || min(bdry_time{iVar}) < min(D.Time)
         error('the time range cannot cover the model time!')
     end
 
     % =========== Interpolate the data vertically ===========
-    depRaw = abs(D.depth); depRaw = depRaw-min(depRaw);  % avoid nan values at 0-m layer
-    depBnd = abs(Mobj.depLayers(:, D.ind));
-
-    nt = numel(D.time); nps = numel(D.ind);
+    depRaw = abs(D.Depth); depRaw = depRaw-min(depRaw);  % avoid nan values at 0-m layer
+    depBnd = abs(Mobj.depLayers(:, D.Nodes));
     switch lower(varName)
         case 'ssh'
-            varBnd = D.var;
+            varBnd = D.Data;
         otherwise
-            varBnd = zeros(nps, Mobj.maxLev, nt);
-            for iNode = 1:nps
-                varRaw = squeeze(D.var(iNode,:,:));
-                varRaw = fillmissing(varRaw, 'previous', 1);  % fill the potential missing values at deep layers
-                depNew = fillmissing(depBnd(:, iNode), 'previous');
-                varBnd(iNode,:,:) = multi_interp1(depRaw, varRaw, depNew, 1);  % interpolate along the vertical dimension
-            end
+            varBnd = interp_deps(depRaw, D.Data, depBnd);
     end
 
-    % ========== Kill NaN values at each open boundaries ==========
-    obc_inds = [0, cumsum(Mobj.obc_lens(obc_bnds))];
+    % ========== Kill NaN values along each open boundary ==========
+    obc_inds = [0; cumsum(Mobj.obc_lens(obc_bnds(:)))];
     for ii = 1:numel(obc_bnds)
         ind_seg = obc_inds(ii)+1:obc_inds(ii+1);
-        var_seg = varBnd(ind_seg,:,:); % data on each open boundary segment
-        varBnd(ind_seg,:,:) = kill_nans(var_seg);
+        var_seg = varBnd(:,ind_seg,:); % data on each open boundary segment
+        varBnd(:,ind_seg,:) = kill_nans(var_seg);
     end
     if any(isnan(varBnd(:))); error('NaN values were found!'); end
-    
-    BdryCnd.(varName) = multi_interp1(D.time, varBnd, Mobj.time, min(3, ndims(varBnd)));  % interpolate along the time dimension
+
+    BdryCnd(iVar).Variable = varName;
+    BdryCnd(iVar).Data = multi_interp1(D.Time, varBnd, bdry_time{iVar}, min(3, ndims(varBnd)));  % interpolate along the time dimension
+    BdryCnd(iVar).Depth = depBnd(1:size(varBnd,1),:);
+    BdryCnd(iVar).Nodes = D.Nodes(:);
+    BdryCnd(iVar).Time = bdry_time{iVar}(:);
 end
 
 end

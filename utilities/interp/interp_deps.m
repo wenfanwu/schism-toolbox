@@ -1,59 +1,51 @@
-function varDeps = interp_deps(depRec, varRec, depLayers)
+function varTri = interp_deps(depRaw, varRaw, depTri)
 % Interpolate data from z-layers onto sigma-layers
 % 
 %% Syntax
-% varDeps = interp_deps(Mobj, varRec, depRec)
+% varTri = interp_deps(depRaw, varRaw, depTri)
 %
 %% Description 
-% varDeps = interp_deps(Mobj, varRec, depRec)
+% varTri = interp_deps(depRaw, varRaw, depTri) interpolates data from
+%       z-layers onto sigma-layers.
 %
 %% Input Arguments
-% varRec - original variable matrix; double
-%       variable matrix (nNodes*nz) on standard layers;
-% depRec - standard depths; double
-%       standard depth layers;
-% depLayers - depth matrix; double
-%       the depth matrix (maxLev*nNodes), indicating depth layers for all
-%       nodes. It is typically from Mobj.
+% depRaw - standard depths; numeric
+%       standard depth layers (nz_z*1);
+% varRaw - original variable; numeric
+%       variable matrix (nz_z*nps*nt or nz_z*nps) on standard layers;
+% depTri - depth layers; numeric
+%       the depth matrix (nz_s*nps), indicating the depth layers for
+%       all nodes.
 %
 %% Output Arguments
-% varDeps - interpolated variable matrix; double
-%       varaible matrix (nNodes*maxLev) on sigma layers
+% varTri - interpolated variable; double
+%       varaible matrix (nz_s*nps) on sigma layers
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2023.
-% Last Updated on 09 Dec 2024.
+% Last Updated on 22 Apr 2025.
 % Email: wwu@vims.edu
 %
 % See also: interp_tri
 
 %% Parse inputs
-[nNodes, nLevs] = size(varRec);  % # of points; # of z-layers
-maxLev = size(depLayers, 1); % # of sigma-layers
+depRaw = abs(depRaw); depRaw = depRaw-min(depRaw);  % avoid nan values at 0-m layer
+depTri = fillmissing(abs(depTri), 'previous', 1, 'EndValues', 'previous');
 
-%% Check inputs
-if nLevs ~= length(depRec)
-    if nNodes == length(depRec)
-        varRec = varRec';
-    else
-        error('size mismatch between varRec and depRec.');
-    end
-end
-depRec = abs(depRec) - min(abs(depRec));  % Make sure depth starts from zero
-depLayers = abs(depLayers);  % Negative depth is not supported so far
+[nz, nps] = size(depTri);  % nz*nps
+nt = 1; if ndims(varRaw)==3; nt = size(varRaw,3); end
 
-%% Interpolate vertically
-varDeps = nan(nNodes, maxLev);
-for iNode = 1:nNodes
-    progressbar(iNode/nNodes)
-    
-    depTri = depLayers(:, iNode);
-    varTmp = varRec(iNode,:);
-    varDeps(iNode,:) = interp1(depRec, varTmp, depTri);
+varTri = zeros(nz, nps, nt);
+for iNode = 1:nps
+    varTmp = squeeze(varRaw(:, iNode, :));
+    varTmp = fillmissing(varTmp, 'previous', 1, 'EndValues', 'previous');  % fill the potential missing values at deep layers
+    depNew = depTri(:, iNode);
+    varTri(:,iNode,:) = multi_interp1(depRaw, varTmp, depNew, 1);  % interpolate along the vertical dimension
 end
 
 % Fill NaN values near the bottom
-varDeps = fillmissing(varDeps, 'previous', 2, 'EndValues', 'previous');
+varTri = fillmissing(varTri, 'previous', 1, 'EndValues', 'previous');
+varTri = squeeze(varTri);
 
 end
 

@@ -80,16 +80,16 @@ DS2 = prep_cosine_init(Mobj, 'test_data');
 varList = {'no3', 'sio4', 'po4', 'dox'};  
 InitCnd2 = interp_schism_init(Mobj, DS2, varList);
 
-DS = add_structs(DS1, DS2); 
-InitCnd = add_structs(InitCnd1, InitCnd2); 
+DS = merge_structs(DS1, DS2); 
+InitCnd = merge_structs(InitCnd1, InitCnd2); 
 
 % check the no3 interpolation
 check_schism_init(Mobj, DS, InitCnd, 'no3')
 
 % option-1: space-varying but vertically uniform initial field (temp.ic&salt.ic)
-write_schism_ic(Mobj, 'elev', InitCnd.ssh)
-write_schism_ic(Mobj, 'temp', InitCnd.temp(:,1))
-write_schism_ic(Mobj, 'salt', InitCnd.salt(:,1))
+write_schism_ic(Mobj, 'elev', InitCnd(1).Data)
+write_schism_ic(Mobj, 'temp', InitCnd(2).Data(1,:))
+write_schism_ic(Mobj, 'salt', InitCnd(3).Data(2,:))
 
 write_cosine_ic(Mobj, InitCnd)  % COS_hvar_*.ic
 
@@ -104,13 +104,14 @@ BdryCnd1 = interp_schism_bdry(Mobj, DS1, varList);
 % Take an example with a constructed data set here
 DS2 = prep_cosine_bdry(Mobj, 'test_data');
 varList = {'no3','sio4','nh4','s1'	's2','z1','z2','dn','dsi','po4','dox','co2','alk'}; % DO NOT change the order
-BdryCnd2 = interp_schism_bdry(Mobj, DS2, varList);
+bdry_time = Mobj.time;
+BdryCnd2 = interp_schism_bdry(Mobj, DS2, varList, bdry_time);
 
-DS = add_structs(DS1, DS2); 
-BdryCnd = add_structs(BdryCnd1, BdryCnd2);
+DS = merge_structs(DS1, DS2); 
+BdryCnd = merge_structs(BdryCnd1, BdryCnd2);
 
 % check the no3 interpolation on the open boundary
-check_schism_bdry(Mobj, DS, BdryCnd, 'no3', 1)
+check_schism_bdry(Mobj, DS, BdryCnd, 'no3', Mobj.time(1))
 
 write_schism_th_nc(Mobj, 'elev2D', BdryCnd)
 write_schism_th_nc(Mobj, 'TEM_3D', BdryCnd)

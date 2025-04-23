@@ -70,7 +70,7 @@ j2 = min(length(y), find(y <= max_lat, 1, 'last') + margin);
 ind_x = [i1, i2]; ind_y = [j1, j2];
 
 % subregion x and y
-sx = x(min(ind_x):max(ind_x));
+sx = x(min(ind_x):max(ind_x)); 
 sy = y(min(ind_y):max(ind_y));
 
 end

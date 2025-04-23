@@ -34,7 +34,7 @@ function DS = prep_schism_init(Mobj, dst)
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2022.
-% Last Updated on 18 Apr 2025.
+% Last Updated on 22 Apr 2025.
 % Email: wwu@vims.edu
 %
 % See also: prep_schism_bdry
@@ -58,13 +58,18 @@ switch dst
     case 'hycom_bys_clim'
         filepath = 'example_hycom_clim_1995_2020.mat'; % regional dataset for the BYS
         C = load(filepath); iMon = month(Mobj.time(1));
-        hd.lon = C.lon; hd.lat = C.lat; hd.depth = abs(C.depth); hd.time = Mobj.time(1);
-        DS.ssh = hd; DS.ssh.var = squeeze(C.ssh(:,:,:,iMon));
-        DS.temp = hd; DS.temp.var = squeeze(C.temp(:,:,:,iMon));
-        DS.salt = hd; DS.salt.var = squeeze(C.salt(:,:,:,iMon));
+        D.Lon = C.lon; D.Lat = C.lat; D.Depth = abs(C.depth); D.Time = Mobj.time(1);
+        varList = {'ssh', 'temp', 'salt'}; nVars = numel(varList);
+        DS(nVars, 1) = struct('Variable', [], 'Data', [], 'Lon', [], 'Lat', [], 'Depth', [], 'Time', []);
+        for ii = 1:nVars
+            varName = varList{ii};
+            DS(ii).Lon = D.Lon;  DS(ii).Lat = D.Lat; DS(ii).Time = D.Time;
+            if strcmpi(varName, 'ssh'); DS(ii).Depth = 0;  else; DS(ii).Depth = D.Depth; end
+            DS(ii).Variable = varName; DS(ii).Data = squeeze(C.(varName)(:,:,:,iMon));
+        end
 
     case 'hycom_bys'
-        meta_data.src_file = 'C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\schism-toolbox\data\hycom\W117E127S33N41_****.mat';
+        meta_data.src_file = 'C:\Users\15641\OneDrive - vims.edu\GitHub_Projects\schism-toolbox\data\hycom\W117E127S33N41_****.mat';
         meta_data.raw_list = {'ssh','salt','temp'};      % original variable name in the file
         meta_data.new_list = {'ssh','salt','temp'};      % standard variable name for output
         meta_data.dim_vars = {'lon', 'lat', 'depth'};    % dimensional variables in the file
@@ -78,5 +83,8 @@ switch dst
         meta_data.dim_vars = {'lon', 'lat', 'depth'};    % dimensional variables in the file
         meta_data.date_fmt = 'yyyymmddTHHMMZ';  % the date format of filename
         DS = get_hycom_init(Mobj, meta_data);
+
+    case 'glorys_chesbay'
+        DS = get_glorys_init(Mobj);
 end
 end

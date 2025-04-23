@@ -1,11 +1,11 @@
-function Hs = write_schism_hotstart(Mobj, InitCnd, start_time)
-% Write hotstart.nc for SCHISM (NOT Completed Yet)
+function C = write_schism_hotstart(Mobj, InitCnd, start_time)
+% Write hotstart.nc for SCHISM (Not completed yet)
 %
 %% Syntax
-% hotstart_data = write_schism_hotstart(Mobj, InitCnd, start_time)
+% C = write_schism_hotstart(Mobj, InitCnd, start_time)
 %
 %% Description
-% hotstart_data = write_schism_hotstart(Mobj, InitCnd, start_time) writes the
+% C = write_schism_hotstart(Mobj, InitCnd, start_time) writes the
 % hotstart.nc file and return a datastruct containing all the variables. 
 %
 %% Input Arguments
@@ -29,207 +29,210 @@ function Hs = write_schism_hotstart(Mobj, InitCnd, start_time)
 % See also: ncwrite
 
 %% Parse inputs
-nTracers = Mobj.nTracers;
-nLevs = Mobj.maxLev;
-nElems = Mobj.nElems;
-nNodes = Mobj.nNodes;
-nEdges = Mobj.nEdges;
+if nargin < 3; start_time = Mobj.time(1); end
 
-%% The last row represents the surface in SCHISM
-InitCnd.salt = flip(InitCnd.salt, 2);
-InitCnd.temp = flip(InitCnd.temp, 2);
-
-%% Make sure the T/S values are valid
-temp_min = -2; temp_max = 40;
-InitCnd.temp = max(temp_min, InitCnd.temp);
-InitCnd.temp = min(temp_max, InitCnd.temp);
-
-salt_min = 0; salt_max = 42;
-InitCnd.salt = max(salt_min, InitCnd.salt);
-InitCnd.salt = min(salt_max, InitCnd.salt);
-
-%% NetCDF
-Hs.time = seconds(start_time-Mobj.time(1));   % start time
-Hs.eta2 = InitCnd.ssh;                                      % elevation
-Hs.tr_nd(1,:,:) = InitCnd.temp';
-Hs.tr_nd(2,:,:) = InitCnd.salt';
+nTracers = Mobj.nTracers; nLevs = Mobj.maxLev; 
+nElems = Mobj.nElems; nNodes = Mobj.nNodes; nEdges = Mobj.nEdges;
+%% Reverse 3-D variables
+varList = {InitCnd.Variable};
+for iVar = 1:numel(varList)
+    varName = varList{iVar};
+    ind_var = strcmp({InitCnd.Variable}, varName);
+    varData = squeeze(InitCnd(ind_var).Data);
+    
+    % make sure the T/S values are valid
+    switch varName
+        case 'temp'; varData = max(-2, min(varData, 40));
+        case 'salt'; varData = max(0, min(varData, 42));
+    end
+    % the last row represents the surface.
+    if size(varData,1)==Mobj.maxLev
+        InitCnd(ind_var).Data = flip(varData, 1);  % the first dimension is "depth"
+    end
+end
+%% Extract data for all tracers
+% essential variables
+C.time = seconds(start_time-Mobj.time(1));   % start time
+C.eta2 = InitCnd(strcmp({InitCnd.Variable},'ssh')).Data;     % elevation
+C.tr_nd(1,:,:) = InitCnd(strcmp({InitCnd.Variable},'temp')).Data;  % temp
+C.tr_nd(2,:,:) = InitCnd(strcmp({InitCnd.Variable},'salt')).Data;   % salt
 
 ind_mods = find(Mobj.tracer_counts~=0);
-ind_mods(1:2) = [];  % index of the tracer model
+ind_mods(1:2) = [];  % the index of tracer modules
 
-sn = 2; % at least two tracers in the model (temp&salt)
+idx = 2; % at least two tracers (temp & salt)
 for ii = ind_mods(:)'
     tracer_list = Mobj.tracer_sheet(3:end, ii);
     ind_tracers = find(~cellfun(@isempty, tracer_list));
     for jj = ind_tracers(:)'
-        sn = sn+1;
+        idx = idx+1;
         tracer_name = lower(tracer_list{jj});
-        varTmp = InitCnd.(tracer_name);
-        if min(size(varTmp))==1
-            varTmp = repmat(varTmp, 1, Mobj.maxLev);
+        ind_var = strcmp({InitCnd.Variable}, tracer_name);
+        varTmp = InitCnd(ind_var).Data;
+        if min(size(varTmp))==1; varTmp = repmat(varTmp, Mobj.maxLev, 1); end
+        
+        if any(varTmp<0)
+            warning on; warning(['Negative values exist in the ', tracer_name, ' data'])
+            varTmp(varTmp<0) = 0;
         end
-        if sum(varTmp<0)~=0
-            warning on
-            warning(['Negative values exist in the ', tracer_name, ' data'])
-            varTmp(varTmp<0) = 0;  % need changes
-        end
-        Hs.tr_nd(sn,:,:) = varTmp';
+        C.tr_nd(idx,:,:) = varTmp;
     end
 end
 
-Hs.tr_nd0 = Hs.tr_nd;
+% Variables defined at element centers
+C.tr_nd0 = C.tr_nd;
 for jj = 1:nTracers
     for kk = 1:nLevs
-        var_nd = squeeze(Hs.tr_nd(jj, kk, :));
-        Hs.tr_el(jj,kk,:) = convert_schism_var(Mobj, var_nd, 'node2elem');
+        C.tr_el(jj,kk,:) = convert_schism_var(Mobj, squeeze(C.tr_nd(jj, kk, :)), 'node2elem');
     end
 end
 
-Hs.iths = 0;
-Hs.ifile = 1;
-Hs.idry_e = zeros(nElems,1);             % wet_dry flag at elements
-Hs.idry_s = zeros(nEdges,1);               % wet_dry flag at sides
-Hs.idry = zeros(nNodes,1);                % wet_dry flag
-Hs.we = zeros(nLevs, nElems);           % vertical velocity at elems
-Hs.su2 = zeros(nLevs, nEdges);           % side velocity u
-Hs.sv2 = zeros(nLevs, nEdges);           % side velocity v
-Hs.q2 = zeros(nLevs, nNodes);        
-Hs.xl = zeros(nLevs, nNodes);
-Hs.dfv = zeros(nLevs, nNodes);         % vertical diffusive coefficient
-Hs.dfh = zeros(nLevs, nNodes);         % horizontal diffusive coefficient
-Hs.dfq1 = zeros(nLevs, nNodes);
-Hs.dfq2 = zeros(nLevs, nNodes);
-Hs.nsteps_from_cold = 0;
-Hs.cumsum_eta = zeros(Mobj.nNodes,1);
+% Assign variables
+C.iths = 0;
+C.ifile = 1;
+C.idry_e = zeros(nElems,1);             % wet_dry flag at elements
+C.idry_s = zeros(nEdges,1);               % wet_dry flag at sides
+C.idry = zeros(nNodes,1);                % wet_dry flag
+C.we = zeros(nLevs, nElems);           % vertical velocity at elems
+C.su2 = zeros(nLevs, nEdges);           % side velocity u
+C.sv2 = zeros(nLevs, nEdges);           % side velocity v
+C.q2 = zeros(nLevs, nNodes);        
+C.xl = zeros(nLevs, nNodes);
+C.dfv = zeros(nLevs, nNodes);         % vertical diffusive coefficient
+C.dfh = zeros(nLevs, nNodes);         % horizontal diffusive coefficient
+C.dfq1 = zeros(nLevs, nNodes);
+C.dfq2 = zeros(nLevs, nNodes);
+C.nsteps_from_cold = 0;
+C.cumsum_eta = zeros(Mobj.nNodes,1);
 
-%% NetCDF
-fileName = [Mobj.aimpath, 'hotstart.nc'];
-if exist(fileName,'file')==2; delete(fileName); end
+%% Begin to write (Hydro)
+filepath = fullfile(Mobj.aimpath, 'hotstart.nc');
+if exist(filepath,'file')==2; delete(filepath); end
 
-nccreate(fileName,'time','Dimensions',{'one', 1},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'time', Hs.time);
-nccreate(fileName,'iths','Dimensions',{'one', 1},'Datatype','int32','Format','netcdf4')
-ncwrite(fileName,'iths', Hs.iths);
-nccreate(fileName,'ifile','Dimensions',{'one', 1},'Datatype','int32','Format','netcdf4')
-ncwrite(fileName,'ifile', Hs.ifile);
+nccreate(filepath,'time','Dimensions',{'one', 1},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'time', C.time);
+nccreate(filepath,'iths','Dimensions',{'one', 1},'Datatype','int32','Format','netcdf4')
+ncwrite(filepath,'iths', C.iths);
+nccreate(filepath,'ifile','Dimensions',{'one', 1},'Datatype','int32','Format','netcdf4')
+ncwrite(filepath,'ifile', C.ifile);
 
-nccreate(fileName,'nsteps_from_cold','Dimensions',{'one', 1},'Datatype','int32','Format','netcdf4')  % added since v5.9.0
-ncwrite(fileName,'nsteps_from_cold', Hs.nsteps_from_cold);
-nccreate(fileName,'cumsum_eta','Dimensions',{'node', nNodes},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'cumsum_eta', Hs.cumsum_eta);
+nccreate(filepath,'nsteps_from_cold','Dimensions',{'one', 1},'Datatype','int32','Format','netcdf4')  % added since v5.9.0
+ncwrite(filepath,'nsteps_from_cold', C.nsteps_from_cold);
+nccreate(filepath,'cumsum_eta','Dimensions',{'node', nNodes},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'cumsum_eta', C.cumsum_eta);
 
-nccreate(fileName,'idry_e','Dimensions',{'elem', nElems},'Datatype','int32','Format','netcdf4')
-ncwrite(fileName,'idry_e', Hs.idry_e);
-nccreate(fileName,'idry_s','Dimensions',{'side', nEdges},'Datatype','int32','Format','netcdf4')
-ncwrite(fileName,'idry_s', Hs.idry_s);
-nccreate(fileName,'idry','Dimensions',{'node', nNodes},'Datatype','int32','Format','netcdf4')
-ncwrite(fileName,'idry', Hs.idry);
+nccreate(filepath,'idry_e','Dimensions',{'elem', nElems},'Datatype','int32','Format','netcdf4')
+ncwrite(filepath,'idry_e', C.idry_e);
+nccreate(filepath,'idry_s','Dimensions',{'side', nEdges},'Datatype','int32','Format','netcdf4')
+ncwrite(filepath,'idry_s', C.idry_s);
+nccreate(filepath,'idry','Dimensions',{'node', nNodes},'Datatype','int32','Format','netcdf4')
+ncwrite(filepath,'idry', C.idry);
 
-nccreate(fileName,'eta2','Dimensions',{'node', nNodes},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'eta2', Hs.eta2);
-nccreate(fileName,'we','Dimensions',{'nVert', nLevs, 'elem', nElems},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'we', Hs.we);
-nccreate(fileName,'tr_el','Dimensions',{'ntracers',nTracers, 'nVert', nLevs, 'elem', nElems},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'tr_el', Hs.tr_el);
-nccreate(fileName,'su2','Dimensions',{'nVert', nLevs, 'side', nEdges},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'su2', Hs.su2);
-nccreate(fileName,'sv2','Dimensions',{'nVert', nLevs, 'side', nEdges},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'sv2', Hs.sv2);
-nccreate(fileName,'tr_nd','Dimensions',{'ntracers',nTracers, 'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'tr_nd', Hs.tr_nd);
-nccreate(fileName,'tr_nd0','Dimensions',{'ntracers',nTracers, 'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'tr_nd0', Hs.tr_nd0);
-nccreate(fileName,'q2','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'q2', Hs.q2);
-nccreate(fileName,'xl','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'xl', Hs.xl);
-nccreate(fileName,'dfv','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'dfv', Hs.dfv);
-nccreate(fileName,'dfh','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'dfh', Hs.dfh);
-nccreate(fileName,'dfq1','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'dfq1', Hs.dfq1);
-nccreate(fileName,'dfq2','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
-ncwrite(fileName,'dfq2', Hs.dfq2);
+nccreate(filepath,'eta2','Dimensions',{'node', nNodes},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'eta2', C.eta2);
+nccreate(filepath,'we','Dimensions',{'nVert', nLevs, 'elem', nElems},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'we', C.we);
+nccreate(filepath,'tr_el','Dimensions',{'ntracers',nTracers, 'nVert', nLevs, 'elem', nElems},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'tr_el', C.tr_el);
+nccreate(filepath,'su2','Dimensions',{'nVert', nLevs, 'side', nEdges},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'su2', C.su2);
+nccreate(filepath,'sv2','Dimensions',{'nVert', nLevs, 'side', nEdges},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'sv2', C.sv2);
+nccreate(filepath,'tr_nd','Dimensions',{'ntracers',nTracers, 'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'tr_nd', C.tr_nd);
+nccreate(filepath,'tr_nd0','Dimensions',{'ntracers',nTracers, 'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'tr_nd0', C.tr_nd0);
+nccreate(filepath,'q2','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'q2', C.q2);
+nccreate(filepath,'xl','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'xl', C.xl);
+nccreate(filepath,'dfv','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'dfv', C.dfv);
+nccreate(filepath,'dfh','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'dfh', C.dfh);
+nccreate(filepath,'dfq1','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'dfq1', C.dfq1);
+nccreate(filepath,'dfq2','Dimensions',{'nVert', nLevs, 'node', nNodes},'Datatype','double','Format','netcdf4')
+ncwrite(filepath,'dfq2', C.dfq2);
 
 %% USE_ICE
 if strcmpi(Mobj.use_ice, 'yes')
     ntr_ice = 3; % # of ice tracers (in order: 1: ice mass; 2: ice conc; 3: snow mass)
      
-    Hs.ice_free_flag = 1;     % start from ice-free conditions
-    Hs.ice_free_flag2 = 1;
-    Hs.ice_surface_T = -1.8*ones(nNodes, 1);
-    Hs.ice_water_flux = zeros(nNodes, 1);
-    Hs.ice_heat_flux = zeros(nNodes, 1);
-    Hs.ice_velocity_x = zeros(nNodes, 1);
-    Hs.ice_velocity_y = zeros(nNodes, 1);
-    Hs.ice_sigma11 = zeros(nElems, 1);
-    Hs.ice_sigma12 = zeros(nElems, 1);
-    Hs.ice_sigma22 = zeros(nElems, 1);
-    Hs.ice_ocean_stress = zeros(2, nNodes);
-    Hs.ice_tracers = ones(ntr_ice, nNodes);
+    C.ice_free_flag = 1;     % start from ice-free conditions
+    C.ice_free_flag2 = 1;
+    C.ice_surface_T = -1.8*ones(nNodes, 1);
+    C.ice_water_flux = zeros(nNodes, 1);
+    C.ice_heat_flux = zeros(nNodes, 1);
+    C.ice_velocity_x = zeros(nNodes, 1);
+    C.ice_velocity_y = zeros(nNodes, 1);
+    C.ice_sigma11 = zeros(nElems, 1);
+    C.ice_sigma12 = zeros(nElems, 1);
+    C.ice_sigma22 = zeros(nElems, 1);
+    C.ice_ocean_stress = zeros(2, nNodes);
+    C.ice_tracers = ones(ntr_ice, nNodes);
 
-    nccreate(fileName,'ice_free_flag','Dimensions',{'one', 1},'Datatype','double','Format','netcdf4')
-    ncwrite(fileName,'ice_free_flag', Hs.ice_free_flag);
-    nccreate(fileName,'ice_free_flag2','Dimensions',{'one', 1},'Datatype','double','Format','netcdf4')
-    ncwrite(fileName,'ice_free_flag2', Hs.ice_free_flag2);
+    nccreate(filepath,'ice_free_flag','Dimensions',{'one', 1},'Datatype','double','Format','netcdf4')
+    ncwrite(filepath,'ice_free_flag', C.ice_free_flag);
+    nccreate(filepath,'ice_free_flag2','Dimensions',{'one', 1},'Datatype','double','Format','netcdf4')
+    ncwrite(filepath,'ice_free_flag2', C.ice_free_flag2);
 
     ICE_vars = {'ice_free_flag', 'ice_free_flag2','ice_surface_T','ice_water_flux','ice_heat_flux','ice_velocity_x','ice_velocity_y'};
     for iVar = 3:numel(ICE_vars)
         varName = strtrim(ICE_vars{iVar});
-        varData = Hs.(varName);
+        varData = C.(varName);
 
-        nccreate(fileName, varName,'Dimensions',{'node', nNodes},'Datatype','double','Format','netcdf4')
-        ncwrite(fileName, varName, varData);
+        nccreate(filepath, varName,'Dimensions',{'node', nNodes},'Datatype','double','Format','netcdf4')
+        ncwrite(filepath, varName, varData);
     end
     
     ICE_vars2 = {'ice_sigma11','ice_sigma12','ice_sigma22'};
     for iVar = 1:numel(ICE_vars2)
         varName = strtrim(ICE_vars2{iVar});
-        varData = Hs.(varName);
+        varData = C.(varName);
 
-        nccreate(fileName, varName,'Dimensions',{'elem', nElems},'Datatype','double','Format','netcdf4')
-        ncwrite(fileName, varName, varData);
+        nccreate(filepath, varName,'Dimensions',{'elem', nElems},'Datatype','double','Format','netcdf4')
+        ncwrite(filepath, varName, varData);
     end
     
-    nccreate(fileName,'ice_ocean_stress','Dimensions',{'two',2, 'node', nNodes},'Datatype','double','Format','netcdf4')
-    ncwrite(fileName,'ice_ocean_stress', Hs.ice_ocean_stress);
+    nccreate(filepath,'ice_ocean_stress','Dimensions',{'two',2, 'node', nNodes},'Datatype','double','Format','netcdf4')
+    ncwrite(filepath,'ice_ocean_stress', C.ice_ocean_stress);
     
-    nccreate(fileName,'ice_tracers','Dimensions',{'ice_ntr', ntr_ice, 'node', nNodes},'Datatype','double','Format','netcdf4')
-    ncwrite(fileName,'ice_tracers', Hs.ice_tracers);
+    nccreate(filepath,'ice_tracers','Dimensions',{'ice_ntr', ntr_ice, 'node', nNodes},'Datatype','double','Format','netcdf4')
+    ncwrite(filepath,'ice_tracers', C.ice_tracers);
 end
 %% USE_COSINE
 if strcmpi(Mobj.use_cosine, 'yes')
     Mobj.ndelay = 7;
     ind_cos = [7 10 8 9];  % bug
-    Hs.COS_sS2 = squeeze(Hs.tr_el(ind_cos(1), :,:));
-    Hs.COS_sDN = squeeze(Hs.tr_el(ind_cos(2), :,:));
-    Hs.COS_sZ1 = squeeze(Hs.tr_el(ind_cos(3), :,:));
-    Hs.COS_sZ2 = squeeze(Hs.tr_el(ind_cos(4), :,:));
+    C.COS_sS2 = squeeze(C.tr_el(ind_cos(1), :,:));
+    C.COS_sDN = squeeze(C.tr_el(ind_cos(2), :,:));
+    C.COS_sZ1 = squeeze(C.tr_el(ind_cos(3), :,:));
+    C.COS_sZ2 = squeeze(C.tr_el(ind_cos(4), :,:));
 
-    Hs.COS_nstep = ones(nLevs, nElems);
-    Hs.COS_mS2 = permute(repmat(Hs.COS_sS2, [1 1 Mobj.ndelay]), [3 1 2]);
-    Hs.COS_mDN = permute(repmat(Hs.COS_sDN, [1 1 Mobj.ndelay]), [3 1 2]);
-    Hs.COS_mZ1 = permute(repmat(Hs.COS_sZ1, [1 1 Mobj.ndelay]), [3 1 2]);
-    Hs.COS_mZ2 = permute(repmat(Hs.COS_sZ2, [1 1 Mobj.ndelay]), [3 1 2]);
+    C.COS_nstep = ones(nLevs, nElems);
+    C.COS_mS2 = permute(repmat(C.COS_sS2, [1 1 Mobj.ndelay]), [3 1 2]);
+    C.COS_mDN = permute(repmat(C.COS_sDN, [1 1 Mobj.ndelay]), [3 1 2]);
+    C.COS_mZ1 = permute(repmat(C.COS_sZ1, [1 1 Mobj.ndelay]), [3 1 2]);
+    C.COS_mZ2 = permute(repmat(C.COS_sZ2, [1 1 Mobj.ndelay]), [3 1 2]);
 
     COS_vars1 = {'COS_mS2', 'COS_mDN', 'COS_mZ1', 'COS_mZ2'};
     COS_vars2 = {'COS_sS2', 'COS_sDN', 'COS_sZ1', 'COS_sZ2'};
     for iVar = 1:numel(COS_vars1)
         varName = strtrim(COS_vars1{iVar});
-        varData = Hs.(varName);
+        varData = C.(varName);
         varData(varData<0) = 0;
-        nccreate(fileName, varName,'Dimensions',{'seven', 7, 'nVert', nLevs, 'elem', nElems}, 'Datatype','double','Format','netcdf4')
-        ncwrite(fileName, varName, varData);
+        nccreate(filepath, varName,'Dimensions',{'seven', 7, 'nVert', nLevs, 'elem', nElems}, 'Datatype','double','Format','netcdf4')
+        ncwrite(filepath, varName, varData);
 
         varName = strtrim(COS_vars2{iVar});
-        varData = Hs.(varName);
+        varData = C.(varName);
         varData(varData<0) = 0;
-        nccreate(fileName, varName,'Dimensions',{'nVert', nLevs, 'elem', nElems}, 'Datatype','double','Format','netcdf4')
-        ncwrite(fileName, varName, varData);
+        nccreate(filepath, varName,'Dimensions',{'nVert', nLevs, 'elem', nElems}, 'Datatype','double','Format','netcdf4')
+        ncwrite(filepath, varName, varData);
     end
-     nccreate(fileName, 'COS_nstep','Dimensions',{'nVert', nLevs, 'elem', nElems}, 'Datatype','double','Format','netcdf4')
-     ncwrite(fileName, 'COS_nstep', Hs.COS_nstep);
+     nccreate(filepath, 'COS_nstep','Dimensions',{'nVert', nLevs, 'elem', nElems}, 'Datatype','double','Format','netcdf4')
+     ncwrite(filepath, 'COS_nstep', C.COS_nstep);
 end
 
 %% USE_SED2D
