@@ -1,5 +1,5 @@
 function Mobj = read_schism_hgrid(Mobj, hgrid_file)
-% Read the horizontal grids from hgrid.gr3/hgrid.ll (works for triangular/quad)
+% Read the horizontal grids from hgrid.gr3/hgrid.ll file.
 % 
 %% Syntax
 % Mobj = read_schism_hgrid(Mobj, hgrid_file)
@@ -29,23 +29,27 @@ function Mobj = read_schism_hgrid(Mobj, hgrid_file)
 
 %% Parse inputs
 Mobj.aimpath = [fileparts(hgrid_file), '\'];
-D = importdata(hgrid_file, '%/s', inf);
-D = cellfun(@(x) strtrim(x), D, 'UniformOutput',false);  % Adapt to earlier MATLAB versions
+% D = importdata(hgrid_file, '%/s', inf);
+% D = cellfun(@(x) strtrim(x), D, 'UniformOutput',false);  % Adapt to earlier MATLAB versions
+fid = fopen(hgrid_file); D = textscan(fid, '%s', 'Delimiter', '\n'); fclose(fid);
+D = strtrim(D{1});
 
 %% Basic mesh info.
 head_info = strsplit(D{2});
 nElems = str2double(head_info{1});
 nNodes = str2double(head_info(2));
 
-node_part = double(split(string(D(3:3+nNodes-1))));
-node_part(:, isnan(sum(node_part, 1))) = [ ];
+% node_part = double(split(string(D(3:3+nNodes-1)))); node_part(:, isnan(sum(node_part, 1))) = [ ];
+% lon = node_part(:,2); lat = node_part(:,3); depth = node_part(:, 4);
 
-lon = node_part(:,2);
-lat = node_part(:,3);
-depth = node_part(:, 4);
+% elem_info = D(3+nNodes:3+nNodes+nElems-1);
+% i34 = cellfun(@(x) numel(strsplit(x)), elem_info)-2;
+
+node_part = reshape(sscanf(strjoin(D(3:3+nNodes-1)'), '%f'), [], nNodes)';
+lon = node_part(:,2); lat = node_part(:,3); depth = node_part(:, 4);
 
 elem_info = D(3+nNodes:3+nNodes+nElems-1);
-i34 = cellfun(@(x) numel(strsplit(x)), elem_info)-2;
+i34 = count(elem_info, ' ') - 1; 
 
 elem3_info = double(split(string(elem_info(i34==3))));
 elem4_info = double(split(string(elem_info(i34==4))));
@@ -56,7 +60,6 @@ elem_part(i34==3, 1:5) = elem3_info;
 elem_part(i34==4, :) = elem4_info;
 
 tri = elem_part(:,3:6);
-
 Mobj = add_grid_metrics(Mobj, lon, lat, tri, depth);
 %% Read the open boundary nodes
 ind_cut = 3+Mobj.nNodes+Mobj.nElems; % open boundary part begins from this line

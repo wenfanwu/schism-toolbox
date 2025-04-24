@@ -44,15 +44,14 @@ switch dst
     case 'hycom_online' % directly download hycom data from the internet
         varList = {'ssh','temp','salt'};
         C = get_hycom_online(Mobj.aimpath, Mobj.region, Mobj.time(1), varList);
-        for iVar = 1:numel(varList)
-            clear D
+        nVars = numel(varList);
+        DS(nVars, 1) = struct('Variable', [], 'Data', [], 'Lon', [], 'Lat', [], 'Depth', [], 'Time', []);
+        for iVar = 1:nVars
+            clear D; 
             varName = varList{iVar};
-            D.lon = C.lon;
-            D.lat = C.lat;
-            D.depth = C.depth;
-            D.time = C.time;
-            D.var = C.(varName);
-            DS.(varName) = D;
+            D.Variable = varName; D.Data = C.(varName);
+            D.Lon = C.lon(:); D.Lat = C.lat(:); D.Depth = C.depth(:); D.Time = C.time;
+            DS(iVar) = D;
         end
 
     case 'hycom_bys_clim'

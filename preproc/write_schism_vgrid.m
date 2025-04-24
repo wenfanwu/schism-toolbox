@@ -15,19 +15,16 @@ function write_schism_vgrid(Mobj, version_num)
 % write_schism_vgrid(Mobj);
 %
 %% Input Arguments
-% Mobj --- the mesh object, with vertical information loaded. Mobj must be 
-% outputed from 'gen_schism_LSC2' or 'gen_schism_SZ' function first.
+% Mobj - mesh object; datastruct
+%       the datastruct used to store mesh info.
 %
 %% Output Arguments
 % None
 %
-%% Notes
-%  sz coordinate is not fully supoorted so far
-%
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2021. 
-% Last Updated on 2021-11-09
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
+% Last Updated on 23 Apr 2025.
+% Email: wwu@vims.edu
 % 
 % See also: read_schism_vgrid and write_schism_hgrid
 
@@ -47,31 +44,25 @@ switch upper(Mobj.vtype)
             fid = fopen(filepath,'wt');
             fprintf(fid, '%d !ivcor\n', 1);
             fprintf(fid, '%d !nvrt; below are node #, bottom level and sigma at each node (from bottom to surface)\n', Mobj.maxLev);
-            for iNode = 1:Mobj.nNodes
-                nLevs = max(Mobj.nLevs)+1-Mobj.nLevs(iNode);
-                sigLevs = rot90(Mobj.vgrids(1:Mobj.nLevs(iNode), iNode), 3);
-                format_str = ['%d %8d ', repmat('% 12.6f', 1, length(sigLevs)), '\n'];
-                fprintf(fid, format_str, iNode, nLevs, sigLevs);
-            end
+            fprintf(fid, ['%d %8d ', repmat('% 12.6f', 1, Mobj.maxLev), '\n'], [(1:Mobj.nNodes); Mobj.nLevs(:)'; Mobj.vgrids]);
+            fclose(fid);
+            % Remove NaNs
+            fileText = fileread(filepath);
+            fid = fopen(filepath, 'w');
+            fwrite(fid, strrep(fileText, 'NaN', '')); % case-sensitive
             fclose(fid);
         end
         if strcmp(version_num, 'v5.10')   % new format of vgrid.in for the version v5.10 and above
             disp('vgird.in (LSC2) for the version v5.10 and above')
+            vgrids = flipud(Mobj.vgrids); vgrids(isnan(vgrids)) = -9;
             fid = fopen(filepath,'w');
             fprintf(fid, '%d !ivcor\n', 1);
             fprintf(fid, '%d !nvrt (=Nz) \n', Mobj.maxLev);
-            vgrids = flipud(Mobj.vgrids);
-            vgrids(isnan(vgrids)) = -9;
-            ind_btm = Mobj.maxLev+1-Mobj.nLevs;
-            format_str = [repmat('%10d', 1, Mobj.nNodes), '\n'];
-            fprintf(fid, format_str, ind_btm);
-            for iLev = 1:Mobj.maxLev
-                vgrid_lev = vgrids(iLev,:);
-                format_str = ['%d ', repmat('%15.6f', 1, Mobj.nNodes), '\n'];
-                fprintf(fid, format_str, iLev, vgrid_lev);
-            end
+            fprintf(fid,  [repmat('%10d', 1, Mobj.nNodes), '\n'], Mobj.maxLev+1-Mobj.nLevs);
+            fprintf(fid,  ['%d ', repmat('%15.6f', 1, Mobj.nNodes), '\n'], [(1:Mobj.maxLev)', vgrids]');
             fclose(fid);
         end
+
     case {'SZ', 'S', 'Z'} 
         disp('vgird.in (SZ) for the version v5.10 and above')
 

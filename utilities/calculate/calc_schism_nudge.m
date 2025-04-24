@@ -23,11 +23,10 @@ function [nudge_factor, nudge_nodes] = calc_schism_nudge(Mobj, nudge_inputs, obc
 % nudge_inputs - nudge inputs; numeric
 %       three parameters controlling the nudge factors at the open
 %       boundary. ngd_inputs = [bnd_width, cutoff_dist, nf_max]; 
-%       1) bnd_width (km) determines the width of max-nudging zone adjacent to the boundary; 
-%       2) cutoff_dist (km) determines the width of total nudging zone at the boundary; 
+%       1) edge_wdith (km) determines the width of max-nudging zone adjacent to the boundary; 
+%       2) total_width (km) determines the total width of nudging zone at the boundary; 
 %       3) nf_max is the maximum nudging factor within the max-nudging zone.
-%       bnd_width should be less than cutoff_dist normally. 
-%       default: ndg_inputs = [20, 60, 4e-5]; 
+%       edge_wdith should be less than total_width normally. Default: ndg_inputs = [20, 60, 4e-5]; 
 % obc_bnds - open boundaries; numeric
 %       the index of open boudaries to be nudged, obc_bnds=1 means that
 %       only the first open boundary will be used for nudging. Default:
@@ -43,14 +42,13 @@ function [nudge_factor, nudge_nodes] = calc_schism_nudge(Mobj, nudge_inputs, obc
 %       the nodes to be nudging, namely "map_to_global_node".
 % 
 %% Notes
-% To put it simply, the nudging factor will keep nf_max within the
-% max-nudging zone, and then decreases sharply away from the open boundary,
-% of which the decreasing gradient is controlled by bnd_width/cutoff_dist.,
-% with a higher ratio means a stronger decreasing gradient.   
+% The nudging factor stays at nf_max within bnd_width from the boundary,
+% then decreases linearly. The decay rate is controlled by bnd_width/cutoff_dist:
+% a larger ratio results in a steeper drop.
 % 
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2024. 
-% Last Updated on 29 Oct 2024. 
+% Last Updated on 4 Apr 2025. 
 % Email: wwu@vims.edu
 % 
 % See also: write_schism_nu_nc
@@ -60,30 +58,32 @@ if nargin < 2; nudge_inputs = [20, 60, 4e-5]; end
 if nargin < 3; obc_bnds = 1:Mobj.obc_counts; end
 if nargin < 4; disp_flag = 'on'; end
 
-bnd_width = nudge_inputs(1); 
-cutoff_dist = nudge_inputs(2);
+edge_width = nudge_inputs(1)/1e3;  % km 
+total_width = nudge_inputs(2)/1e3;  % km
 nf_max = nudge_inputs(3);
-if cutoff_dist<=bnd_width; error('the cutoff_dist must be greater than bnd_width!'); end
 
+if total_width <= edge_width; error('the cutoff_dist must be greater than bnd_width!'); end
 %% Calculation
-uy = Mobj.lat; ux = Mobj.lon;
-obc_nodes = Mobj.obc_nodes(:, sort(obc_bnds));
-obc_nodes(obc_nodes==0) = [];
-obc_nodes = obc_nodes(:);
+obc_nodes = Mobj.obc_nodes(:, sort(obc_bnds)); 
+obc_nodes(obc_nodes==0) = []; obc_nodes = obc_nodes(:);
 
+lon_obc = Mobj.lon(obc_nodes); 
+lat_obc = Mobj.lat(obc_nodes);
+[lon1, lon2] = meshgrid(lon_obc, Mobj.lon);
+[lat1, lat2] = meshgrid(lat_obc, Mobj.lat);
+
+% Distance matrix from all points to all open boundary points.
 if strncmpi(Mobj.coord, 'geographic', 3)
-    fcn = @(idx) distance(Mobj.lat(idx), Mobj.lon(idx), Mobj.lat, Mobj.lon, [6378.137 0.0818191910428158])';  % km
-    dist_tmp = arrayfun(fcn, obc_nodes, 'UniformOutput', false);
+    dist_m = haversine_dist(lat1, lon1, lat2, lon2); % Haversine formula (m)
 else
-    dist_tmp = arrayfun(@(x,y) hypot(ux-x, uy-y)', ux(obc_nodes), uy(obc_nodes), 'UniformOutput', false);
+    dist_m = hypot(lon1-lon2, lat1-lat2);
 end
 
-dist = cell2mat(dist_tmp); dist = min(dist); 
-dist0 = max(dist-bnd_width, 0).^(0.75);  % more smooth 
-nudge_factor = (1-tanh(5*dist0./(cutoff_dist-bnd_width))).*nf_max;  % nudge_factor will approach to zero when dist equals to cutoff_dist
-nudge_factor(dist>cutoff_dist) = 0;
-
+dist_pts = min(dist_m, [], 2)/1e3; 
+nudge_factor = nf_max*(dist_pts - total_width)/(edge_width - total_width); % linear transition
+nudge_factor = min(nf_max, max(nudge_factor, 0)); 
 nudge_nodes = find(nudge_factor~=0);
+
 %% Display
 if strcmpi(disp_flag, 'on')
     figure('Color', 'w')
@@ -95,4 +95,15 @@ if strcmpi(disp_flag, 'on')
     colormap(jet(25))
     auto_center
 end
+
+end
+function hdist = haversine_dist(lat1, lon1, lat2, lon2)
+% Haversine distance with standard sphere radius.
+
+R = 6378.137; % earch radius (m)
+dlat = deg2rad(lat2 - lat1); dlon = deg2rad(lon2 - lon1);
+a = sin(dlat/2).^2 + cos(deg2rad(lat1)) .* cos(deg2rad(lat2)) .* sin(dlon/2).^2;
+c = 2 * atan2(sqrt(a), sqrt(1 - a));
+hdist = R .* c; % meters
+
 end
