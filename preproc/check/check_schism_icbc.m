@@ -32,6 +32,7 @@ function check_schism_icbc(Mobj, varName, ind_lev)
 %% Parse inputs
 if nargin < 3; ind_lev = 1; end  % 1 means the first level
 idx_time = 1; datapath = Mobj.aimpath;
+ind_lev = max(1, min(Mobj.maxLev, ind_lev)); 
 
 %% Load data
 init_file = fullfile(datapath, 'hotstart.nc');

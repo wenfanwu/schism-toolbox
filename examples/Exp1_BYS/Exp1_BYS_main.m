@@ -154,7 +154,7 @@ hst_data = write_schism_hotstart(Mobj, InitCnd, start_time);
 obc_bnds = 1:Mobj.obc_counts;  % extract data for all open boundaries; 
 
 % option-1: real-time boundary inputs from hycom.
-DS = prep_schism_bdry(Mobj, 'hycom_bys_clim', obc_bnds);  % supoort parallel extraction
+DS = prep_schism_bdry(Mobj, 'hycom_bys', obc_bnds);  % supoort parallel extraction
 
 % option-2: monthly climatology boundary inputs from hycom.
 % DS = prep_schism_bdry(Mobj, 'hycom_bys_clim', obc_bnds);
@@ -251,16 +251,12 @@ write_schism_prop(Mobj, 'fluxflag', flux_flags)
 % 1) lon/lat matrix (nLons*nLats) are generated from the meshgrid function, and in ascending order
 % 2) variable matrix should be of nLons*nLats*nTimes
 % 3) the 'region' and 'time' fields must cover your simulation period, model domain, respectively.
-
-time_steps = 30; % time steps in each netcdf file
-
-% load('example_AtmForc_era5.mat')
-% AtmForc.aimpath = Mobj.aimpath;
-
-Mobj.force_time = [datetime(2020,5,28), datetime(2020,6,11)];
+Mobj.force_time = (datetime(2020,5,31):hours(1):datetime(2020,6,11))';
 Mobj.force_region = Mobj.region;
 
-src_file = 'E:\ECMWF\ERA5\ERA5_hourly_****_1979_2024.nc';  % download ERA5 data first!
+time_steps = 30;
+src_file = 'schism-toolbox-v1.0-master\data\era5\ERA5_hourly_****_2020.nc'; 
+
 AtmForc = get_era5_forcing(Mobj, 'prate', src_file);
 write_schism_sflux(AtmForc, 'prc', time_steps)
 
@@ -291,6 +287,7 @@ DS = get_hycom_nudge(Mobj, nudge_nodes); % support parallel extraction
 nudge_time = Mobj.time(1):Mobj.time(end);  % daily inputs
 NdgCnd = interp_schism_bdry(Mobj, DS, {'temp', 'salt'}, nudge_time);
 
+write_schism_nu_nc(Mobj, 'TEM', NdgCnd)
 write_schism_nu_nc(Mobj, 'SAL', NdgCnd)
 %% END
 

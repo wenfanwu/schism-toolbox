@@ -66,7 +66,7 @@ xlim(Mobj.region(1:2))
 ylim(Mobj.region(3:4))
 cb = colorbar;
 colormap(cmap)
-vm = caxis; %#ok<*CAXIS>
+vm = caxis; %#ok<*CAXIS> 
 cb.Ticks = linspace(vm(1), vm(2), 6);
 cb.TickLabels = compose('%.2f', cb.Ticks);
 title(['SCHISM (surface ', varName,')'], 'FontWeight','bold')
