@@ -1,4 +1,4 @@
-function write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx, ind_dst)
+function write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx, ind_dst, pad_flag)
 % Write sflux nc files for SCHISM
 %
 %% Syntax 
@@ -6,12 +6,14 @@ function write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx, ind_dst
 % write_schism_sflux(AtmForc, suffix_name, time_steps)
 % write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx)
 % write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx, ind_dst)
+% write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx, ind_dst, pad_flag)
 %
 %% Description
 % write_schism_sflux(AtmForc, suffix_name) writes the sflux files in NetCDF format
 % write_schism_sflux(AtmForc, suffix_name, time_steps) specifies the time steps in each file
 % write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx) specifies the start index of the files
 % write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx, ind_dst) specifies the index of dataset.
+% write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx, ind_dst, pad_flag) determines whether to add padding zeros.
 % 
 %% Example
 % write_schism_sflux(AtmForc, 'rad')
@@ -36,6 +38,11 @@ function write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx, ind_dst
 %       In SCHISM, if multiple datasets are available in sflux files, the
 %       files with larger index will overwrite the previous one when they
 %       are overlapped in space. 
+% pad_flag - padding flag (optional); numeric
+%       the flag used to determine whether to add padding zeros in the
+%       the filename of sflux files. Default: pad_flag = 0, meaning no
+%       padding zeros, which is the latest requirement in the model (since
+%       Apr 29, 2025).
 % 
 %% Output Arguments
 % None
@@ -59,6 +66,7 @@ function write_schism_sflux(AtmForc, suffix_name, time_steps, start_idx, ind_dst
 if nargin < 3; time_steps = 995; end
 if nargin < 4; start_idx = 1; end
 if nargin < 5; ind_dst = 1; end
+if nargin < 6; pad_flag = 0; end
 if time_steps > 995; error('time steps should not exceed 1000!'); end
 if time_steps == 1; error('time steps should be greater than 1!'); end
 
@@ -72,17 +80,12 @@ if dimnum(AtmForc.lon)==1 || dimnum(AtmForc.lat)==1 || ...
         numel(unique(AtmForc.lon(1,:)))~=1 || numel(unique(AtmForc.lat(:,1)))~=1
     error('lon/lat should be created by MESHGRID function!')
 end
-if numel(find(isnan(AtmForc.lon(:))))~=0
-    error('NaN values exist in the longitude matrix!')
-end
-if numel(find(isnan(AtmForc.lat(:))))~=0
-    error('NaN values exist in the latitude matrix!')
-end
-if numel(find(isnat(AtmForc.time(:))))~=0
-    error('NaN values exist in the time vector!')
-end
+if numel(find(isnan(AtmForc.lon(:))))~=0; error('NaN values exist in the longitude matrix!'); end
+if numel(find(isnan(AtmForc.lat(:))))~=0; error('NaN values exist in the latitude matrix!'); end
+if numel(find(isnat(AtmForc.time(:))))~=0; error('NaN values exist in the time vector!'); end
 
 % check variables
+% lon/lat/time must be the same for the variables in the same NetCDF file.
 nVars = length(varList);
 for iVar = 1:nVars
     varName = varList{iVar};
@@ -97,14 +100,10 @@ end
 
 % ensure the time interval is even
 time_interval = unique(diff(AtmForc.time));
-if numel(time_interval) ~= 1
-    error('the time interval for the atmospheric forcing is uneven!')
-end
+if numel(time_interval) ~= 1; error('the time interval for the atmospheric forcing is uneven!'); end
 
 sflux_path = fullfile(AtmForc.aimpath, 'sflux\');
-if exist(sflux_path,'dir')~=7
-    mkdir(sflux_path)
-end
+if exist(sflux_path,'dir')~=7; mkdir(sflux_path); end
 %% Check time steps
 [nLons, nLats] = size(AtmForc.lon);
 total_steps = length(AtmForc.time);
@@ -122,7 +121,8 @@ warning on
 if nFiles > max_files; warning('total # of nc files is greater than the max_files!'); end
 if total_steps > max_times; warning('total # of time steps is greater than the max_times!'); end
 
-n_digits = length(num2str(floor(abs(nFiles))));
+n_digits = length(num2str(floor(abs(nFiles)))); 
+min_digits = length(num2str(floor(abs(max_files))));
 %% sflux nc files
 dtype = 'single'; nc_fmt = 'classic';  % define the NetCDF format
 
@@ -139,86 +139,89 @@ for iFile = 1:nFiles
     
     nTimes = length(time);
     base_date_str = datestr(base_date, 'yyyy-mm-dd'); %#ok<*DATST>
+    if pad_flag==0
+        filepath = [sflux_path, 'sflux_', suffix_name, '_', num2str(ind_dst), '.', num2str(start_idx-1+iFile, '%d'), '.nc'];  % No padding zeros (work for versions since 29 Apr 2025)
+    else
+        filepath = [sflux_path, 'sflux_', suffix_name, '_', num2str(ind_dst), '.', num2str(start_idx-1+iFile, ['%0',num2str(max(n_digits, min_digits)),'d']),'.nc'];
+    end
+    if exist(filepath,'file')==2; delete(filepath); end
     
-    fileName = [sflux_path, 'sflux_', suffix_name, '_', num2str(ind_dst), '.', num2str(start_idx-1+iFile, ['%0',num2str(max(n_digits,4)),'d']),'.nc'];
-    if exist(fileName,'file')==2; delete(fileName); end
+    % ============ TIME PART ============ 
+    nccreate(filepath,'time','Dimensions',{'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
+    ncwriteatt(filepath,'time','long_name','Time');
+    ncwriteatt(filepath,'time','standard_name','time');
+    ncwriteatt(filepath,'time','units', ['days since ', base_date_str]);
+    ncwriteatt(filepath,'time','base_date', int32([year(base_date) month(base_date) day(base_date) hour(base_date)]));
+    ncwrite(filepath,'time', time);
     
-    %---------TIME PART
-    nccreate(fileName,'time','Dimensions',{'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
-    ncwriteatt(fileName,'time','long_name','Time');
-    ncwriteatt(fileName,'time','standard_name','time');
-    ncwriteatt(fileName,'time','units', ['days since ', base_date_str]);
-    ncwriteatt(fileName,'time','base_date', int32([year(base_date) month(base_date) day(base_date) hour(base_date)]));
-    ncwrite(fileName,'time', time);
+    nccreate(filepath,'lon','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats},'Datatype', dtype,'Format', nc_fmt)
+    ncwriteatt(filepath,'lon','long_name','Longitude');
+    ncwriteatt(filepath,'lon','standard_name','longitude');
+    ncwriteatt(filepath,'lon','units', 'degree_east');
+    ncwrite(filepath,'lon', AtmForc.lon);
     
-    nccreate(fileName,'lon','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats},'Datatype', dtype,'Format', nc_fmt)
-    ncwriteatt(fileName,'lon','long_name','Longitude');
-    ncwriteatt(fileName,'lon','standard_name','longitude');
-    ncwriteatt(fileName,'lon','units', 'degree_east');
-    ncwrite(fileName,'lon', AtmForc.lon);
+    nccreate(filepath,'lat','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats},'Datatype', dtype,'Format', nc_fmt)
+    ncwriteatt(filepath,'lat','long_name','Latitude');
+    ncwriteatt(filepath,'lat','standard_name','latitude');
+    ncwriteatt(filepath,'lat','units', 'degree_north');
+    ncwrite(filepath,'lat', AtmForc.lat);
     
-    nccreate(fileName,'lat','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats},'Datatype', dtype,'Format', nc_fmt)
-    ncwriteatt(fileName,'lat','long_name','Latitude');
-    ncwriteatt(fileName,'lat','standard_name','latitude');
-    ncwriteatt(fileName,'lat','units', 'degree_north');
-    ncwrite(fileName,'lat', AtmForc.lat);
+    ncwriteatt(filepath,'/','Conventions', 'CF-1.0');
     
-    ncwriteatt(fileName,'/','Conventions', 'CF-1.0');
-    
-    %---------VARIABLE PART
-    % ------- AIR
+    % ============ VARIABLE PART ============ 
+    % -------------------- AIR -------------------- 
     if strcmp(suffix_name, 'air')
-        nccreate(fileName,'uwind','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
-        ncwriteatt(fileName,'uwind','long_name','Surface Eastward Air Velocity (10m AGL)');
-        ncwriteatt(fileName,'uwind','standard_name','eastward_wind');
-        ncwriteatt(fileName,'uwind','units','m/s');
-        ncwrite(fileName,'uwind', AtmForc.uwind(:,:,beg_ind:end_ind));
+        nccreate(filepath,'uwind','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
+        ncwriteatt(filepath,'uwind','long_name','Surface Eastward Air Velocity (10m AGL)');
+        ncwriteatt(filepath,'uwind','standard_name','eastward_wind');
+        ncwriteatt(filepath,'uwind','units','m/s');
+        ncwrite(filepath,'uwind', AtmForc.uwind(:,:,beg_ind:end_ind));
         
-        nccreate(fileName,'vwind','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
-        ncwriteatt(fileName,'vwind','long_name','Surface Northward Air Velocity (10m AGL)');
-        ncwriteatt(fileName,'vwind','standard_name','northward_wind');
-        ncwriteatt(fileName,'uwind','units','m/s');
-        ncwrite(fileName,'vwind', AtmForc.vwind(:,:,beg_ind:end_ind));
+        nccreate(filepath,'vwind','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
+        ncwriteatt(filepath,'vwind','long_name','Surface Northward Air Velocity (10m AGL)');
+        ncwriteatt(filepath,'vwind','standard_name','northward_wind');
+        ncwriteatt(filepath,'uwind','units','m/s');
+        ncwrite(filepath,'vwind', AtmForc.vwind(:,:,beg_ind:end_ind));
         
-        nccreate(fileName,'prmsl','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
-        ncwriteatt(fileName,'prmsl','long_name','Pressure reduced to MSL');
-        ncwriteatt(fileName,'prmsl','standard_name','air_pressure_at_sea_level');
-        ncwriteatt(fileName,'prmsl','units','Pa');
-        ncwrite(fileName,'prmsl', AtmForc.prmsl(:,:,beg_ind:end_ind));
+        nccreate(filepath,'prmsl','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
+        ncwriteatt(filepath,'prmsl','long_name','Pressure reduced to MSL');
+        ncwriteatt(filepath,'prmsl','standard_name','air_pressure_at_sea_level');
+        ncwriteatt(filepath,'prmsl','units','Pa');
+        ncwrite(filepath,'prmsl', AtmForc.prmsl(:,:,beg_ind:end_ind));
         
-        nccreate(fileName,'stmp','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
-        ncwriteatt(fileName,'stmp','long_name','Surface Air Temperature (2m AGL)');
-        ncwriteatt(fileName,'stmp','standard_name','air_temperature');
-        ncwriteatt(fileName,'stmp','units','K');
-        ncwrite(fileName,'stmp', AtmForc.stmp(:,:,beg_ind:end_ind));
+        nccreate(filepath,'stmp','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
+        ncwriteatt(filepath,'stmp','long_name','Surface Air Temperature (2m AGL)');
+        ncwriteatt(filepath,'stmp','standard_name','air_temperature');
+        ncwriteatt(filepath,'stmp','units','K');
+        ncwrite(filepath,'stmp', AtmForc.stmp(:,:,beg_ind:end_ind));
         
-        nccreate(fileName,'spfh','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
-        ncwriteatt(fileName,'spfh','long_name','Surface Specific Humidity (2m AGL)');
-        ncwriteatt(fileName,'spfh','standard_name','specific_humidity');
-        ncwriteatt(fileName,'spfh','units','1');
-        ncwrite(fileName,'spfh', AtmForc.spfh(:,:,beg_ind:end_ind));
+        nccreate(filepath,'spfh','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
+        ncwriteatt(filepath,'spfh','long_name','Surface Specific Humidity (2m AGL)');
+        ncwriteatt(filepath,'spfh','standard_name','specific_humidity');
+        ncwriteatt(filepath,'spfh','units','1');
+        ncwrite(filepath,'spfh', AtmForc.spfh(:,:,beg_ind:end_ind));
     end
-    % ------- PRC
+    % -------------------- PRC -------------------- 
     if strcmp(suffix_name, 'prc')
-        nccreate(fileName,'prate','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
-        ncwriteatt(fileName,'prate','long_name','Surface Precipitation Rate');
-        ncwriteatt(fileName,'prate','standard_name','precipitation_flux');
-        ncwriteatt(fileName,'prate','units','kg/m^2/s');
-        ncwrite(fileName,'prate', AtmForc.prate(:,:,beg_ind:end_ind));
+        nccreate(filepath,'prate','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
+        ncwriteatt(filepath,'prate','long_name','Surface Precipitation Rate');
+        ncwriteatt(filepath,'prate','standard_name','precipitation_flux');
+        ncwriteatt(filepath,'prate','units','kg/m^2/s');
+        ncwrite(filepath,'prate', AtmForc.prate(:,:,beg_ind:end_ind));
     end
-    % ------- RAD
+    % -------------------- RAD -------------------- 
     if strcmp(suffix_name, 'rad')
-        nccreate(fileName,'dlwrf','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
-        ncwriteatt(fileName,'dlwrf','long_name','Downward Long Wave Radiation Flux');
-        ncwriteatt(fileName,'dlwrf','standard_name','surface_downwelling_longwave_flux_in_air');
-        ncwriteatt(fileName,'dlwrf','units','W/m^2');
-        ncwrite(fileName,'dlwrf', AtmForc.dlwrf(:,:,beg_ind:end_ind));
+        nccreate(filepath,'dlwrf','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
+        ncwriteatt(filepath,'dlwrf','long_name','Downward Long Wave Radiation Flux');
+        ncwriteatt(filepath,'dlwrf','standard_name','surface_downwelling_longwave_flux_in_air');
+        ncwriteatt(filepath,'dlwrf','units','W/m^2');
+        ncwrite(filepath,'dlwrf', AtmForc.dlwrf(:,:,beg_ind:end_ind));
         
-        nccreate(fileName,'dswrf','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
-        ncwriteatt(fileName,'dswrf','long_name','Downward Short Wave Radiation Flux');
-        ncwriteatt(fileName,'dswrf','standard_name','surface_downwelling_shortwave_flux_in_air');
-        ncwriteatt(fileName,'dswrf','units','W/m^2');
-        ncwrite(fileName,'dswrf', AtmForc.dswrf(:,:,beg_ind:end_ind));
+        nccreate(filepath,'dswrf','Dimensions',{'nx_grid', nLons, 'ny_grid', nLats, 'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
+        ncwriteatt(filepath,'dswrf','long_name','Downward Short Wave Radiation Flux');
+        ncwriteatt(filepath,'dswrf','standard_name','surface_downwelling_shortwave_flux_in_air');
+        ncwriteatt(filepath,'dswrf','units','W/m^2');
+        ncwrite(filepath,'dswrf', AtmForc.dswrf(:,:,beg_ind:end_ind));
     end
 end
 

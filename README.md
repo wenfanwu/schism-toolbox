@@ -177,13 +177,11 @@ This part aims to add river inputs in the form of element sources (e.g., source.
 SS = def_schism_source(Mobj, [1 0], 'rebuild', 'on'); % select Yellow River Mouth here
 river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
 
-river_info = add_river_runoff(river_info, Mobj.time, 'real_time');
+varList = {'runoff', 'temp', 'salt'};
+river_info = add_river_inputs(river_info, Mobj.time, varList, 'real_time');
 
-tracer_list = {'temp', 'salt'};
-river_info = add_river_tracer(river_info, tracer_list, 'real_time');
-
-D = prep_river_source(river_info, tracer_list);
-write_schism_source_nc(Mobj, D,  tracer_list)
+D = prep_river_source(river_info, varList);
+write_schism_source_nc(Mobj, D,  varList)
 ```
 
 > Left-click the points at the center of elements to select river sources (activate the datatips mode first), and press **SHIFT** to select multiple points simultaneously. The selected river sources will be saved as a MAT file named <span style="color:blue;">**source_sink.mat**</span>.

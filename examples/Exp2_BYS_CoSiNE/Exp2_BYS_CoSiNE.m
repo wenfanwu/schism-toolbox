@@ -57,14 +57,12 @@ write_schism_vgrid(Mobj);
 SS = def_schism_source(Mobj, [1 0], 'load', 'on');
 river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
 
-river_info = add_river_runoff(river_info, Mobj.time, 'real_time');
-
 % There are 13 bgc tracers in the CoSiNE module
-tracer_list = {'temp', 'salt', 'no3', 'sio4', 'nh4', 's1', 's2', 'z1', 'z2', 'dn', 'dsi', 'po4', 'dox', 'co2', 'alk'};  
-river_info = add_river_tracer(river_info, tracer_list, 'real_time');
+varList = {'runoff', 'temp', 'salt', 'no3', 'sio4', 'nh4', 's1', 's2', 'z1', 'z2', 'dn', 'dsi', 'po4', 'dox', 'co2', 'alk'};
+river_info = add_river_inputs(river_info, Mobj.time, varList, 'real_time');
 
-D = prep_river_source(river_info, tracer_list); 
-write_schism_source_nc(Mobj, D,  tracer_list) % wrong tracer order will report errors
+D = prep_river_source(river_info, varList);
+write_schism_source_nc(Mobj, D,  varList) % wrong tracer order will report errors
 
 % Make sure all the tracer variables are accessible in the
 % 'example_river_data.mat' for your selected rivers.

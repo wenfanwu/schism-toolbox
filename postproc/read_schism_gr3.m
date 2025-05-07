@@ -39,16 +39,17 @@ function [c, x, y] = read_schism_gr3(filepath)
 if ~strcmp(filepath(end-2:end), 'gr3')
     error('the input file must end with gr3!')
 end
-
 %% Read "depth" info
-D = importdata(filepath, '%/s', inf);
-D = cellfun(@(x) strtrim(x), D, 'UniformOutput',false);  % Adapt to earlier versions of MATLAB
+% D = importdata(filepath, '%/s', inf);
+% D = cellfun(@(x) strtrim(x), D, 'UniformOutput',false);  % Adapt to earlier versions of MATLAB
+fid = fopen(filepath); D = textscan(fid, '%s', 'Delimiter', '\n'); fclose(fid);
+D = strtrim(D{1});
 
 head_info = strsplit(D{2});
 nps = str2double(head_info(2));   % # of nodes
 
-vm = double(split(string(D(3:3+nps-1))));
-vm(:, isnan(sum(vm, 1))) = [ ];
+% vm = double(split(string(D(3:3+nps-1)))); vm(:, isnan(sum(vm, 1))) = [ ];
+vm = reshape(sscanf(strjoin(D(3:3+nps-1)'), '%f'), [], nps)';
 x = vm(:,2); y = vm(:,3); c = vm(:, 4);
 
 end

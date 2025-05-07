@@ -81,8 +81,8 @@ switch dep_flag
 end
 
 box on;
-xlabel('Longitude (°E)', 'FontWeight','bold')
-ylabel('Latitude (°N)', 'FontWeight','bold')
+xlabel('Longitude', 'FontWeight','bold')
+ylabel('Latitude', 'FontWeight','bold')
 hold on
 %% Boundary
 switch bnd_flag

@@ -25,6 +25,7 @@ All notable changes to the project will be documented in this file.
 - **.\preproc\write_schism_SAL**: write load tide files.
 - **.\preproc\write_schism_HA**: write the harm.in file.
 - **.\preproc\check\check_schism_CFL**: check the inverse CFL constraints.
+- **.\preproc\runoff\add_river_inputs**: add river inputs for source elements.
 - **.\postproc\read_schism_bp**: read the bp files.
 - **.\CONTENT**: show the list of all functions.
 
@@ -60,6 +61,8 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\extract\get_hycom_bdry_bys**: redundant functions
 - **.\utilities\calculate\calc_schism_CFL**: replaced by *check_schism_CFL*
 - **.\preproc\check\check_schism_metrics**: replaced by *check_schism_CFL*
+- **.\preproc\runoff\add_river_runoff**: replaced by *add_river_inputs*
+- **.\preproc\runoff\add_river_tracer**: replaced by *add_river_inputs*
 
 ## [v1.1-beta] - 2024-11-06
 

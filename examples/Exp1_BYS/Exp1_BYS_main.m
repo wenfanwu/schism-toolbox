@@ -83,13 +83,11 @@ write_schism_vgrid(Mobj, 'v5.10');
 SS = def_schism_source(Mobj, [1 0], 'rebuild', 'on');   % select Yellow River Mouth here
 river_info = match_rivers(SS.source.lonc, SS.source.latc, SS.source.elems);
 
-river_info = add_river_runoff(river_info, Mobj.time, 'real_time');
+varList = {'runoff', 'temp', 'salt'};
+river_info = add_river_inputs(river_info, Mobj.time, varList, 'real_time');
 
-tracer_list = {'temp', 'salt'};
-river_info = add_river_tracer(river_info, tracer_list, 'real_time');
-
-D = prep_river_source(river_info, tracer_list);
-write_schism_source_nc(Mobj, D,  tracer_list)
+D = prep_river_source(river_info, varList);
+write_schism_source_nc(Mobj, D,  varList)
 
 % Two things should be done before preparing your own application.
 % 1) prepare your own 'example_river_data.mat' file in 'add_river_runoff'
