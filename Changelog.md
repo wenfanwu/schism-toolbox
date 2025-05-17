@@ -24,9 +24,11 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\general\sub_region**: extract the index of sub-region.
 - **.\preproc\write_schism_SAL**: write load tide files.
 - **.\preproc\write_schism_HA**: write the harm.in file.
+- **.\preproc\write_schism_nml**: write the namelist file.
 - **.\preproc\check\check_schism_CFL**: check the inverse CFL constraints.
 - **.\preproc\runoff\add_river_inputs**: add river inputs for source elements.
-- **.\postproc\read_schism_bp**: read the bp files.
+- **.\postproc\read_schism_bp**: read the bp file.
+- **.\postproc\read_schism_nml**: read the namelist file.
 - **.\CONTENT**: show the list of all functions.
 
 ### Changed

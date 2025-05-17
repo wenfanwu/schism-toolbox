@@ -1,6 +1,6 @@
 %% CONTENT.m - List of functions grouped by subfolder
 % Scanned base folder: C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\schism-toolbox
-% Created on 23-Apr-2025 10:13:05
+% Created on 16-May-2025 14:29:58
 
 %% \examples\Exp1_BYS
 % Exp1_BYS_main.m                - This program is an EXAMPLE (Exp1_BYS) in the schism-toolbox
@@ -18,13 +18,14 @@
 %% \postproc
 % read_schism_bp.m               - Read the *.bp file.
 % read_schism_gr3.m              - Read the *.gr3 file.
-% read_schism_hgrid.m            - Read the horizontal grids from hgrid.gr3/hgrid.ll (works for triangular/quad)
+% read_schism_hgrid.m            - Read the horizontal grids from hgrid.gr3/hgrid.ll file.
 % read_schism_ic.m               - Read the *.ic file (hvar or vvar).
+% read_schism_nml.m              - Read the *.nml file for SCHISM.
 % read_schism_prop.m             - Read the *.prop file.
-% read_schism_vgrid.m            - Read the vertical grids
+% read_schism_vgrid.m            - Read the vertical grids from vgrid.in file.
 
 %% \preproc
-% call_schism_tracers.m          - Load the Info. of activated tracers
+% call_schism_tracers.m          - Load the info of activated tracers.
 % mesh2schism.m                  - Load the unstructured grid from OceanMesh2D or SMS.
 % prep_schism_bdry.m             - Prepare the boundary iniputs for SCHISM.
 % prep_schism_init.m             - Prepare the initial data for SCHISM.
@@ -35,6 +36,7 @@
 % write_schism_hgrid.m           - Write the hgrid.gr3 & hgrid.ll files for SCHISM.
 % write_schism_hotstart.m        - Write hotstart.nc for SCHISM (Not completed yet)
 % write_schism_ic.m              - Write the *ic file for SCHISM (hvar or vvar)
+% write_schism_nml.m             - Write*.nml file for SCHISM (no comments).
 % write_schism_nu_nc.m           - Write the *_nu.nc files for SCHISM.
 % write_schism_prop.m            - Write the *.prop file for SCHISM.
 % write_schism_ptrack.m          - Write the particle.bp file for SCHISM (Not Completed Now)
@@ -54,10 +56,9 @@
 % check_schism_init.m            - Check the interpolation of initial fields (surface/bottom)
 
 %% \preproc\runoff
-% add_river_runoff.m             - Add river runoff on the source elements
-% add_river_tracer.m             - Add tracers for river inputs
+% add_river_inputs.m             - Add river runoff at the source elements
 % match_rivers.m                 - Match the source elements with rivers
-% prep_river_source.m            - Prepare river sources based on river_info
+% prep_river_source.m            - Prepare river source data based on "river_info"
 
 %% \utilities\calculate
 % calc_schism_albedo.m           - Calculate the albedo based on different empirical formulae
@@ -70,7 +71,7 @@
 % calc_schism_hdif.m             - Calculate the horizontal diffusivity
 % calc_schism_nudge.m            - Calculate open boundary nudging factors
 % calc_schism_reso.m             - Calculate horizontal resolution of grid cells
-% calc_schism_shapiro.m          - Calculate the slope filter for shapiro.gr3
+% calc_schism_shapiro.m          - Calculate the shapiro filter based on depth slope.
 % calc_schism_skew.m             - Calculate the skewness (0-1) of each cell
 
 %% \utilities\define

@@ -21,8 +21,8 @@ if nElems==1
     Cs = Cs(1:3:end);
     Xs = (Xs(1:3:end)+Xs(2:3:end))/2;
     Ys = (Ys(1:3:end)+Ys(2:3:end))/2;
-
     Index = geomin(Xs(:), Ys(:), pos(1), pos(2)); 
+    pos(1) = Xs(Index); pos(2) = Ys(Index);
 
 elseif numel(Cs)==nNodes
     Index = geomin(Xs(:), Ys(:), pos(1), pos(2));
@@ -35,6 +35,7 @@ elseif numel(Cs)==nElems
     Ycs = nan(nElems, 1); Ycs(i34==3) = mean(Ys(tri(i34==3, 1:3)), 2);Ycs(i34==4) = mean(Ys(tri(i34==4, 1:end)), 2);
 
     Index = geomin(Xcs(:), Ycs(:), pos(1), pos(2));
+    pos(1) = Xcs(Index); pos(2) = Ycs(Index);
 end
 
 %********* Define the content of the data tip here *********%

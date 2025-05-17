@@ -56,10 +56,13 @@ if ntype == 1
     % convert from lat/lon to distance (m)
     X = R * cos(lat_rad) .* lon_rad;
     Y = R * lat_rad;
+else
+    X = Mobj.lon;
+    Y = Mobj.lat;
 end
 %% Calculation
 [A, ~, A4] = calc_schism_area(Mobj);
-i34 = Mobj.i34;
+i34 = Mobj.i34; F = F(:);
 
 tri = Mobj.tri; tri(Mobj.i34==3, 4) = tri(Mobj.i34==3, 2);
 v1 = F(tri(:,1)); v2 = F(tri(:,2)); v3 = F(tri(:,3)); v4 = F(tri(:,4)); 

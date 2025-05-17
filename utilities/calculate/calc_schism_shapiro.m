@@ -1,24 +1,30 @@
 function shapiro_val = calc_schism_shapiro(Mobj, slope_list, val_max, disp_flag)
-% Calculate the slope filter for shapiro.gr3
+% Calculate the shapiro filter based on bathymetric slope.
 %
 %% Syntax
-% shapiro_val = gen_slope_filter2(Mobj, slope_list)
-% shapiro_val = gen_slope_filter2(Mobj, slope_list, val_max)
+% shapiro_val = calc_schism_shapiro(Mobj, slope_list)
+% shapiro_val = calc_schism_shapiro(Mobj, slope_list, val_max)
+% shapiro_val = calc_schism_shapiro(Mobj, slope_list, val_max, disp_flag)
 % 
 %% Description
-% shapiro_val = gen_slope_filter2(Mobj, slope_list) calculates the slope
-% filter for shapiro.gr3 file.
-% shapiro_val = gen_slope_filter2(Mobj, slope_list, val_max) specifies the
-% max filter strengthen.
+% shapiro_val = calc_schism_shapiro(Mobj, slope_list)calculates the slope
+%       filter for shapiro.gr3 file.
+% shapiro_val = calc_schism_shapiro(Mobj, slope_list, val_max) specifies
+%       the maximum filter strength.
+% shapiro_val = calc_schism_shapiro(Mobj, slope_list, val_max, disp_flag)
+%       specifies the display flags (on/off).
 % 
 %% Input Arguments
-% Mobj --- the mesh object
-% slope_list --- a two-element vector for turning the slope filter.
-% Default: slope_list = [0.001, 0.05];
-% val_max --- the maximum filter strengthen. Default: val_max = 0.5;
+% Mobj - the mesh object; datastruct
+%       the datastruct used to store the mesh info.
+% slope_list - threshold value for slope; numeric
+%       a two-element vector for turning the slope filter. Default: slope_list = [0.001, 0.05];
+% val_max - maximum shapiro values; numeric
+%       the maximum filter strength. Default: val_max = 0.5;
 %
 %% Output Arguments
-% shapiro_val --- shapiro values.
+% shapiro_val - shapiro values; numeric
+%       the shapiro values to be written.
 %
 %% Notes
 % This function was directly translated from the function named
@@ -26,32 +32,19 @@ function shapiro_val = calc_schism_shapiro(Mobj, slope_list, val_max, disp_flag)
 % FORTRAN script for more details.
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2021. 
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
 % Last Updated on 2 Dec. 2021. 
-% Email: wenfanwu@stu.ouc.edu.cn
+% Email: wwu@vims.edu
 % 
 % See also: write_schism_gr3
 
 %% Parse inputs
-if strncmpi(Mobj.coord, 'geographic', 3)
-    ics = 2;
-else
-    ics = 1;
-end
+if strncmpi(Mobj.coord, 'geographic', 3); ics = 2; else; ics = 1; end
+if nargin < 2; slope_list = [0.001, 0.05]; end
+if nargin < 3; val_max = 0.5; end
+if nargin < 4; disp_flag = 'off'; end
+if val_max > 0.5; error('the val_max can not be greater than 0.5 or less than 0'); end
 
-if nargin < 2
-    slope_list = [0.001, 0.05];
-end
-if nargin < 3
-    val_max = 0.5;
-end
-if nargin < 4
-   disp_flag = 'off';
-end
-
-if val_max>0.5
-    error('the val_max can not be greater than 0.5 or less than 0')
-end
 %% Calculate
 slope_min = slope_list(1);
 threshold_slope = slope_list(2);
@@ -166,8 +159,8 @@ for i=1:ne
                 dldxy(2,j)=(xloc(nj2)-xloc(nj1))/2/area(i);
             end %ics
         end%j
-        slx=sum(dp(elnode(nwild(1:3),i)).*dldxy(1,:)', [], 'omitnan');
-        sly=sum(dp(elnode(nwild(1:3),i)).*dldxy(2,:)', [], 'omitnan');
+        slx=sum(dp(elnode(nwild(1:3),i)).*dldxy(1,:)', 'omitnan');
+        sly=sum(dp(elnode(nwild(1:3),i)).*dldxy(2,:)', 'omitnan');
         tmp=sqrt(slx.^2+sly.^2);
         if tmp>slope_min
             slope(i)=max(slope(i),tmp);
@@ -216,5 +209,6 @@ function [x3, y3, z3] = cross_product(x1,y1,z1,x2,y2,z2)
 x3 = y1*z2-y2*z1;
 y3 = x2*z1-x1*z2;
 z3 = x1*y2-x2*y1;
+
 end
 

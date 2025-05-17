@@ -1,34 +1,34 @@
 function Mobj = call_schism_tracers(Mobj)
-% Load the Info. of activated tracers
+% Load the info of activated tracers.
 % 
 %% Syntax
 % Mobj = call_schism_tracers(Mobj)
 %
 %% Description 
-%  Mobj = call_schism_tracers(Mobj) adds the info. of activated modules
-%  into Mobj.
+%  Mobj = call_schism_tracers(Mobj) load the info of activated tracers.
 %
 %% Example
+% Mobj.use_cosine = 'yes';
 % Mobj = call_schism_tracers(Mobj)
 %
 %% Input Arguments
-% 
+% Mobj - mesh object; datastruct
+%       a datastruct used to store the mesh info.
 %
 %% Output Arguments
+% Mobj - mesh object; datastruct
+%       the datastruct with module info updated.
 % 
-% 
-%% Notes
-% 
-%
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2022. 
-% Last Updated on 2022-10-10.
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2022.
+% Last Updated on 15 May 2025.
+% Email: wwu@vims.edu
 % 
-% See also: 
-%% All modules are off by default
+% See also: mesh2schism
+
+%% All modules are turned off by default
 module_list = {'use_gen', 'use_age', 'use_sed3d', 'use_ecosim', 'use_icm', 'use_icm_ph', 'use_cosine', 'use_fib', 'use_timor', ...  % tracer modules
-    'use_wwm', 'use_ice'};  % non-tracer modules
+                       'use_wwm', 'use_ice'};  % non-tracer modules
 for imod = 1:numel(module_list)
     mod_name = module_list{imod};
     if ~isfield(Mobj, mod_name)
@@ -104,7 +104,7 @@ if strcmpi(Mobj.use_sed3d, 'yes')
         if Mobj.sed_class<0
             error('the attibute "sed_class" must be positive integer!')
         end
-        tracer_counts(5) = Mobj.sed_class;  %
+        tracer_counts(5) = Mobj.sed_class; 
     else
         error('the attibute "sed_class" is not specified!')
     end
@@ -166,7 +166,7 @@ if strcmpi(Mobj.use_fib, 'yes')
     active_mods{9} = 'FIB'; % not completed yet
     tracer_sheet(2, 9) = {'ON'};
 
-    tracer_counts(9)=2;
+    tracer_counts(9) = 2;
 end
 %% USE_TIMOR  (index=10)
 if strcmpi(Mobj.use_timor, 'yes')
