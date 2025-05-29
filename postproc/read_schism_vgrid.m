@@ -1,39 +1,40 @@
-function Mobj = read_schism_vgrid(Mobj, vgrid_file, version_num)
+function Mobj = read_schism_vgrid(Mobj, vgrid_file, sver)
 % Read the vertical grids from vgrid.in file.
 %
 %% Syntax
-% Mobj = read_schism_vgrid(Mobj, vgrid_file, version_num)
+% Mobj = read_schism_vgrid(Mobj, vgrid_file, sver)
 %
 %% Description
-% Mobj = read_schism_vgrid(Mobj, vgrid_file, version_num) reads vertical
-% grid from an existed vgrid.in file.
+% Mobj = read_schism_vgrid(Mobj, vgrid_file, sver) reads vertical
+%       grid from an existed vgrid.in file.
 %
 %% Example
 % vgrid_file = 'Exp1_BYS/inputs/vgrid.in';
 % Mobj = read_schism_vgrid(Mobj, vgrid_file, 'v5.10')
 %
 %% Input Arguments
-% Mobj --- the mesh object with no vertical layers
-% vgrid_file --- the absolute filepath of vgrid.in file.
-% version_num --- the version num of SCHISM ('v5.10' or 'v5.9'); This
-% option is needed for the LSC2 grid, as the format of vgrid.in has changed
-% since v5.10 for LSC2 grid. v5.10 is default.
+% Mobj - mesh object; datastruct
+%       the datastruct containing mesh info.
+% vgrid_file - hgrid filepath; char
+%       the absolute filepath of the vgrid.in file.
+% sver - schism version; char
+%       the version num of schism ('v5.10' or 'v5.9'); This option is
+%       required for the LSC2 grid, as the format of vgrid.in has changed
+%       since v5.10 for LSC2 grid. v5.10 is default. 
 %
 %% Output Arguments
-% Mobj --- the mesh object with vertical layers added.
-%
-%% Notes
-% None
+% Mobj - mesh object; datastruct
+%       the mesh object with vertical grids added
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Instiute of Marine Science in 2023.
-% Last Updated on 24 Apr 2025
+% Last Updated on 28 May 2025
 % Email: wwu@vims.edu
 %
 % See also: read_schism_hgrid
 
 %% Parse inputs
-if nargin < 3; version_num = 'v5.10'; end
+if nargin < 3; sver = 'v5.10'; end
 
 %% Load vgrid.in file
 fid = fopen(vgrid_file, 'r'); 
@@ -59,8 +60,8 @@ switch ivcor
         end
         vdata(1:2) = [];
 
-        if strcmpi(version_num, 'v5.9') % old format of vgrid.in
-            disp('read vgird.in (LSC2) for the version v5.9 and below')
+        if strcmpi(sver, 'v5.9') % old format of vgrid.in
+            disp('read vertical grid from the vgrid file (LSC2; v5.9)')
             nNodes = numel(vdata);
             vgrids = nan(maxLev, nNodes);
             for ii = 1:nNodes
@@ -73,8 +74,8 @@ switch ivcor
             end
         end
 
-        if strcmpi(version_num, 'v5.10') % new format of vgrid.in
-            disp('read vgird.in (LSC2) for the version v5.10 and above')
+        if strcmpi(sver, 'v5.10') % new format of vgrid.in
+            disp('read vertical grid from the vgrid file (LSC2; v5.10)')
             raw_matrix = cell2mat(cellfun(@(x) sscanf(x, '%f')', vdata(2:maxLev+1), 'UniformOutput', false));
             vgrids = flipud(raw_matrix(:, 2:end));
             vgrids(vgrids == -9) = nan;
@@ -84,7 +85,7 @@ switch ivcor
         maxLev = max(nLevs);
         vgrids = vgrids(1:maxLev, :);    % trim unused rows
         depLayers = Mobj.depth' .* vgrids;  % auto-broadcasting (R2016b+)
-        disp(['the mean # of levels is ', num2str(mean(nLevs), '%.2f')])
+        disp(['• the mean # of vertical levels is ', num2str(mean(nLevs), '%.2f')])
 
         Mobj.nLevs = nLevs;
         Mobj.maxLev = maxLev;
@@ -92,7 +93,7 @@ switch ivcor
         Mobj.depLayers = depLayers;
         Mobj.vtype = 'LSC2';
     case 2
-        disp('read vgird.in (SZ)')
+        disp('read vertical grid from the vgrid file (SZ)')
         warning on; warning('not work yet')
 end
 

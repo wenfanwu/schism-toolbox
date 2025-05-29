@@ -61,14 +61,14 @@ tri(i34==3,1:3) = tri3;
 tri(i34==4,1:4) = tri4;
 
 if sum(ind3_cw)==0
-    disp('all triangular cells are aligned anti-clockwise (great)')
+    disp('• all triangular cells are aligned anti-clockwise (√)')
 else
-    disp([num2str(sum(ind3_cw)), ' triangular cells are aligned clockwise and they have been adjusted to anti-clockwise'])
+    disp(['• ', num2str(sum(ind3_cw)), ' triangular cells was adjusted from clockwise to anti-clockwise'])
 end
 if sum(ind4_cw)==0
-    disp('all quadrangular cells are aligned anti-clockwise (great)')
+    disp('• all quadrangular cells are aligned anti-clockwise (√)')
 else
-    disp([sum(ind4_cw), ' quadrangular cells are aligned clockwise and they have been adjusted to anti-clockwise'])
+    disp(['•', sum(ind4_cw), ' quadrangular cells was adjusted from clockwise to anti-clockwise'])
 end
 
 %% Node metrics
@@ -81,7 +81,7 @@ if nargin==5
     Mobj.depth = depth;
 else
     warning on
-    warning('depth info is not provided')
+    warning('• depth info is not provided')
 end
 %% Element/Cell metrics
 Mobj.nElems = size(tri,1);

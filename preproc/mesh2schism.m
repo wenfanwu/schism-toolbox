@@ -60,10 +60,10 @@ end
 %% Load mesh
 switch lower(sname)
     case 'sms'
-        disp('read mesh info from 2dm file created by SMS')
+        disp('read horizontal grid from the 2dm file (SMS)')
         Mobj = read_2dm_info(mesh_file);
     case 'oceanmesh2d'
-        disp('read mesh info from mat file created by OceanMesh2D')
+        disp('read horizontal grid from the mat file (OceanMesh2D)')
         Mobj = read_mat_info(mesh_file);
     otherwise
         error('unrecognized software name!')
@@ -73,34 +73,28 @@ end
 
 function Mobj = read_2dm_info(mesh_file)
 %% Load the mesh info from 2dm file created by SMS.
-D = importdata(mesh_file, '%/s', inf); D = D(3:end);
+fid = fopen(mesh_file, 'r'); D = textscan(fid, '%s', 'Delimiter', '\n'); fclose(fid);
+D = strtrim(D{1}); D = D(3:end);
 
-ind_node = cellfun(@(x) strncmp(x, 'ND', 2), D);
-ind_elem3 = cellfun(@(x) strncmp(x, 'E3T', 3), D);
-ind_elem4 = cellfun(@(x) strncmp(x, 'E4Q', 3), D);
+ind_node = startsWith(D, 'ND');  % startsWith was introduced in R2016b
+ind_elem3 = startsWith(D, 'E3T');
+ind_elem4 = startsWith(D, 'E4Q');
 ind_elem = ind_elem3 | ind_elem4;
 
-node_part = D(ind_node);
-elem_part = D(ind_elem);
-
-i34 = cellfun(@(x) strncmp(x, 'E4Q', 3)+3, elem_part);
-
+node_part = D(ind_node); elem_part = D(ind_elem);
+i34 = startsWith(elem_part, 'E4Q')+3;
 elem3_info = double(split(string(elem_part(i34==3))));
 elem4_info = double(split(string(elem_part(i34==4))));
 node_info = double(split(string(node_part)));
 
 nElems = size(elem_part,1);
-
 tri = nan(nElems, 4);
 tri(i34==3, 1:3) = elem3_info(:,3:5);
 if ~isempty(elem4_info)
     tri(i34==4, 1:4) = elem4_info(:,3:6);
 end
 
-lon = node_info(:,3);
-lat = node_info(:,4);
-depth = node_info(:,5);
-
+lon = node_info(:,3); lat = node_info(:,4); depth = node_info(:,5);
 if sum(depth~=0)==0
     warning on
     warning('No depth info in the 2dm file')
@@ -111,10 +105,9 @@ Mobj.aimpath = [fileparts(mesh_file), '\'];
 Mobj = add_grid_metrics(Mobj, lon, lat, tri, depth);
 
 % boundary info
-ind_obc = cellfun(@(x) strncmp(x, 'NS', 2), D);
+ind_obc = startsWith(D, 'NS');
 if any(ind_obc)
-    obc_part = D(ind_obc);
-    obc_part = cellfun(@(x) strtrim(x), obc_part, 'UniformOutput',false);  % adapt to earlier versions of MATLAB
+    obc_part = cellfun(@(x) strtrim(x), D(ind_obc), 'UniformOutput',false);  % adapt to earlier versions of MATLAB
     end_flags = cellfun(@(x) count(x, '-'), obc_part);
     end_locs = find(end_flags); end_locs = [1; end_locs(:)]; end_locs(1) = 0;
 
@@ -129,13 +122,12 @@ if any(ind_obc)
         obc_line = obc_line(:, 2:end)'; obc_line = obc_line(:);
 
         obc_end = double(split(string(obc_part(end_locs(ii+1),:))));
-        obc_end = obc_end(2:end)'; obc_end = abs(obc_end(:));
+        obc_end = obc_end(2:end)'; 
+        obc_end = abs(obc_end(1:find(obc_end<=0)));
 
         obc_tot = [obc_line(:); abs(obc_end(:))];
-
         obc_nodes(1:numel(obc_tot), ii) = obc_tot(:);
     end
-
     if isempty(obc_nodes)
         warning on
         warning('open boundary nodes are not found in the 2dm file!')
