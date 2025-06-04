@@ -56,11 +56,13 @@ for iVar = 1:nVars
     D = DS(ind_var);
     % =============== Chek the inputs ================
     % check the open boundary nodes
-     [obc_bnds, idx] = ismember(Mobj.obc_nodes(1,:), D.Nodes); 
-     obc_bnds = find(obc_bnds);
-    if ~issorted(idx(obc_bnds))
-        error('the index of open boundary segments is not consistent with hgrid files')
+    [obc_bnds, idx] = ismember(Mobj.obc_nodes(1,:), D.Nodes);
+    obc_bnds = find(obc_bnds);
+    is_bnd = all(ismember(D.Nodes(:), Mobj.obc_nodes_tot(:)));  % for open boundary nodes
+    if ~issorted(idx(obc_bnds)) && is_bnd
+        error('the index of open boundary segments is not consistent with the hgrid file')
     end
+
     % check the time range
     if max(bdry_time{iVar}) > max(D.Time) || min(bdry_time{iVar}) < min(D.Time)
         error('the time range cannot cover the model time!')
@@ -77,13 +79,18 @@ for iVar = 1:nVars
     end
 
     % ========== Kill NaN values along each open boundary ==========
-    obc_inds = [0; cumsum(Mobj.obc_lens(obc_bnds(:)))];
-    for ii = 1:numel(obc_bnds)
-        ind_seg = obc_inds(ii)+1:obc_inds(ii+1);
-        var_seg = varBnd(:,ind_seg,:); % data on each open boundary segment
-        varBnd(:,ind_seg,:) = kill_nans(var_seg);
+    if is_bnd  % for open boundary nodes
+        obc_inds = [0; cumsum(Mobj.obc_lens(obc_bnds(:)))];
+        for ii = 1:numel(obc_bnds)
+            ind_seg = obc_inds(ii)+1:obc_inds(ii+1);
+            var_seg = varBnd(:,ind_seg,:); % data on each open boundary segment
+            varBnd(:,ind_seg,:) = kill_nans(var_seg);
+        end
     end
-    if any(isnan(varBnd(:))); error('NaN values were found!'); end
+    if any(isnan(varBnd(:)))
+        warning on; 
+        warning(['NaN values were found in the variable "', varName,'" !']); 
+    end
 
     BdryCnd(iVar).Variable = varName;
     BdryCnd(iVar).Data = multi_interp1(D.Time, varBnd, bdry_time{iVar}, min(3, ndims(varBnd)));  % interpolate along the time dimension

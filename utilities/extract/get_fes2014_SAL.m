@@ -113,4 +113,9 @@ if any(isnan(amp(:)))
     SAL.sal_pha(isnan(SAL.sal_pha)) = 0;
 end
 
+% Double-check NaN values
+if any(isnan(SAL.sal_amp(:))) || any(isnan(SAL.sal_pha(:)))
+    warning on
+    warning('NaN values still exist in the SAL data!!!')
+end
 end

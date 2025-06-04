@@ -29,6 +29,7 @@ All notable changes to the project will be documented in this file.
 - **.\preproc\runoff\add_river_inputs**: add river inputs for source elements.
 - **.\postproc\read_schism_bp**: read the bp file.
 - **.\postproc\read_schism_nml**: read the namelist file.
+- **.\postproc\read_schism_transect**: read variable on a given transect.
 - **.\CONTENT**: show the list of all functions.
 
 ### Changed

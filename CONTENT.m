@@ -1,6 +1,6 @@
 %% CONTENT.m - List of functions grouped by subfolder
-% Scanned base folder: C:\Users\wwu\OneDrive - vims.edu\GitHub_Projects\schism-toolbox
-% Created on 16-May-2025 14:29:58
+% Scanned base folder: C:\Users\15641\OneDrive - vims.edu\GitHub_Projects\schism-toolbox
+% Created on 01-Jun-2025 15:12:12
 
 %% \examples\Exp1_BYS
 % Exp1_BYS_main.m                - This program is an EXAMPLE (Exp1_BYS) in the schism-toolbox
@@ -22,6 +22,7 @@
 % read_schism_ic.m               - Read the *.ic file (hvar or vvar).
 % read_schism_nml.m              - Read the *.nml file for SCHISM.
 % read_schism_prop.m             - Read the *.prop file.
+% read_schism_transect.m         - Read SCHISM variable along a given transect.
 % read_schism_vgrid.m            - Read the vertical grids from vgrid.in file.
 
 %% \preproc
@@ -71,7 +72,7 @@
 % calc_schism_hdif.m             - Calculate the horizontal diffusivity
 % calc_schism_nudge.m            - Calculate open boundary nudging factors
 % calc_schism_reso.m             - Calculate horizontal resolution of grid cells
-% calc_schism_shapiro.m          - Calculate the shapiro filter based on depth slope.
+% calc_schism_shapiro.m          - Calculate the shapiro filter based on bathymetric slope.
 % calc_schism_skew.m             - Calculate the skewness (0-1) of each cell
 
 %% \utilities\define
@@ -93,7 +94,7 @@
 
 %% \utilities\general
 % any2time.m                     - Convert various time formats to datetime
-% auto_center.m                  - Automatically center the figure
+% auto_center.m                  - Automatically center the figure on the specified or current mouse screen
 % cell2array.m                   - Convert the numeric vectors inside a cell to an array.
 % dimnum.m                       - Calculate the # of valid dimensions
 % geomin.m                       - Find the indices of closet points
@@ -133,7 +134,7 @@
 %% \utilities\visualize
 % disp_schism_hgrid.m            - Visualize horizontal grids.
 % disp_schism_var.m              - Visualize variables on an unstructured grid.
-% disp_schism_vgrid.m            - Visualize the transect layers
+% disp_schism_vgrid.m            - Visualize the vertical layers of transect
 % plot_schism_bnds.m             - Plot the land/island/ocean boundaries for SCHISM
 
 %% \modules\CoSiNE
@@ -143,6 +144,7 @@
 
 %% \experimental
 % drag2rough.m                   - Convert from Cd to roughness [m] in SCHISM model
+% find_schism_inside.m           - Return the index of points located within the model domain.
 % get_bnd_vars.m                 - Find the variable matrix along the boundary nodes
 % get_schout_btm.m               - Get the variable at the near-bottom layer
 % interp_zcors.m                 - Interp SCHISM outputs onto standard z levels

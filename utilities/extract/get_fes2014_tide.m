@@ -154,4 +154,10 @@ if ~isempty(nan_locs)
         TideForc.(tide_var) = fillmissing(TideForc.(tide_var), 'previous', 1);
     end
 end
+
+% Double-check NaN values
+if any(isnan(TideForc.elev_amp(:))) || any(isnan(TideForc.elev_pha(:)))
+    warning on
+    warning('NaN values still exist in the tide forcing data!!!')
+end
 end

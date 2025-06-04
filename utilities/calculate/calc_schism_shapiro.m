@@ -7,7 +7,7 @@ function shapiro_val = calc_schism_shapiro(Mobj, slope_list, val_max, disp_flag)
 % shapiro_val = calc_schism_shapiro(Mobj, slope_list, val_max, disp_flag)
 % 
 %% Description
-% shapiro_val = calc_schism_shapiro(Mobj, slope_list)calculates the slope
+% shapiro_val = calc_schism_shapiro(Mobj, slope_list) calculates the slope
 %       filter for shapiro.gr3 file.
 % shapiro_val = calc_schism_shapiro(Mobj, slope_list, val_max) specifies
 %       the maximum filter strength.
@@ -18,8 +18,8 @@ function shapiro_val = calc_schism_shapiro(Mobj, slope_list, val_max, disp_flag)
 % Mobj - the mesh object; datastruct
 %       the datastruct used to store the mesh info.
 % slope_list - threshold value for slope; numeric
-%       a two-element vector for turning the slope filter. Default: slope_list = [0.001, 0.05];
-% val_max - maximum shapiro values; numeric
+%       a two-element vector for tuning slope filter. Default: slope_list = [0.001, 0.05];
+% val_max - maximum shapiro value; numeric
 %       the maximum filter strength. Default: val_max = 0.5;
 %
 %% Output Arguments
@@ -28,7 +28,7 @@ function shapiro_val = calc_schism_shapiro(Mobj, slope_list, val_max, disp_flag)
 %
 %% Notes
 % This function was directly translated from the function named
-% gen_slope_filter2.f90 in SCHISM source code. Refers to the original
+% "gen_slope_filter2.f90" in SCHISM source code. Refers to the original
 % FORTRAN script for more details.
 %
 %% Author Info
