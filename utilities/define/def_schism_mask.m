@@ -63,16 +63,9 @@ function msk = def_schism_mask(Mobj, nRegs, msk_name, def_flag, grd_ctr)
 if nargin < 2
     nRegs = 1;
 end
-if nargin < 3
-    msk_name = 'default';
-end
-if nargin < 4
-    def_flag = 'rebuild';
-end
-if nargin < 5
-    grd_ctr = 'node';
-end
-
+if nargin < 3; msk_name = 'default';end
+if nargin < 4; def_flag = 'rebuild'; end
+if nargin < 5; grd_ctr = 'node'; end
 switch lower(grd_ctr(1:4))
     case 'node'
         nps = Mobj.nNodes; ux = Mobj.lon; uy = Mobj.lat;
@@ -81,7 +74,14 @@ switch lower(grd_ctr(1:4))
     case {'edge', 'side'}
         nps = Mobj.nEdges; ux = Mobj.lons; uy = Mobj.lats;
 end
-%% Define
+%% Check the basemap
+if isempty(findall(0, 'Type', 'figure'))
+    figure
+    disp_schism_hgrid(Mobj, [0 0])
+    axis image
+    auto_center
+end
+%% Define the mask
 msk_file = fullfile(Mobj.aimpath, ['mask_', msk_name, '.mat']);
 switch def_flag
     case 'rebuild'
@@ -92,7 +92,7 @@ switch def_flag
             geo_handle = drawpolygon;
             lonRoi = geo_handle.Position(:,1)';
             latRoi = geo_handle.Position(:,2)';
-            delete(geo_handle)
+            % delete(geo_handle)
             
             msk = msk+inpolygon(ux, uy, lonRoi, latRoi);
             msk = msk~=0;

@@ -37,7 +37,15 @@ if nargin < 2
 end
 num_list = 1:nRegs; % can be changed
 nRegs = numel(num_list);
-%% Define
+
+%% Check the basemap
+if isempty(findall(0, 'Type', 'figure'))
+    figure
+    disp_schism_hgrid(Mobj, [0 0])
+    axis image
+    auto_center
+end
+%% Define the fluxflag
 flux_flags = (min(num_list)-1)*ones(Mobj.nElems, 1);
 
 hold on

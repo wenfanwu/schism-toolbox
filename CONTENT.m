@@ -120,10 +120,11 @@
 %% \utilities\mesh
 % add_bnd_metrics.m              - Add open/land/island boundary info.
 % add_grid_metrics.m             - Add grid geometry metrics (work for mixed triangular/quadrangular grid).
-% add_schism_obc.m               - Add new open boundary segments for SCHISM
+% def_schism_obc.m              - Define open boundary nodes on the SCHISM grid.
 % find_land_island.m             - Find land and island nodes (work for mixed triangular/quadrangular grid).
 % find_loop_nodes.m              - Find the loop nodes from an unstructured grid
 % interactive_mesh_edit.m        - Interactive mesh editing tool for unstructured grids
+
 
 %% \utilities\misc
 % add_nodal_factors.m            - Add nodal factors for the tidal simulation

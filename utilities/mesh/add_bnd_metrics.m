@@ -104,8 +104,12 @@ bnd_types = cell(obc_counts+land_counts,1); bnd_types{1} = 'obc';
 % Ensure that land and ocean boundaries are connected end-to-end.
 for ii = 2:obc_counts+land_counts
     head_seg = outer_bnd_cells{ii-1};
-    
-    idx_self = sum(ismember(outer_nodes, head_seg), 1)==numel(head_seg); % index of the head seg
+    for jj = 1:size(outer_nodes,2)
+        test_nodes = outer_nodes(:,jj); test_nodes(test_nodes==0) = [];
+        if isequal(sort(test_nodes), sort(head_seg))
+            idx_self = jj; break  % index of the head seg
+        end
+    end
     outer_nodes(:, idx_self) = [];  % remove the head segment itself
     bnd_types_pool(idx_self) = [];
 

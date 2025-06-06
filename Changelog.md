@@ -22,6 +22,7 @@ All notable changes to the project will be documented in this file.
 - **.\utilities\calculate\calc_schism_contour**: calculate contour lines.
 - **.\utilities\calculate\calc_schism_grad**: calculate the gradient of variable
 - **.\utilities\general\sub_region**: extract the index of sub-region.
+- **.\utilities\mesh\def_schism_obc**: define open boundaries for the grid.
 - **.\preproc\write_schism_SAL**: write load tide files.
 - **.\preproc\write_schism_HA**: write the harm.in file.
 - **.\preproc\write_schism_nml**: write the namelist file.

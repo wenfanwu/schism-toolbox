@@ -192,7 +192,7 @@ write_schism_source_nc(Mobj, D,  varList)
 > 
 > 2) add corresponding rivers in the <span style="color:green;">**match_rivers.m**</span> function.
 > 
-> If you want to add rivers in the form of open boundaries, please refer to <span style="color:green;">**add_schism_obc.m**</span> function.
+> If you want to add rivers in the form of open boundaries, please use the <span style="color:green;">**def_schism_obc.m**</span> function.
 
 <br>
 
