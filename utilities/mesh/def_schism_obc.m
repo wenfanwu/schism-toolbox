@@ -26,7 +26,7 @@ function Mobj = def_schism_obc(Mobj, obc_counts)
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2025.
-% Last Updated on 5 Jun 2025.
+% Last Updated on 6 Jun 2025.
 % Email: wwu@vims.edu
 %
 % See also: def_schism_mask
@@ -64,10 +64,13 @@ for ii = 1:obc_counts
     % Exceptional case: both head and tail nodes of the land-sea loop are included.
     ind_head = find(tmp_nodes==head_node, 1);
     ind_tail = find(tmp_nodes==tail_node, 1);
+    [~, idx] = ismember(tmp_nodes, land_sea_nodes);
+    ind_cut = find(diff(idx)~=1);
     if ~isempty(ind_head) && ~isempty(ind_tail)
-        [~, idx] = ismember(tmp_nodes, land_sea_nodes);
-        ind_cut = find(diff(idx)~=1);
+        if ~isscalar(ind_cut); error('The selected open boundary nodes must be contiguous!'); end
         tmp_nodes = [tmp_nodes(ind_cut+1:end); tmp_nodes(1:ind_cut)];
+    else
+        if ~isempty(ind_cut); error('The selected open boundary nodes must be contiguous!'); end
     end
     nps = numel(tmp_nodes);
     obc_nodes(1:nps, ii) = tmp_nodes;

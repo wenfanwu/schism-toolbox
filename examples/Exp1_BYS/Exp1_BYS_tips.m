@@ -6,7 +6,7 @@
 %% Author: Wenfan Wu, CCRM, Virginia Institute of Marine Science. 2024
 %% Load the mesh grid
 clc;clearvars
-mesh_file = 'Exp1_BYS\BYS_20814.mat';  % NEED TO BE CHANGED!!!
+mesh_file = 'Exp1_BYS\inputs\BYS_20814.mat';  % NEED TO BE CHANGED!!!
 
 Mobj = mesh2schism(mesh_file); 
 Mobj.expname = 'Exp1_BYS';      
@@ -35,10 +35,16 @@ subplot(224)
 disp_schism_var(Mobj, Mobj.depth,'EdgeColor', 'b', 'FaceColor', 'none')
 axis image
 
-%% Tip-2: display the variables@Elems
+%% Tip-2: display the variables@Elems or @Sides
 figure('Color', 'w')
 disp_schism_var(Mobj, Mobj.depthc,'EdgeColor', 'k')
 axis image
+auto_center
+
+figure('Color', 'w')
+disp_schism_var(Mobj, Mobj.depths)
+axis image
+auto_center
 
 %% Tip-3: find the values at the seabed
 varTest = Mobj.vgrids;
@@ -48,8 +54,6 @@ figure('Color', 'w')
 disp_schism_var(Mobj, varBtm)
 axis image
 title('sigma depth (0-1)')
-
-mean(varBtm)
 
 varBtm = get_schout_btm(Mobj, varTest, 1);
 figure('Color', 'w')
@@ -74,7 +78,53 @@ figure('Color', 'w')
 disp_schism_var(Mobj, varTest)
 axis image
 
-%% Tip-5: prepare for particle tracking
+%% Tip-5: interplolate variables from nodes onto elemes
+varNode = Mobj.depth;
+varElem = convert_schism_var(Mobj, varNode, 'node2elem');
+
+figure('Color', 'w')
+subplot(211)
+disp_schism_var(Mobj, varNode)
+axis image
+
+subplot(212)
+disp_schism_var(Mobj, varElem)
+axis image
+
+%% Tip-6: interplolate variables from elems onto nodes
+varElem = Mobj.depthc;
+varNode = convert_schism_var(Mobj, varNode, 'elem2node');
+
+figure('Color', 'w')
+subplot(211)
+disp_schism_var(Mobj, varNode)
+axis image
+
+subplot(212)
+disp_schism_var(Mobj, varElem)
+axis image
+
+%% Tip-7: extract data along the transect
+figure
+disp_schism_hgrid(Mobj, [1 0])
+axis image
+auto_center
+hold on
+sect_info = def_schism_transect(Mobj, 1);
+
+var_tri = Mobj.depLayers; % test data
+
+[var2d, dist2d, dep2d] = read_schism_transect(Mobj, sect_info, var_tri);
+
+figure
+pcolor(dist2d/1e3, dep2d, var2d)
+shading interp
+colorbar
+colormap(jet)
+xlabel('Along transect distance (km)')
+ylabel('Depth (m)')
+
+%% Tip-8: prepare for particle tracking
 figure('Color', 'w')
 disp_schism_var(Mobj, Mobj.depth)
 axis image
@@ -90,7 +140,7 @@ ptrack_vars = [1 0 1 0];
 
 % particle.bp file can be found in 'Exp1_BYS/inputs'
 write_schism_ptrack(Mobj, xyz_data, drop_time_list, life_day, ptrack_vars)
-%% Tip-6: prepare station.in file
+%% Tip-9: prepare station.in file
 figure('Color', 'w')
 disp_schism_var(Mobj, Mobj.depth)
 axis image
@@ -104,32 +154,6 @@ switch_flags = [1 1 1 1 1 1 1 1 1];
 
 % station.in file can be found in 'Exp1_BYS/inputs'
 write_schism_station_in(Mobj, xyz_data, switch_flags)
-
-%% Tip-7: interplolate variables from nodes onto elemes
-varNode = Mobj.depth;
-varElem = convert_schism_var(Mobj, varNode, 'node2elem');
-
-figure('Color', 'w')
-subplot(211)
-disp_schism_var(Mobj, varNode)
-axis image
-
-subplot(212)
-disp_schism_var(Mobj, varElem)
-axis image
-
-%% Tip-8: interplolate variables from elems onto nodes
-varElem = Mobj.depthc;
-varNode = convert_schism_var(Mobj, varNode, 'elem2node');
-
-figure('Color', 'w')
-subplot(211)
-disp_schism_var(Mobj, varNode)
-axis image
-
-subplot(212)
-disp_schism_var(Mobj, varElem)
-axis image
 
 %% END
 
