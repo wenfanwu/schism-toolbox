@@ -396,13 +396,12 @@ write_schism_gr3(Mobj, 'hdif', hdif)
 This part aims to prepare input files ending in prop (e.g., tvd.prop).
 
 ```matlab
+% tvd.prop
 tvd_flags = ones(Mobj.nElems, 1);
 tvd_flags(Mobj.depthc<5) = 0;
 write_schism_prop(Mobj, 'tvd', tvd_flags)
 
-figure('Color', 'w')
-disp_schism_hgrid(Mobj, [0 1])
-hold on
+% fluxflag.prop (optional)
 flux_flags = def_schism_fluxflag(Mobj, 2);  % "2" means two separate regions
 write_schism_prop(Mobj, 'fluxflag', flux_flags)
 ```

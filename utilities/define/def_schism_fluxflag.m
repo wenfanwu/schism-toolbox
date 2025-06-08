@@ -32,9 +32,7 @@ function flux_flags = def_schism_fluxflag(Mobj, nRegs)
 % See also: def_schism_mask
 
 %% Parse inputs
-if nargin < 2
-    nRegs = 1;
-end
+if nargin < 2; nRegs = 1; end
 num_list = 1:nRegs; % can be changed
 nRegs = numel(num_list);
 
@@ -50,7 +48,7 @@ flux_flags = (min(num_list)-1)*ones(Mobj.nElems, 1);
 
 hold on
 for iReg = 1:nRegs
-    disp('draw a polygon on the map and press ENTER')
+    disp('Draw a polygon on the map and press ENTER')
     geo_handle = drawpolygon;
     lonRoi = geo_handle.Position(:,1)';
     latRoi = geo_handle.Position(:,2)';

@@ -1582,13 +1582,12 @@ hdif <span class="token operator">=</span> <span class="token function">calc_sch
 
 <h3 class="atx" id="step-12-misc-files-ending-in-prop">Step-12: Misc. files ending in prop</h3>
 <p>This part aims to prepare input files ending in prop (e.g., tvd.prop).</p>
-<pre><code class="fenced-code-block language-matlab">tvd_flags <span class="token operator">=</span> <span class="token function">ones</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span>nElems<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<pre><code class="fenced-code-block language-matlab"><span class="token comment">% tvd.prop</span>
+tvd_flags <span class="token operator">=</span> <span class="token function">ones</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span>nElems<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token function">tvd_flags</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">.</span>depthc<span class="token operator">&lt;</span><span class="token number">5</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
 <span class="token function">write_schism_prop</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'tvd'</span><span class="token punctuation">,</span> tvd_flags<span class="token punctuation">)</span>
 
-<span class="token function">figure</span><span class="token punctuation">(</span><span class="token string">'Color'</span><span class="token punctuation">,</span> <span class="token string">'w'</span><span class="token punctuation">)</span>
-<span class="token function">disp_schism_hgrid</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token number">0</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
-hold on
+<span class="token comment">% fluxflag.prop (optional)</span>
 flux_flags <span class="token operator">=</span> <span class="token function">def_schism_fluxflag</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">% "2" means two separate regions</span>
 <span class="token function">write_schism_prop</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">,</span> <span class="token string">'fluxflag'</span><span class="token punctuation">,</span> flux_flags<span class="token punctuation">)</span></code></pre>
 <blockquote>
