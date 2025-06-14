@@ -60,12 +60,11 @@ function msk = def_schism_mask(Mobj, nRegs, msk_name, def_flag, grd_ctr)
 % See also: def_schism_fluxflag
 
 %% Parse inputs
-if nargin < 2
-    nRegs = 1;
-end
+if nargin < 2; nRegs = 1; end
 if nargin < 3; msk_name = 'default';end
 if nargin < 4; def_flag = 'rebuild'; end
 if nargin < 5; grd_ctr = 'node'; end
+
 switch lower(grd_ctr(1:4))
     case 'node'
         nps = Mobj.nNodes; ux = Mobj.lon; uy = Mobj.lat;
@@ -75,7 +74,7 @@ switch lower(grd_ctr(1:4))
         nps = Mobj.nEdges; ux = Mobj.lons; uy = Mobj.lats;
 end
 %% Check the basemap
-if isempty(findall(0, 'Type', 'figure'))
+if isempty(findall(0, 'Type', 'figure')) && strcmpi(def_flag, 'rebuild')
     figure
     disp_schism_hgrid(Mobj, [0 0])
     axis image
