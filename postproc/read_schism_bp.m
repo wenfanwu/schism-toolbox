@@ -32,7 +32,10 @@ if ~strcmp(filepath(end-2:end), '.bp')
 end
 
 %% Read data
-D = importdata(filepath, '%/s', inf);
+% D = importdata(filepath, '%/s', inf);
+fid = fopen(filepath); D = textscan(fid, '%s', 'Delimiter', '\n'); fclose(fid);
+D = strtrim(D{1});
+
 vm = double(split(string(D(3:end))));
 x = vm(:,2); y = vm(:,3); c = vm(:,4);
 

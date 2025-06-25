@@ -4,7 +4,7 @@ This is a MATLAB toolbox designed for the Semi-implicit Cross-scale Hydroscience
 
 Last updated on 23 Apr 2025 by [Wenfan Wu](https://www.researchgate.net/profile/Wenfan-Wu/research), CCRM, Virginia Institute of Marine Science.
 
-### New features!!!
+### :rocket: New features!!!
 
 - Use structure arrays in IC/BC functions to allow variable-specific open boundaries and time series.
 - Add functions for the serial/parallel extraction of open boundary or nudging data.
@@ -13,14 +13,14 @@ Last updated on 23 Apr 2025 by [Wenfan Wu](https://www.researchgate.net/profile/
 
 More details can be found in the [**Changelog.md**](./Changelog.md) file.
 
-## Prerequisites
+## :package: Dependencies
 
-**MATLAB Version**: 2014b and above
+**MATLAB Version**: 2014b or newer
 
 **Official Add-Ons:**   
 
-- `Image Processing Toolbox` (drawpolygon, drawline)   
-- `Mapping Toolbox` (ispolycw, distance, projcrs, profwd)  
+- `Image Processing Toolbox` (**required**; drawpolygon, drawline)   
+- `Mapping Toolbox` (**required**; ispolycw, distance, projcrs, profwd)  
 - `Parallel Computing Toolbox` (**optional**; parfor)
 
 **Public packages:**   
@@ -30,7 +30,7 @@ More details can be found in the [**Changelog.md**](./Changelog.md) file.
 
 <br>
 
-## Workflow
+## :hammer_and_wrench: Workflow
 
 The following steps show a complete workflow to prepare input files with this toolbox. Refer to the first example (<font color="green">**Exp1_BYS_main.m**</font>) in the toolbox for more details.
 
@@ -60,7 +60,7 @@ Mobj.coord = 'geographic';  % geographic or Cartesian coordinate
 
 <br>
 
-### Step-2: Activated modules
+### Step-2: Activate modules
 
 This part aims to select activated modules for your simulation.
 
@@ -464,15 +464,15 @@ write_schism_nu_nc(Mobj, 'SAL', NdgCnd)
 
 <br>
 
-## Notes
+## :pushpin: Notes
 
 This toolbox was written referring to the [fvcom-toolbox](https://github.com/pwcazenave/fvcom-toolbox) developed by Dr. Geoff Cowles et al.
 
-## Limitations (To-do List)
+## :construction: Limitations (To-do List)
 
 * This toolbox is primarily used for preparing input files related to hydrodynamic part, other modules such as `CoSiNE`,`ICM` are not fully supported. However, many interfaces have been reserved for future extension.
 
-## Copyright
+## :memo: Copyright
 
 This toolbox is distributed under the Apache-2.0 license. It is free to use and no profit making is allowed. 
 

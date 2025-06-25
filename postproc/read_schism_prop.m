@@ -32,7 +32,10 @@ if ~strcmp(filepath(end-4:end), '.prop')
 end
 
 %% Begin to read
-D = importdata(filepath, '%/s', inf);
+% D = importdata(filepath, '%/s', inf);
+fid = fopen(filepath); D = textscan(fid, '%s', 'Delimiter', '\n'); fclose(fid);
+D = strtrim(D{1});
+
 vm = double(split(string(D)));
 prop_flags = vm(:,2);
 

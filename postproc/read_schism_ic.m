@@ -41,8 +41,10 @@ if ~strcmp(filepath(end-2:end), '.ic')
 end
 
 %% Read "depth" info
-D = importdata(filepath, '%/s', inf);
-D = cellfun(@(x) strtrim(x), D, 'UniformOutput',false);  % Adapt to earlier versions of MATLAB
+% D = importdata(filepath, '%/s', inf);
+% D = cellfun(@(x) strtrim(x), D, 'UniformOutput',false);  % Adapt to earlier versions of MATLAB
+fid = fopen(filepath); D = textscan(fid, '%s', 'Delimiter', '\n'); fclose(fid);
+D = strtrim(D{1});
 
 head_info = strsplit(D{2});
 if numel(head_info)==2  % hvar

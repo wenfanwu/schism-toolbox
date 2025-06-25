@@ -1251,7 +1251,7 @@ pre[class*="language-"] {
   <article class="markdown-body"><h1 class="atx" id="schism-toolbox-v12-beta">SCHISM-toolbox (v1.2-beta)</h1>
 <p>This is a MATLAB toolbox designed for the Semi-implicit Cross-scale Hydroscience Integrated System Model (<a href="http://ccrm.vims.edu/schismweb/">SCHISM</a>).</p>
 <p>Last updated on 23 Apr 2025 by <a href="https://www.researchgate.net/profile/Wenfan-Wu/research">Wenfan Wu</a>, CCRM, Virginia Institute of Marine Science.</p>
-<h3 class="atx" id="new-features">New features!!!</h3>
+<h3 class="atx" id="rocket-new-features">🚀 New features!!!</h3>
 <ul>
 <li>Use structure arrays in IC/BC functions to allow variable-specific open boundaries and time series.</li>
 <li>Add functions for the serial/parallel extraction of open boundary or nudging data.</li>
@@ -1259,12 +1259,12 @@ pre[class*="language-"] {
 <li>Add SAL-related functions (self-attracting and loading tide).</li>
 </ul>
 <p>More details can be found in the <a href="./Changelog.md"><strong>Changelog.md</strong></a> file.</p>
-<h2 class="atx" id="prerequisites">Prerequisites</h2>
-<p><strong>MATLAB Version</strong>: 2014b and above</p>
+<h2 class="atx" id="package-dependencies">📦 Dependencies</h2>
+<p><strong>MATLAB Version</strong>: 2014b or newer</p>
 <p><strong>Official Add-Ons:</strong>   </p>
 <ul>
-<li><code>Image Processing Toolbox</code> (drawpolygon, drawline)   </li>
-<li><code>Mapping Toolbox</code> (ispolycw, distance, projcrs, profwd)  </li>
+<li><code>Image Processing Toolbox</code> (<strong>required</strong>; drawpolygon, drawline)   </li>
+<li><code>Mapping Toolbox</code> (<strong>required</strong>; ispolycw, distance, projcrs, profwd)  </li>
 <li><code>Parallel Computing Toolbox</code> (<strong>optional</strong>; parfor)</li>
 </ul>
 <p><strong>Public packages:</strong><br><a href="https://github.com/CHLNDDEV/OceanMesh2D"><code>OceanMesh2D</code></a>(<strong>optional</strong>)</p>
@@ -1273,7 +1273,7 @@ pre[class*="language-"] {
 </blockquote>
 <br>
 
-<h2 class="atx" id="workflow">Workflow</h2>
+<h2 class="atx" id="hammer_and_wrench-workflow">🛠️ Workflow</h2>
 <p>The following steps show a complete workflow to prepare input files with this toolbox. Refer to the first example (<font color="green"><strong>Exp1_BYS_main.m</strong></font>) in the toolbox for more details.</p>
 <h3 class="atx" id="step-1-load-the-mesh-grid">Step-1: Load the mesh grid</h3>
 <p>This part aims to load the mesh grid created by <strong>OceanMesh2D</strong> or <strong>SMS</strong>, and then all the grid info. will be stored in a datastruct named <code>Mobj</code> (see <a href="mesh_object.png"><strong>mesh_object.png</strong></a>).</p>
@@ -1296,7 +1296,7 @@ Mobj<span class="token punctuation">.</span>coord <span class="token operator">=
 </blockquote>
 <br>
 
-<h3 class="atx" id="step-2-activated-modules">Step-2: Activated modules</h3>
+<h3 class="atx" id="step-2-activate-modules">Step-2: Activate modules</h3>
 <p>This part aims to select activated modules for your simulation.</p>
 <pre><code class="fenced-code-block language-matlab">Mobj <span class="token operator">=</span> <span class="token function">call_schism_tracers</span><span class="token punctuation">(</span>Mobj<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 <blockquote>
@@ -1640,13 +1640,13 @@ NdgCnd <span class="token operator">=</span> <span class="token function">interp
 </blockquote>
 <br>
 
-<h2 class="atx" id="notes">Notes</h2>
+<h2 class="atx" id="pushpin-notes">📌 Notes</h2>
 <p>This toolbox was written referring to the <a href="https://github.com/pwcazenave/fvcom-toolbox">fvcom-toolbox</a> developed by Dr. Geoff Cowles et al.</p>
-<h2 class="atx" id="limitations-to-do-list">Limitations (To-do List)</h2>
+<h2 class="atx" id="construction-limitations-to-do-list">🚧 Limitations (To-do List)</h2>
 <ul>
 <li>This toolbox is primarily used for preparing input files related to hydrodynamic part, other modules such as <code>CoSiNE</code>,<code>ICM</code> are not fully supported. However, many interfaces have been reserved for future extension.</li>
 </ul>
-<h2 class="atx" id="copyright">Copyright</h2>
+<h2 class="atx" id="memo-copyright">📝 Copyright</h2>
 <p>This toolbox is distributed under the Apache-2.0 license. It is free to use and no profit making is allowed. </p>
 <p>If you encountered any problems/bugs when using this toolbox, or if you have any suggestions, please contact&nbsp;<a href="mailto:wwu@vims.edu">wwu@vims.edu</a>. Any potential co-developers are highly welcome.</p>
 </article>
