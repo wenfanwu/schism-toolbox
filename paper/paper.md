@@ -34,10 +34,7 @@ SCHISM is a three-dimensional, hydrostatic, and baroclinic ocean modeling system
 
 Nowadays, SCHISM has been widely applied across a broad range of oceanographic settings worldwide, demonstrating robust skills in simulating hydrodynamic processes and supporting biogeochemical studies [@ye2020simulating; @liu2018san; @cai2023sea]. The model has fostered a large and expanding user community, drawing researchers from diverse fields such as physical oceanography, ocean engineering, and marine ecology. Several tools have been developed to support SCHISM's pre- and post-processing workflows, including Python-based packages like[`pyschism`](https://github.com/schism-dev/pyschism) and [`pylibs`](https://github.com/wzhengui/pylibs), as well as official Fortran utilities. However, MATLAB-based tools remain relatively scarce.
 
-<div align="center">
-  <img src="workflow.png" alt="Figure 1" width="550">
-</div>
-<p align="center"><strong>Figure 1</strong>. Typical workflow to prepare SCHISM input files based on the toolbox. </p>
+![Typical workflow to prepare SCHISM input files based on the toolbox](workflow.png)
 
 To this end, `schism-toolbox` was developed to support the needs of the user community. Leveraging MATLAB’s powerful vectorized operations and interactive visualization, it offers an efficient, user-friendly workflow for data processing and analysis, with minimal dependence on external packages. This workflow allows users to rapidly set up hydrodynamic or coupled hydrodynamic-biogeochemical simulations with SCHISM, provided that a standardized database is available.
 
