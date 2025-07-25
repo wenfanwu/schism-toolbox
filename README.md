@@ -15,7 +15,7 @@ More details can be found in the [**Changelog.md**](./Changelog.md) file.
 
 ## :package: Dependencies
 
-**MATLAB Version**: 2014b or newer
+**MATLAB Version**: 2016b or newer
 
 **Official Add-Ons:**   
 

@@ -66,7 +66,7 @@ nexttile
 disp_schism_var(Mobj, dx_c/1000)
 axis image
 box on
-title('Theoreticel coarsest resolutions (km)')
+title('Theoretical coarsest resolutions (km)')
 
 nexttile
 % subplot(223)
