@@ -30,7 +30,7 @@ To get started, just install the required add-ons and packages, then add `schism
 
 ## Tutorials & Help
 
-Each function in the toolbox includes detailed comments and examples to help with usage. Refer to these resources for more advanced applications.
+This part introduces useful resources for working with the schism-toolbox.
 
 * [Content](./doc/content.md) – Function index in the toolbox.
 * [Typical Workflow](./doc/typical_workflow.md) – Step-by-step guide for hydro-only runs.
