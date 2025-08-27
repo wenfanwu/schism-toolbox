@@ -7,50 +7,45 @@ function SS = def_schism_source(Mobj, ss_flags, load_flag, disp_flag)
 % SS = def_schism_source(Mobj, ss_flags, load_flag, disp_flag)
 %
 %% Description 
-% SS = def_schism_source(Mobj, ss_flags) defines source/sinkd elements on
-% the map.
-% SS = def_schism_source(Mobj, ss_flags, load_flag) allows you
-% to load or modify the defined source/sink file before.
-% SS = def_schism_source(Mobj, ss_flags, load_flag, disp_flag) determines
-% whether to display the results. 
+% SS = def_schism_source(Mobj, ss_flags) defines source/sink elements on the map.
+% SS = def_schism_source(Mobj, ss_flags, load_flag) loads or re-build the source/sink elements
+% SS = def_schism_source(Mobj, ss_flags, load_flag, disp_flag) shows the results or not.
 %
 %% Example
 % SS = def_schism_source(Mobj, [1 0], 1, 'load');
 %
 %% Input Arguments
-% Mobj --- the mesh object.
-% ss_flags --- a two-value vector, the first of which decides whether
-% the source is defined, while the latter is for the sink. Default: ss_flags = [1 0];
-% load_flag --- rebuild, load, or add source/sink elements on the map ('rebuild', 'load' or
-% 'add'). Default: load_flag = 'rebuild'. This function will save the
-% defined source/sink as a MAT file, so one can load or modify the old file
-% without re-defining if there is a "source_sink.mat" exsited. 
-% disp_flag --- whether to show the defined source/sink on a map (off/on).
-% Default: disp_flag = 'off';
+% Mobj - mesh object; datastruct
+%       the datastruct used to store the mesh info.
+% ss_flags - source/sink flags; numeric
+%       a two-element vector, the first of which decides whether the source
+%       is defined, while the latter is for the sink. Default: ss_flags = [1 0]; 
+% load_flag - load flag; char
+%       the flag used to rebuild, load, or add source/sink elements on the
+%       map ('rebuild', 'load' or 'add'). Default: load_flag = 'rebuild'.
+%       This function will save the defined source/sink as a MAT file, so
+%       one can load or modify the old file without re-defining if there is
+%       a "source_sink.mat" avaialble.  
+% disp_flag - display flag; char
+%       the flag used to show the results or not. (off/on). 
+%       Default: disp_flag = 'off';
 %
 %% Output Arguments
-% SS --- the datastruct containing source/sink info.
-%
-%% Notes
-% None
+% SS - source sink data; datastruct
+%       the datastruct used to store source/sink data.
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2021. 
-% Last Updated on 2023-11-26. 
-% Email: wenfanwu@stu.ouc.edu.cn
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
+% Last Updated on 6 May 2025.
+% Email: wwu@vims.edu
 % 
-% See also: add_river_runoff and match_rivers
+% See also: add_river_inputs and match_rivers
 
 %% Parse inputs
-if nargin < 2
-    ss_flags = [1 0];
-end
-if nargin < 3
-    load_flag = 'rebuild'; % add/rebuild/load
-end
-if nargin < 4
-    disp_flag = 'off';
-end
+if nargin < 2; ss_flags = [1 0]; end
+if nargin < 3; load_flag = 'rebuild'; end  % add/rebuild/load
+if nargin < 4; disp_flag = 'off'; end
+
 %% Select
 filepath = fullfile(Mobj.aimpath, 'source_sink.mat');
 
@@ -96,9 +91,11 @@ if strcmpi(disp_flag, 'on')
     colormap(white)
     colorbar off
     hold on
-    scatter(SS.source.lonc, SS.source.latc, 50,'filled', 'm')
+    scatter(SS.source.lonc, SS.source.latc, 50,'filled', 'r')
     scatter(SS.sink.lonc, SS.sink.latc, 50,'filled', 'b')
     title('source (red) and sink (blue) points')
+    axis tight
+    auto_center
 end
 end
 
@@ -110,8 +107,8 @@ disp_schism_hgrid(Mobj, [0 0])
 hold on
 plot_schism_bnds(Mobj)
 box on;
-xlabel('Longitude', 'FontWeight','bold')
-ylabel('Latitude', 'FontWeight','bold')
+xlabel('Longitude (°E)', 'FontWeight','bold')
+ylabel('Latitude (°N)', 'FontWeight','bold')
 title(title_str)
 hold on
 scatter(Mobj.lonc, Mobj.latc,3,'filled', 'k')

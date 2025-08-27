@@ -205,7 +205,7 @@ var_tri = Mobj.depLayers; % test data
 
 figure
 pcolor(dist2d/1e3, dep2d, var2d)
-shading interp
+shading flat
 colorbar
 colormap(jet)
 xlabel('Along transect distance (km)')
@@ -236,6 +236,7 @@ hold on
 for ii = 1:length(S)
     plot(S(ii).X, S(ii).Y)
 end
+
 
 shapewrite(S, 'D:\test')  % save as shapefiles if necessary
 ```

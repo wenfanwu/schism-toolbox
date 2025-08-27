@@ -1,30 +1,15 @@
 function TideForc = add_nodal_factors(Mobj, TideForc)
 % Add nodal factors for the tidal simulation
 % 
-%% Syntax
-% 
-%
-%% Description 
-% 
-%
-%% Examples
-%
-%
-%% Input Arguments
-%
-%
-%% Output Arguments
-% 
-% 
 %% Notes
 % This function is adapted from the source code in SCHISM
 %
 %% Author Info
-% Created by Wenfan Wu, Ocean Univ. of China in 2023. 
-% Last Updated on 2023-11-24.
-% Email: wenfanwu@stu.ouc.edu.cn
-% 
-% See also: 
+% Created by Wenfan Wu, Virginia Institute of Marine Science in 2023.
+% Last Updated on 24 Nov 2023.
+% Email: wwu@vims.edu
+
+% See also: ut_FUV
 
 %% Parse inputs
 load tide_fac_constants %#ok<LOAD>  % from OceanMesh2D
@@ -32,7 +17,7 @@ load tide_fac_constants %#ok<LOAD>  % from OceanMesh2D
 tideList = TideForc.tide_list;
 t_s = Mobj.time(1);
 t_e = Mobj.time(end);
-ts = datenum(t_s);
+ts = datenum(t_s); %#ok<*DATNM>
 te = datenum(t_e);
 tref = 0.5*(ts + te);
 
