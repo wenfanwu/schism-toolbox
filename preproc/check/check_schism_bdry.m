@@ -46,8 +46,8 @@ function check_schism_bdry(Mobj, DS, BdryCnd, varName, timeTick, obc_bnds)
 if nargin < 4; varName = 'temp'; end
 if nargin < 5; timeTick = Mobj.time(1); end
 
-D1 = DS(strcmp({DS.Variable}, varName));
-D2 = BdryCnd(strcmp({BdryCnd.Variable}, varName));
+D1 = DS(strcmp({DS.Variable}, varName));  % raw data
+D2 = BdryCnd(strcmp({BdryCnd.Variable}, varName));  % interpolated data
 
 %% Determine the open boundaries
 obc_bnds_all = find(ismember(Mobj.obc_nodes(1,:), D1.Nodes));
@@ -58,21 +58,22 @@ if numel(find(idx_bnds==0))>0
 end
 
 %% Prepare data
-obc_nodes = Mobj.obc_nodes(:, obc_bnds);  obc_nodes = obc_nodes(:); obc_nodes(obc_nodes==0) = [];
+obc_nodes = Mobj.obc_nodes(:, obc_bnds); 
+obc_nodes = obc_nodes(:); obc_nodes(obc_nodes==0) = [];
 nps = numel(obc_nodes);
 
-nz_new = Mobj.maxLev; nz_raw = numel(D1.Depth);
+n1 = numel(D1.Depth); n2 = Mobj.maxLev;
 v1 = D1.Data; v2 = D2.Data; 
 
-idx_time1 = minfind(D2.Time, timeTick);
-var_new = squeeze(v2(:,:,idx_time1));
+idx2 = minfind(D2.Time, timeTick);
+var_new = squeeze(v2(:,:,idx2));
 dep_new = fillmissing(-abs(Mobj.depLayers(:, obc_nodes)), 'previous',1);
-dist_new = repmat(1:nps, nz_new, 1);
+dist_new = repmat(1:nps, n2, 1);
 
-idx_time2 = minfind(D1.Time, Mobj.time(idx_time1));  % time index in the raw data.
-var_raw = squeeze(v1(:,:, idx_time2));
+idx1 = minfind(D1.Time, D2.Time(idx2));  % time index in the raw data.
+var_raw = squeeze(v1(:,:, idx1));
 dep_raw = -abs(repmat(D1.Depth(:), 1, nps));
-dist_raw =  repmat(1:nps, nz_raw, 1);
+dist_raw =  repmat(1:nps, n1, 1);
 
 %% Display
 bdep = -abs(Mobj.depth(obc_nodes));
@@ -90,7 +91,7 @@ ym = ylim;
 xlabel('Along open boundary nodes', 'FontWeight','bold')
 ylabel('Depth (m)', 'FontWeight','bold')
 set(gca, 'Layer', 'top')
-title(['SCHISM (', datestr(Mobj.time(idx_time1), 'yyyy-mm-dd HH:MM:SS'), ')']) %#ok<*DATST>
+title(['SCHISM (', datestr(D2.Time(idx2), 'yyyy-mm-dd HH:MM:SS'), ')']) %#ok<*DATST>
 
 is_nan = dep_raw<repmat(bdep(:)', [size(dep_raw,1) 1]);
 var_raw(is_nan) = nan;
@@ -107,7 +108,7 @@ ylim(ym)
 xlabel('Along open boundary nodes', 'FontWeight','bold')
 ylabel('Depth (m)', 'FontWeight','bold')
 set(gca, 'Layer', 'top')
-title(['Raw Data (', datestr(D1.Time(idx_time2), 'yyyy-mm-dd HH:MM:SS'), ')'])
+title(['Raw Data (', datestr(D1.Time(idx1), 'yyyy-mm-dd HH:MM:SS'), ')'])
 
 end
 

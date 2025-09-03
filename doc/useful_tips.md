@@ -236,7 +236,7 @@ hold on
 for ii = 1:length(S)
     plot(S(ii).X, S(ii).Y)
 end
-
+legend(string(levels))
 
 shapewrite(S, 'D:\test')  % save as shapefiles if necessary
 ```

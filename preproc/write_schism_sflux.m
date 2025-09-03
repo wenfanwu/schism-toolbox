@@ -147,7 +147,7 @@ for iFile = 1:nFiles
     if exist(filepath,'file')==2; delete(filepath); end
     
     % ============ TIME PART ============ 
-    nccreate(filepath,'time','Dimensions',{'time', nTimes},'Datatype', dtype,'Format', nc_fmt)
+    nccreate(filepath,'time','Dimensions',{'time', nTimes},'Datatype', 'double','Format', nc_fmt)
     ncwriteatt(filepath,'time','long_name','Time');
     ncwriteatt(filepath,'time','standard_name','time');
     ncwriteatt(filepath,'time','units', ['days since ', base_date_str]);
