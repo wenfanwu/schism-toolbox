@@ -186,17 +186,18 @@ disp_schism_var(Mobj, v2)
 axis image
 ```
 
-## 5. Extract data along a specified transect
+## 5. Define transect and extract data
 
 **read_schism_transect.m** extracts data along the transect defined by `sect_info`, which is created by **def_schism_transect.m**.
 
 ```matlab
+% extract data along a straight transect
 figure
 disp_schism_hgrid(Mobj, [1 0])
 axis image
 auto_center
 hold on
-sect_info = def_schism_transect(Mobj, -1);
+sect_info = def_schism_transect(Mobj, -1); % straight transect
 
 disp_schism_vgrid(Mobj, sect_info)
 
@@ -222,6 +223,35 @@ ylabel('Depth (m)')
 </div>
 <p align="center"><strong>Figure 7</strong>. Vertical layers and extracted data along the transect.</p>
 
+**def_schism_transect.m** can define transects of arbitrary shapes (`mtype = -3`) and returns the normal and tangential unit vectors at each point, which can be used for subsequent projection tasks.
+
+```matlab
+% define a curved transect along the isobaths
+figure
+disp_schism_hgrid(Mobj)
+clim([-60 0])
+sect_info = def_schism_transect(Mobj, -3, 30);  % curved transect
+
+x = sect_info.lon; y = sect_info.lat;
+tvec = sect_info.tvec; % tangential unit vector
+nvec = sect_info.nvec; % normal unit vector
+
+figure
+disp_schism_hgrid(Mobj)
+hold on
+colormap(turbo(25))
+plot_schism_bnds(Mobj)
+h1 = plot(x, y, 'LineWidth', 3, 'Marker', '.', 'Color', 'g');
+h2 = quiver(x, y, tvec(:,1), tvec(:,2), 0.5, 'r');
+h3 = quiver(x, y, nvec(:,1), nvec(:,2), 0.5, 'b');
+legend([h1,h2,h3], {'Transect', 'Tangent','Normal'});
+```
+
+<div align="center">
+  <img src="../imags/fig_s5.3.png" alt="Figure 8" width="450">
+</div>
+<p align="center"><strong>Figure 8</strong>. A transect along isobaths and the corresponding normal and tangential unit vectors at each point.</p>
+
 ## 6. Extract contour lines and export as shapefiles
 
 **calc_schism_contour.m** extracts contour lines at specified levels and stores them in a shapefile-compatible data structure.
@@ -242,9 +272,9 @@ shapewrite(S, 'D:\test')  % save as shapefiles if necessary
 ```
 
 <div align="center">
-  <img src="../imags/fig_s6.1.png" alt="Figure 8" width="450">
+  <img src="../imags/fig_s6.1.png" alt="Figure 9" width="450">
 </div>
-<p align="center"><strong>Figure 8</strong>. Contour lines at specified depth levels.</p>
+<p align="center"><strong>Figure 9</strong>. Contour lines at specified depth levels.</p>
 
 ## 7. Calculate gradient on unstructured grids
 
@@ -261,9 +291,9 @@ axis image; auto_center
 ```
 
 <div align="center">
-  <img src="../imags/fig_s7.1.png" alt="Figure 9" width="500">
+  <img src="../imags/fig_s7.1.png" alt="Figure 10" width="500">
 </div>
-<p align="center"><strong>Figure 9</strong>. Bathymetry gradient on the model grid.</p>
+<p align="center"><strong>Figure 10</strong>. Bathymetry gradient on the model grid.</p>
 
 ## 8. Prepare for particle tracking
 
@@ -322,6 +352,6 @@ disp_schism_hgrid(Mobj2, [0 1])
 ```
 
 <div align="center">
-  <img src="../imags/fig_s10.1.png" alt="Figure 10" width="500">
+  <img src="../imags/fig_s10.1.png" alt="Figure 11" width="500">
 </div>
-<p align="center"><strong>Figure 10</strong>. Updated model grid with new open boundaries.</p>
+<p align="center"><strong>Figure 11</strong>. Updated model grid with new open boundaries.</p>

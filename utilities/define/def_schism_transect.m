@@ -1,41 +1,35 @@
-function sect_info = def_schism_transect(Mobj, mtype, dx)
-% Define a transect on the mesh grid
+function sect_info = def_schism_transect(Mobj, mtype, N)
+% Define a transect on the model grid
 %
 %% Syntax
-% sect_info = def_schism_transect(Mobj)
 % sect_info = def_schism_transect(Mobj, mtype)
-% sect_info = def_schism_transect(Mobj, mtype, dx)
+% sect_info = def_schism_transect(Mobj, mtype, N)
 %
 %% Description
 % sect_info = def_schism_transect(Mobj) defines a transect on the map.
-% sect_info = def_schism_transect(Mobj, mtype) specifies the defining
-%       method of transect. 
-% sect_info = def_schism_transect(Mobj, mtype, dx) specifies the density of
-%       transect nodes.
+% sect_info = def_schism_transect(Mobj, mtype) specifies the method to define transects.
+% sect_info = def_schism_transect(Mobj, mtype, N) specifies the # of transect points.
 %
 %% Input Arguments
 % Mobj - mesh object; datastruct
 %       the mesh object with vertical grid info added.
 % mtype - method type; numeric
-%       the flag used to specify the defning method of transect. 
-%       Five different options are available. Default: mtype = 1;   
-%        1: draw a line on the map and return the vertical lalyers on the
-%            nearset nodes to the transect points.
-%        2: click some node centers on the map using datatip and return the
-%            vertical layers on these nodes.
-%        3: draw broken lines on the map using polyline and return the
-%            vertical layers strickly along the transect (transect points
-%            are on the node center).
-%       -1: the same as option "1" but the points are not on node centers.
-%       -3: the same as option "3" but the points are not on node centers.
-% dx - the density of transect points; numeric
-%       if mtype =-1, 1, or 3: dx can be used to determine the density of
-%       transect points, ranging from 0 to 1, and lower values mean high
-%       density. Default: dx = 0.02;
-%       if mtype = 2: dx =1 means the transect points will be arranged in
-%       a descending order based on the latitudes, while -1 means an
-%       ascending order. Default: dx = 1;
-% 
+%       Flag specifying the method to define transects. Six options are
+%       available (see below). Default: mtype = 1;
+%       Mode options:
+%           0 : Select node centers manually using datatip; return selected nodes.
+%           1 : Draw a straight line; return nearest nodes to the transect points.
+%           2 : Draw polyline segments; return nearest nodes to the transect points.
+%          -1 : Same as option 1, but points are not restricted to node centers.
+%          -2 : Same as option 2, but points are not restricted to node centers.
+%          -3 : Freehand curve (advanced option).
+% N - # of transect points; numeric
+%       when mtype < 0: N specifies the # of transect points;
+%       when mtype = 0: N determines transect orientation
+%                                  (>0: latitude-descending; <0: latitude-ascending);
+%       when mtype > 0: N specifies the approximate # of transect points
+%                                  (depending on the grid resolution near the transect).
+%
 %% Output Arguments
 % sect_Info - transect info; datastruct
 %       the datastruct containing transect data.
@@ -43,123 +37,147 @@ function sect_info = def_schism_transect(Mobj, mtype, dx)
 %% Examples
 % figure('Color', 'w')
 % disp_schism_hgrid(Mobj, [1 0], 'EdgeAlpha', 0.05, 'LineWidth', 0.5);
-% sect_info = def_schism_transect(Mobj, -1, 0.01);
-% 
+% sect_info = def_schism_transect(Mobj, -1, 100);
+%
 %% Notes
-% All the 'define' functions (def_schism_*.m) follows the same style. A
-% basemap should be activated first before you use these functions. The
-% so-called basemap is often a bathymetry map generated from
-% 'disp_schism_hgrid.m', or it can be a velocity map, and any other maps.
-% It depends on your needs. 
+% If it is necessary to define transects strictly along curved channels or
+% thalweg, the freehand curve approach (mtype = -3) would be very useful.
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
-% Last Updated on 1 Jun 2025.
+% Last Updated on 23 Sep 2025.
 % Email: wwu@vims.edu
 %
-% See also: disp_schism_vgrid
+% See also: disp_schism_vgrid and read_schism_transect
 
 %% Parse inputs
 if nargin < 2; mtype = 1; end
-if nargin<3
-    if mtype == 2; dx = 1; else; dx = 0.02; end
-end
+if nargin < 3; if mtype == 0; N = 1; else; N = 100; end; end
+
 %% Define transect
+hold on
 switch mtype
+    case 0  % scattered points (points are on the node center)
+        disp('Click node centers on the map (press ENTER to end)')
+        datacursormode on; pause;
+        h = findobj(gcf,'Type','datatip');
+        if ~isempty(h)
+            xy_data = cell2array(arrayfun(@(x) [h(x).X; h(x).Y], 1:length(h), 'UniformOutput', false)); close gcf
+            x_pts = xy_data(:,1); y_pts =  xy_data(:,2); nps = numel(x_pts);
+        end
+        if sign(N) == 1  % latitude-descending order
+            [y_pts, ind] = sort(y_pts, 'descend'); x_pts = x_pts(ind);
+        elseif sign(N) < 1 % latitude-ascending order
+            [y_pts, ind] = sort(y_pts, 'ascend'); x_pts = x_pts(ind);
+        end
+        idx_pts = arrayfun(@(x) geomin(Mobj.lon, Mobj.lat, x_pts(x), y_pts(x)), 1:nps);
+
     case 1 %  straight line (points are on the node center)
-        disp('Please draw a line on the map and press ENTER to end')
-        sect_handle = drawline;
-        pause;
-        lon_roi = sect_handle.Position(:,1)'; lat_roi = sect_handle.Position(:,2)';
+        disp('Draw a line on the map (press ENTER to end)')
+        h = drawline; pause;
+        x_ept = h.Position(:,1)'; y_ept = h.Position(:,2)';  % endpoints
+        x_roi = interp1(1:2, x_ept, linspace(1,2,N)); y_roi = interp1(1:2, y_ept, linspace(1,2,N));  % refine the transect points
+        idx_pts = unique(geomin(Mobj.lon, Mobj.lat, x_roi, y_roi), 'stable');      % find the nearest nodes
+        x_pts = Mobj.lon(idx_pts); y_pts = Mobj.lat(idx_pts);
         close gcf
-        lon_roi2 = interp1(1:2, lon_roi, 1:dx:2); lat_roi2 = interp1(1:2, lat_roi, 1:dx:2);  % refine the transect points
-        ind_nodes = unique(geomin(Mobj.lon, Mobj.lat, lon_roi2, lat_roi2), 'stable'); % find the nearest nodes
-        lon_list = Mobj.lon(ind_nodes); lat_list = Mobj.lat(ind_nodes);
 
     case -1 % straight line (points are not on the node center)
-        disp('Please draw a line on the map and press ENTER to end')
-        sect_handle = drawline;
-        pause;
-        lon_roi = sect_handle.Position(:,1)'; lat_roi = sect_handle.Position(:,2)';
+        disp('Draw a line on the map (press ENTER to continue)')
+        h = drawline; pause;
+        x_ept = h.Position(:,1)'; y_ept = h.Position(:,2)';
+        x_pts = interp1(1:2, x_ept, linspace(1,2,N)); y_pts = interp1(1:2, y_ept, linspace(1,2,N));
+        [x_pts, y_pts] = fine_tuning(h, x_pts, y_pts);  % fine-tuning
+        F = scatteredInterpolant(Mobj.lon, Mobj.lat, Mobj.depth);
+        idx_pts = minfind(Mobj.depth, F(x_pts, y_pts));  % use vertical layers of the depth-closest nodes
         close gcf
-        lon_list = interp1(1:2, lon_roi, 1:dx:2); lat_list = interp1(1:2, lat_roi, 1:dx:2);
+
+    case 2  % broken line (points are on the node center)
+        disp('Draw broken lines on the map (press ENTER to end)')
+        h = drawpolyline;
+        x_ept = h.Position(:,1)'; y_ept = h.Position(:,2)';
+        x_roi = []; y_roi = [];
+        L_segs = sqrt(diff(x_ept).^2 + diff(y_ept).^2);  % segment lengh
+        Ns = round(N.*L_segs./(sum(L_segs)));  % distribute # of points 
+        for s = 1:numel(x_ept)-1
+            x_seg = interp1(1:2, x_ept(s:s+1), linspace(1,2,Ns(s)));
+            y_seg = interp1(1:2, y_ept(s:s+1), linspace(1,2,Ns(s)));
+            x_roi = [x_roi; x_seg(:)]; y_roi = [y_roi; y_seg(:)]; %#ok<AGROW>
+        end
+        [~, ia, ~] = unique(hypot(x_roi, y_roi), 'stable');  % remove duplicate points
+        x_roi = x_roi(ia); y_roi = y_roi(ia);
+        idx_pts = unique(geomin(Mobj.lon, Mobj.lat, x_roi, y_roi), 'stable');
+        x_pts = Mobj.lon(idx_pts); y_pts = Mobj.lat(idx_pts);  % find the nearest nodes
+        close gcf; clear h
+
+    case -2  % broken lines (points are not on the node center)
+        disp('Please draw broken lines on the map (press ENTER to continue)')
+        h = drawpolyline;
+        x_ept = h.Position(:,1)'; y_ept = h.Position(:,2)';
+        x_roi = []; y_roi = [];
+        L_segs = sqrt(diff(x_ept).^2 + diff(y_ept).^2);  % segment lengh
+        Ns = round(N.*L_segs./(sum(L_segs)));  % distribute # of points
+        for s = 1:numel(x_ept)-1
+            x_seg = interp1(1:2, x_ept(s:s+1), linspace(1,2,Ns(s)));
+            y_seg = interp1(1:2, y_ept(s:s+1), linspace(1,2,Ns(s)));
+            x_roi = [x_roi; x_seg(:)]; y_roi = [y_roi; y_seg(:)]; %#ok<AGROW>
+        end
+        [~, ia, ~] = unique(hypot(x_roi, y_roi), 'stable');
+
+        x_pts = x_roi(ia); y_pts = y_roi(ia);
+        [x_pts, y_pts] = fine_tuning(h, x_pts, y_pts);  % fine-tuning
         F = scatteredInterpolant(Mobj.lon, Mobj.lat, Mobj.depth);
-        ind_nodes = minfind(Mobj.depth, F(lon_list, lat_list));  % use depth layers from the nearest depth.
+        idx_pts = minfind(Mobj.depth, F(x_pts, y_pts));
+        close gcf; clear h
 
-    case 2  % scattered points (points are on the node center)
-        disp('Please click all transect nodes on the map using datatips and press ENTER to end')
-        pause
-        dataTips = findobj(gcf,'Type','datatip');
-        if ~isempty(dataTips)
-            xy_data = cell2array(arrayfun(@(x) [dataTips(x).X; dataTips(x).Y], 1:length(dataTips), 'UniformOutput', false));
-            close gcf
-            lon_list = xy_data(:,1); lat_list =  xy_data(:,2);
-            nps = numel(lon_list);
-        end
-        if sign(dx) == 1  % latitude-descending order
-            [lat_list, ind] = sort(lat_list, 'descend');
-            lon_list = lon_list(ind);
-        elseif sign(dx) < 1 % latitude-ascending order
-            [lat_list, ind] = sort(lat_list, 'ascend');
-            lon_list = lon_list(ind);
-        end
-        ind_nodes = arrayfun(@(x) geomin(Mobj.lon, Mobj.lat, lon_list(x), lat_list(x)), 1:nps);
+    case -3  % freehand curve (advanced option)
+        disp('Draw a curve freehand along the target feature (press ENTER to continue)')
+        h = drawfreehand; pause
+        d = [0; cumsum(sqrt(sum(diff(h.Position).^2,2)))];  % arc length parameter
 
-    case 3  % broken line (points are on the node center)
-        disp('Please draw broken lines on the map and press ENTER to end')
-        geo_handle = drawpolyline;
-        lon_roi = geo_handle.Position(:,1)'; lat_roi = geo_handle.Position(:,2)';
-        close gcf; clear geo_handle
-        lon_roi2 = []; lat_roi2 = [];
-        for s = 1:numel(lon_roi)-1
-            lon_seg = interp1(1:2, lon_roi(s:s+1), 1:dx:2);
-            lat_seg = interp1(1:2, lat_roi(s:s+1), 1:dx:2);
-            lon_roi2 = [lon_roi2; lon_seg(:)]; lat_roi2 = [lat_roi2; lat_seg(:)]; %#ok<AGROW>
-        end
-        [~, ia, ~] = unique(hypot(lon_roi2, lat_roi2), 'stable');  % remove duplicate points
-        lon_roi2 = lon_roi2(ia); lat_roi2 = lat_roi2(ia);
-        ind_nodes = unique(geomin(Mobj.lon, Mobj.lat, lon_roi2, lat_roi2), 'stable');
-        lon_list = Mobj.lon(ind_nodes); lat_list = Mobj.lat(ind_nodes);  % find the nearest nodes
+        % Resample to uniform intervals
+        window = 3;  % smoothing window (can be changed)
+        d_new = linspace(0, d(end), N*3);   % Ensure enough points for smoothing
+        x_new = smooth(interp1(d, h.Position(:,1), d_new, 'pchip'), window*3);
+        y_new = smooth(interp1(d, h.Position(:,2), d_new, 'pchip'), window*3);
+        x_pts = x_new(1:3:end); y_pts = y_new(1:3:end);
 
-    case -3  % broken line (points are not on the node center)
-        disp('Please draw broken lines on the map and press ENTER to end')
-        geo_handle = drawpolyline;
-        lon_roi = geo_handle.Position(:,1)'; lat_roi = geo_handle.Position(:,2)';
-        close gcf; clear geo_handle
-        lon_roi2 = []; lat_roi2 = [];
-        for s = 1:numel(lon_roi)-1
-            lon_seg = interp1(1:2, lon_roi(s:s+1), 1:dx:2);
-            lat_seg = interp1(1:2, lat_roi(s:s+1), 1:dx:2);
-            lon_roi2 = [lon_roi2; lon_seg(:)]; lat_roi2 = [lat_roi2; lat_seg(:)]; %#ok<AGROW>
-        end
-        [~, ia, ~] = unique(hypot(lon_roi2, lat_roi2), 'stable');
-        lon_list = lon_roi2(ia); lat_list = lat_roi2(ia);
-
+        [x_pts, y_pts] = fine_tuning(h, x_pts, y_pts);  % fine-tuning
         F = scatteredInterpolant(Mobj.lon, Mobj.lat, Mobj.depth);
-        ind_nodes = minfind(Mobj.depth, F(lon_list, lat_list));
-end
-%% Distance
-switch lower(Mobj.coord)
-    case 'geographic'
-        dist_list = distance(lat_list(1), lon_list(1), lat_list, lon_list, [6378137 0.0818191910428158]); % meters
-    case 'cartesian'
-        dist_list = hypot(lon_list-lon_list(1), lat_list-lat_list(1));
-end
-%% Save transect info
-sect_info.lon = lon_list(:); 
-sect_info.lat = lat_list(:); 
-sect_info.dist = dist_list(:);
+        idx_pts = minfind(Mobj.depth, F(x_pts, y_pts));
+        close gcf
 
-% Find the depth layers.
+end
+%% Along-transect distrance
+switch lower(Mobj.coord(1:3))
+    case 'geo'
+        dist_pts = distance(y_pts(1), x_pts(1), y_pts, x_pts, [6378137 0.0818191910428158]); % meters
+    case 'car'
+        dist_pts = hypot(x_pts-x_pts(1), y_pts-y_pts(1));
+end
+
+%% Along-tranect Tangent & Normal vectors
+[tvec, nvec] = transect_vector(x_pts, y_pts, 'left');
+
+%% Store the transect info
+sect_info.lon = x_pts(:);
+sect_info.lat = y_pts(:);
+sect_info.dist = dist_pts(:);
+
+% Add depth layers.
 if isfield(Mobj, 'depLayers')
-    sect_info.depth = Mobj.depLayers(:, ind_nodes(:));
+    sect_info.depth = Mobj.depLayers(:, idx_pts(:));
+end
+sect_info.tvec = tvec;  % tangent vector
+sect_info.nvec = nvec;  % normal vector
+
 end
 
-% Returns the ANTI-clockwise angle from A to B
-if mtype == -1 || mtype == 1  % only for straight line.
-    A = [diff(lon_roi) diff(lat_roi)]; 
-    B = [1, 0];
-    sect_info.theta = vector_angle(A, B);   % anti-clockwise angle from A to B
-    sect_info.vector = A;    % transect vector
-end
+function [x_new, y_new] = fine_tuning(h, x_raw, y_raw)
+
+% Manual fine-tuning
+delete(h);    % clean existed object
+disp('Perform manual fine-tuning if necessary (press ENTER to end)')
+h = drawpolyline('Position', [x_raw(:) y_raw(:)], 'InteractionsAllowed','reshape'); pause
+x_new = h.Position(:,1); y_new = h.Position(:,2);
+
 end

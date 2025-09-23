@@ -131,7 +131,8 @@ subplot(212)
 disp_schism_var(Mobj, v2)
 axis image
 
-%% Extract data along a specified transect
+%% Define transect and extract data
+% extract data along a straight transect
 figure
 disp_schism_hgrid(Mobj, [1 0])
 axis image; auto_center
@@ -150,6 +151,26 @@ colorbar
 colormap(jet)
 xlabel('Along transect distance (km)')
 ylabel('Depth (m)')
+
+% define a curved transect along the isobaths
+figure
+disp_schism_hgrid(Mobj)
+clim([-60 0])
+sect_info = def_schism_transect(Mobj, -3, 30);  % curved transect
+
+x = sect_info.lon; y = sect_info.lat;
+tvec = sect_info.tvec; % tangential unit vector
+nvec = sect_info.nvec; % normal unit vector
+
+figure
+disp_schism_hgrid(Mobj)
+hold on
+colormap(turbo(25))
+plot_schism_bnds(Mobj)
+h1 = plot(x, y, 'LineWidth', 3, 'Marker', '.', 'Color', 'g');
+h2 = quiver(x, y, tvec(:,1), tvec(:,2), 0.5, 'r');
+h3 = quiver(x, y, nvec(:,1), nvec(:,2), 0.5, 'b');
+legend([h1,h2,h3], {'Transect', 'Tangent','Normal'});
 
 %% Extract contour lines and export as shapefiles
 levels = [5, 10, 30, 60]; % depth levels

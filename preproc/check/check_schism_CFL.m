@@ -38,7 +38,7 @@ dx = calc_schism_reso(Mobj); % horizontal resolution (m)
 %% Calculate CFL numbers
 CFL_val = (uvel+sqrt(g*h)).*dt./dx(:);
 
-% the theoratical coarest dx at given dt and CFL number.
+% the theoretically coarsest dx at given dt and CFL number.
 calc_dx = @(h, dt) (uvel+sqrt(g*h))*dt./CFL_limit; 
 
 h_s = min(h(:)):0.25:max(h(:));

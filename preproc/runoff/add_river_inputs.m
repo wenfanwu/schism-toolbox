@@ -72,7 +72,7 @@ for iRiver = 1:nRivers
     for iVar = 1:nVars
         varName = varList{iVar};
         [time_raw, var_raw] = get_river_data(river_name, varName); 
-        var_clim = accumarray(month(time_raw), var_raw, [], @mean);
+        var_clim = accumarray(month(time_raw(:)), var_raw(:), [], @mean);
         var_full = repmat(var_clim(:)', 1, length(time_clim)/12);
 
         TT1 = array2timetable(var_full(:),'RowTimes', time_clim);
