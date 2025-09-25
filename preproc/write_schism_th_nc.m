@@ -80,6 +80,7 @@ nVars = numel(varList);  bdry_times = cell(nVars,1);
 for iVar = 1:nVars
     varName = lower(varList{iVar});
     ind_var = find(strcmp({BdryCnd.Variable}, varName), 1);
+
     % check the existence of variable
     if ~isempty(ind_var)
         bdry_times{iVar} = BdryCnd(ind_var).Time;
@@ -87,10 +88,13 @@ for iVar = 1:nVars
     else
         error('Variable %s not found in BdryCnd', varName);
     end
+    % clip to valid ranges
+    varData = check_schism_var(varData, varName);
+    
     D.time_series(iVar,:,:,:) = flip(varData, 1);  % the last row indicates the surface layer.
 end
 
-% Check the time vector
+% check the time vector
 if all(cellfun(@(x) isequal(x, bdry_times{1}), bdry_times))
     bdry_time = bdry_times{1};
 else

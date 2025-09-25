@@ -99,6 +99,15 @@ for iVar = 1:nVars
     BdryCnd(iVar).Time = bdry_time{iVar}(:);
 end
 
+%% Ensure the data validity
+nVars = numel(varList);
+for iVar = 1:nVars
+    varName = varList{iVar};
+    ind_var = find(strcmp({BdryCnd.Variable}, varName));
+    if ~isempty(ind_var)
+        BdryCnd(ind_var).Data = check_schism_var(BdryCnd(ind_var).Data, varName);
+    end
+end
 end
 
 function var_out = kill_nans(var_in)

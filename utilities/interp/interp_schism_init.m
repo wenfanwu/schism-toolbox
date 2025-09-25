@@ -67,20 +67,17 @@ for iVar = 1:nVars
     InitCnd(iVar).Data = varNew;
     InitCnd(iVar).Time = Mobj.time(1);
 end
-%% T/S Contraints in SCHISM
-ind_var = find(strcmp({InitCnd.Variable}, 'temp'));
-if ~isempty(ind_var)
-    disp('temp is clipped to [-2, 40] ')
-    temp_min = -2; temp_max = 40;
-    InitCnd(ind_var).Data = min(temp_max, max(temp_min, InitCnd(ind_var).Data));
+
+%% Ensure the data validity
+nVars = numel(varList);
+for iVar = 1:nVars
+    varName = varList{iVar};
+    ind_var = find(strcmp({InitCnd.Variable}, varName));
+    if ~isempty(ind_var)
+        InitCnd(ind_var).Data = check_schism_var(InitCnd(ind_var).Data, varName);
+    end
 end
 
-ind_var = strcmp({InitCnd.Variable}, 'salt');
-if ~isempty(ind_var)
-    disp('salt is clipped to [0, 42] ')
-    salt_min = 0; salt_max = 42;
-    InitCnd(ind_var).Data = min(salt_max, max(salt_min, InitCnd(ind_var).Data));
-end
 end
 
 

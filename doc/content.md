@@ -45,6 +45,7 @@ This file lists all functions in the schism-toolbox.
 - [`check_schism_hydrostatic.m`](../preproc/check/check_schism_hydrostatic.m) - Check the hydrostatic assumption
 - [`check_schism_icbc.m`](../preproc/check/check_schism_icbc.m) - Check the consistency between hotstart.nc and *.th.nc files
 - [`check_schism_init.m`](../preproc/check/check_schism_init.m) - Check the interpolation of initial fields (surface/bottom)
+- [`check_schism_var.m`](../preproc/check/check_schism_var.m) - Clip SCHISM input variables to the valid range.
 
 ## preproc/runoff
 
@@ -100,6 +101,7 @@ This file lists all functions in the schism-toolbox.
 - [`sub_region.m`](../utilities/general/sub_region.m) - Extract the index and coordinates of sub-region.
 - [`tripcolor.m`](../utilities/general/tripcolor.m) - Visualize the variable on an unstructured grid.
 - [`ut_FUV.m`](../utilities/general/ut_FUV.m) - Compute nodal/satellite correction factors and astronomical argument
+- [`transect_vector.m`](../utilities/general/transect_vector.m) - Compute tangent and normal unit vectors along a transect
 
 ## utilities/generate
 

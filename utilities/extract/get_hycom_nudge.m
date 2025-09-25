@@ -46,6 +46,7 @@ ind_lons = cell(nt,1); ind_lats = cell(nt,1);
 
 for iTime = 1:nt
     filepath = strrep(src_file, '****', datestr(src_time(iTime), date_fmt)); %#ok<DATST>
+    if exist(filepath, 'file')~=2; error([filepath, ' is not found.']); end
     info = dir(filepath);
     if iTime==1
         sz = info.bytes;

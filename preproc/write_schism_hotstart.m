@@ -42,11 +42,9 @@ for iVar = 1:numel(varList)
     ind_var = strcmp(varList, varName);
     varData = squeeze(InitCnd(ind_var).Data);
     
-    % Ensure T/S values are valid
-    switch varName
-        case 'temp'; varData = max(-2, min(varData, 40));
-        case 'salt'; varData = max(0, min(varData, 42));
-    end
+    % Ensure valid values
+    varData = check_schism_var(varData, varName);
+
     % Last row represents the surface.
     if size(varData,1)==Mobj.maxLev  % match the vertical dimention
         InitCnd(ind_var).Data = flip(varData, 1);  % the first dimension is "depth"
