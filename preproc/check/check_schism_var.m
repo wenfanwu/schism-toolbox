@@ -21,11 +21,11 @@ num_of_nans = numel(find(isnan(varData(:))));
 
 % Check invalid values
 if min(varData(:))<vmin || max(varData(:))>vmax
-    warning([varName,' range: [',num2str(min(varData(:)), '%.3f'), ',', num2str(max(varData(:)), '%.3f') ,']; # of NaNs = ', num2str(num_of_nans)])
+    warning([varName,': [',num2str(min(varData(:)), '%.3f'), ',', num2str(max(varData(:)), '%.3f') ,']; NaNs = ', num2str(num_of_nans)])
     disp(['• ', varName,' is clipped to [', num2str(vmin), ', ', num2str(vmax), ']'])
     varData = min(vmax, max(vmin, varData));
 else
-    disp(['• ', varName,' range: [',num2str(min(varData(:)), '%.3f'), ',', num2str(max(varData(:)), '%.3f') ,']; # of NaNs = ', num2str(num_of_nans)])
+    disp(['• ', varName,': [',num2str(min(varData(:)), '%.3f'), ',', num2str(max(varData(:)), '%.3f') ,']; NaNs = ', num2str(num_of_nans)])
 end
 
 end

@@ -58,8 +58,8 @@ if nargin < 2; nudge_inputs = [20, 60, 4e-5]; end
 if nargin < 3; obc_bnds = 1:Mobj.obc_counts; end
 if nargin < 4; disp_flag = 'on'; end
 
-edge_width = nudge_inputs(1)/1e3;  % km 
-total_width = nudge_inputs(2)/1e3;  % km
+edge_width = nudge_inputs(1);  % km 
+total_width = nudge_inputs(2);  % km
 nf_max = nudge_inputs(3);
 
 if total_width <= edge_width; error('the cutoff_dist must be greater than bnd_width!'); end
@@ -79,7 +79,7 @@ else
     dist_m = hypot(lon1-lon2, lat1-lat2);
 end
 
-dist_pts = min(dist_m, [], 2)/1e3; 
+dist_pts = min(dist_m, [], 2); 
 nudge_factor = nf_max*(dist_pts - total_width)/(edge_width - total_width); % linear transition
 nudge_factor = min(nf_max, max(nudge_factor, 0)); 
 nudge_nodes = find(nudge_factor~=0);
@@ -100,10 +100,10 @@ end
 function hdist = haversine_dist(lat1, lon1, lat2, lon2)
 % Haversine distance with standard sphere radius.
 
-R = 6378.137; % earch radius (m)
+R = 6378.137; % earch radius (km)
 dlat = deg2rad(lat2 - lat1); dlon = deg2rad(lon2 - lon1);
 a = sin(dlat/2).^2 + cos(deg2rad(lat1)) .* cos(deg2rad(lat2)) .* sin(dlon/2).^2;
 c = 2 * atan2(sqrt(a), sqrt(1 - a));
-hdist = R .* c; % meters
+hdist = R .* c; % km
 
 end
