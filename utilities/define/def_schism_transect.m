@@ -147,7 +147,7 @@ switch mtype
         close gcf
 
 end
-%% Along-transect distrance
+%% Along-transect distance
 switch lower(Mobj.coord(1:3))
     case 'geo'
         dist_pts = distance(y_pts(1), x_pts(1), y_pts, x_pts, [6378137 0.0818191910428158]); % meters

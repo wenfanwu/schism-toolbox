@@ -1,30 +1,34 @@
-function [S, area3, area4] = calc_schism_area(Mobj)
+function [S, S3, S4] = calc_schism_area(Mobj)
 % Calculate the element area (m^2)
 %
 %% Syntax
-% elem_area = calc_schism_area(Mobj)
+% [S, S3, S4] = calc_schism_area(Mobj)
 %
 %% Description
-% elem_area = calc_schism_area(Mobj) calculates the element areas of
+% [S, S3, S4] = calc_schism_area(Mobj) calculates the element areas of
 %       unstructured grids (units: m^2).  
 %
 %% Example
-% elem_area = calc_schism_area(Mobj);
+% S = calc_schism_area(Mobj);
 %
 %% Input Arguments
 % Mobj - mesh object; datastruct
 %       the datastruct containing mesh info.
 %
 %% Output Arguments
-% elem_area - element areas; double
-%       the areas of elements  (units: m^2).
+% S - element areas; numeric
+%       areas of elements  (units: m^2).
+% S3 - areas of triangular elements; numeric
+%       areas of triangular elements (units: m^2).
+% S4 - areas of quadrangular elements; numeric
+%       areas of quadrangular elements  (units: m^2).
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2021. 
 % Last Updated on 05 Nov 2024. 
 % Email: wwu@vims.edu
 %
-% See also: calc_schism_sidelen
+% See also: calc_schism_edge
 
 %% Parse inputs
 if strncmpi(Mobj.coord, 'geographic', 3)
@@ -45,7 +49,7 @@ e1 = calc_edge_lens(x1, y1, ntype);
 e2 = calc_edge_lens(x2, y2, ntype);
 e3 = calc_edge_lens(x3, y3, ntype);
 
-area3 = calc_triangle_area(e1,e2,e3);
+S3 = calc_triangle_area(e1,e2,e3);
 
 % calculate the quadrangular areas (split into two triangles)
 % triangle at (v1,v2,v3)
@@ -68,10 +72,10 @@ e3 = calc_edge_lens(x3, y3, ntype);
 
 area4_p2 = calc_triangle_area(e1,e2,e3);
 
-area4 = [area4_p1(:) area4_p2(:)];
+S4 = [area4_p1(:) area4_p2(:)];
 
 S = nan(Mobj.nElems,1);
-S(Mobj.i34==3) = area3;
+S(Mobj.i34==3) = S3;
 S(Mobj.i34==4) = area4_p1+area4_p2;
 end
 

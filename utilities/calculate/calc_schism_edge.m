@@ -1,25 +1,30 @@
-function [edge_lens, edge_len_list, tri_edg] = calc_schism_edge(Mobj)
-% Calculate side lengths (m) of triangular cells
+function [L_cells, L_edges, tri_edg] = calc_schism_edge(Mobj)
+% Calculate the side lengths (m) of each element/cell.
 %
 %% Syntax
-% [edge_lens, edge_len_list, tri_edg] = calc_schism_edge(Mobj)
+% [L_cells, L_edges, tri_edg] = calc_schism_edge(Mobj)
 %
 %% Description
-% [edge_lens, edge_len_list, tri_edg] = calc_schism_edge(Mobj)
+% [L_cells, L_edges, tri_edg] = calc_schism_edge(Mobj) calculates side lengths.
 %
 %% Example
-%
+% [L_cells, L_edges, tri_edg] = calc_schism_edge(Mobj)
 %
 %% Input Arguments
 % Mobj - mesh object; datastruct
-%       A datastruct containing mesh info.
+%       a datastruct used to store the mesh info.
 %
 %% Output Arguments
-%
+% L_cells - edge lengths of each cell; numeric
+%       L_cells (nElems*4) stores the edge lengths of each element/cell.
+% L_edges - length of each edge; numeric
+%       L_edges (nEdges*1) stores the length of each edge/side.
+% tri_edg - connectivity table; numeric
+%       the connectivity table (nElems*4) between elements and edges.
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Insitute of Marine Science in 2022.
-% Last Updated on 10 Oct 2024.
+% Last Updated on 10 Oct 2025.
 % Email: wwu@vims.edu
 %
 % See also: calc_schism_reso
@@ -30,20 +35,22 @@ if strncmpi(Mobj.coord, 'geographic', 3)
 else
     ntype = 0;
 end
+
 %% Calculation
 tri3 = Mobj.tri(Mobj.i34==3, 1:3);
 tri4 = Mobj.tri(Mobj.i34==4, 1:4);
 
-edge_lens = nan(Mobj.nElems,4);
-
+L_cells = nan(Mobj.nElems,4);
+% calculate the triangular areas
 x1 = Mobj.lon(tri3(:,[1 2])); y1 = Mobj.lat(tri3(:,[1 2]));
 x2 = Mobj.lon(tri3(:,[2 3])); y2 = Mobj.lat(tri3(:,[2 3]));
 x3 = Mobj.lon(tri3(:,[3 1])); y3 = Mobj.lat(tri3(:,[3 1]));
 e1 = calc_edge_lens(x1, y1, ntype);
 e2 = calc_edge_lens(x2, y2, ntype);
 e3 = calc_edge_lens(x3, y3, ntype);
-edge_lens(Mobj.i34==3, 1:3) = [e1(:) e2(:) e3(:)];
+L_cells(Mobj.i34==3, 1:3) = [e1(:) e2(:) e3(:)];
 
+% calculate the quadrangular areas (split into two triangles)
 x1 = Mobj.lon(tri4(:,[1 2])); y1 = Mobj.lat(tri4(:,[1 2]));
 x2 = Mobj.lon(tri4(:,[2 3])); y2 = Mobj.lat(tri4(:,[2 3]));
 x3 = Mobj.lon(tri4(:,[3 4])); y3 = Mobj.lat(tri4(:,[3 4]));
@@ -52,11 +59,11 @@ e1 = calc_edge_lens(x1, y1, ntype);
 e2 = calc_edge_lens(x2, y2, ntype);
 e3 = calc_edge_lens(x3, y3, ntype);
 e4 = calc_edge_lens(x4, y4, ntype);
-edge_lens(Mobj.i34==4, 1:4) = [e1(:) e2(:) e3(:) e4(:)];
+L_cells(Mobj.i34==4, 1:4) = [e1(:) e2(:) e3(:) e4(:)];
 
 % side lengths by order
 x0 = Mobj.lon(Mobj.edg); y0 = Mobj.lat(Mobj.edg);
-edge_len_list = calc_edge_lens(x0, y0, ntype);
+L_edges = calc_edge_lens(x0, y0, ntype);
 
 %% Find the connectivity info between elements and sides
 tri_edg = nan(Mobj.nElems, 4);  % connectivity table between element and edge/side

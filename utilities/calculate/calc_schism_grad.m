@@ -17,18 +17,18 @@ function [Fx, Fy, Fxy] = calc_schism_grad(Mobj, F, grd_ctr)
 %% Input Arguments
 % Mobj - mesh object; datastruct
 %       a datastruct containing the mesh info.
-% F - variable data; double
+% F - variable data; numeric
 %       variable data defined at node centers.
 % grd_ctr - grid center; char
 %       the grid center used for output (node/edge). Note that the original
 %       calculation is done on element centers. Default: grd_ctr = 'node'.
 %
 %% Output Arguments
-% Fx - gradient along x-axis; double
+% Fx - gradient along x-axis; numeric
 %       variable gradient along x-axis
-% Fy - gradient along y-axis; double
+% Fy - gradient along y-axis; numeric
 %       variable gradient along y-axis
-% Fxy - sum of gradients; double
+% Fxy - sum of gradients; numeric
 %       total gradient.
 %
 %% Notes

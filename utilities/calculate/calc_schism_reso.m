@@ -6,17 +6,16 @@ function R = calc_schism_reso(Mobj, mtype)
 % R = calc_schism_reso(Mobj, mtype)
 %
 %% Description
-% R = calc_schism_reso(Mobj) calcuates the grid resolution by default
-% R = calc_schism_reso(Mobj, mtype) specifies the proxy of grid
-%       resolution.
+% R = calc_schism_reso(Mobj) calcuates the grid resolutions.
+% R = calc_schism_reso(Mobj, mtype) specifies the method to calculate grid resolutions.
 %
 %% Example
 % R = calc_schism_reso(Mobj, 1)
 %
 %% Input Arguments
 % Mobj - mesh object; datastruct
-%       the datastruct containing mesh info.
-% mtype - method type; double
+%       the datastruct used to store mesh info.
+% mtype - method type; numeric
 %       mtype determines the definition method of grid resolution.
 %       Five methods are provided (default: mtype=4):
 %       1) average side length           (x1+x2+x3)/3 or (x1+x2+x3+x4)/4
@@ -26,12 +25,12 @@ function R = calc_schism_reso(Mobj, mtype)
 %       5) incircle radius                     r2=2S/(x1+x2+x3)
 %
 %% Output Arguments
-% R - resolution; double
-%       horizontal/spatial resolutions of each grid cell.
+% R - horizontal resolution; numeric
+%       the horizontal/spatial resolution of each grid cell.
 %
 %% Notes
 % All quadrangular cells will be splited into two triangular cells to calculate
-% the radius independantly. As for quadrangular cells, the circumcircle
+% the radius independently. As for quadrangular cells, the circumcircle
 % radius is the largest one from its two triangular cells. and the incircle
 % radius is the sum of its two triangular cells' incircle radius. 
 %
@@ -40,12 +39,10 @@ function R = calc_schism_reso(Mobj, mtype)
 % Last Updated on 11 Nov 2024.
 % Email: wwu@vims.edu
 %
-% See also: calc_schism_area and calc_schism_sidelen
+% See also: calc_schism_area and calc_schism_edge
 
 %% Parse inputs
-if nargin == 1
-    mtype = 4;
-end
+if nargin == 1; mtype = 4; end
 
 %% Calculate
 switch mtype

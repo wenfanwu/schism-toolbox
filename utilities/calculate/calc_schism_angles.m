@@ -16,10 +16,10 @@ function angles = calc_schism_angles(Mobj)
 %
 %% Input Arguments
 % Mobj - mesh object; datastruct
-%       a datastruct containing the mesh info.
+%       the datastruct used to store mesh info.
 %
 %% Output Arguments
-% angles - interior angles; double
+% angles - interior angles; numeric
 %       the interior angles (0-180) of each cell.
 %
 %% Author Info
