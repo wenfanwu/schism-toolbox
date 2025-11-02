@@ -29,7 +29,7 @@ function write_schism_source_nc(Mobj, D, tracer_list)
 % See also: add_river_inputs and prep_river_source
 
 %% Parse inputs
-if nargin < 2; tracer_list = {'temp', 'salt'}; end
+if nargin < 3; tracer_list = {'temp', 'salt'}; end
 tracer_list = lower(tracer_list);
 tracer_list(contains(tracer_list, 'runoff')) = [];
 

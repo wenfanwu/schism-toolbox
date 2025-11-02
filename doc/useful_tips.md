@@ -241,7 +241,7 @@ disp_schism_hgrid(Mobj)
 hold on
 colormap(turbo(25))
 plot_schism_bnds(Mobj)
-h1 = plot(x, y, 'LineWidth', 3, 'Marker', '.', 'Color', 'g');
+h1 = plot(x, y, 'LineWidth', 3, 'Marker', '.', 'Color', 'k');
 h2 = quiver(x, y, tvec(:,1), tvec(:,2), 0.5, 'r');
 h3 = quiver(x, y, nvec(:,1), nvec(:,2), 0.5, 'b');
 legend([h1,h2,h3], {'Transect', 'Tangent','Normal'});
