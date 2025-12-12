@@ -130,7 +130,6 @@ This file lists all functions in the schism-toolbox.
 - [`add_nodal_factors.m`](../utilities/misc/add_nodal_factors.m) - Add nodal factors for the tidal simulation
 - [`check_lons.m`](../utilities/misc/check_lons.m) - Check the consistency of longitude vectors
 - [`schism_datatips.m`](../utilities/misc/schism_datatips.m) - Display data cursor position in a data tip
-- [`vector_angle.m`](../utilities/misc/vector_angle.m) - Calculate the anti-clockwise angle from vector A to B.
 
 ## utilities/visualize
 

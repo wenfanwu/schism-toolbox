@@ -54,6 +54,14 @@ function sect_info = def_schism_transect(Mobj, mtype, N)
 if nargin < 2; mtype = 1; end
 if nargin < 3; if mtype == 0; N = 1; else; N = 100; end; end
 
+%% Check the basemap
+if isempty(findall(0, 'Type', 'figure'))
+    figure
+    disp_schism_hgrid(Mobj, [0 0])
+    axis image
+    auto_center
+end
+
 %% Define transect
 hold on
 switch mtype

@@ -1,5 +1,5 @@
 function varNew = convert_schism_var(Mobj, varRaw, conv_str)
-% Convert variables between different mesh centeres
+% Convert variables between different mesh centers
 %
 %% Syntax
 % varNew = convert_schism_var(Mobj, varRaw, conv_str)
@@ -12,7 +12,7 @@ function varNew = convert_schism_var(Mobj, varRaw, conv_str)
 % varNew = convert_schism_var(Mobj, varRaw, 'node2elem');
 %
 %% Input Arguments
-% Mobj - mehs object; datastruct
+% Mobj - mesh object; datastruct
 %       this datastruct contains mesh info.
 % varRaw - raw variable data; double
 %       raw variable data @node/element/edge.
@@ -20,7 +20,7 @@ function varNew = convert_schism_var(Mobj, varRaw, conv_str)
 %       conv_str determines the interpolation direction, six different
 %       methods are provided now:
 %       1) 'node2elem': interpolate from nodes to elements
-%       2) 'elem2elem': interpolate from elements to nodes
+%       2) 'elem2node': interpolate from elements to nodes
 %       3) 'node2edge': interpolate from nodes to edges/sides
 %       4) 'edge2node': interpolate from edges to nodes
 %       5) 'elem2edge': interpolate from elements to edges (not work yet)
@@ -50,14 +50,12 @@ switch lower(conv_str)
     case 'elem2node'  % Area-weighted average on the surrounding elements
         varTmp = repmat(varRaw(:), [1 4]);
         area = calc_schism_area(Mobj);
-        A = repmat(area, [1 4]);
-        tri = Mobj.tri;
-        tri(isnan(tri)) = Mobj.nNodes+1; % temporally add a node
+        A = repmat(area(:), [1 4]);
+        tri = Mobj.tri; tri(isnan(tri)) = Mobj.nNodes+1; % temporally add a node
 
         varNew = accumarray(tri(:), varTmp(:).*A(:), [], @sum);
         total_weight = accumarray(tri(:), A(:), [], @sum);
-        varNew = varNew./total_weight;
-        varNew(end) = [];
+        varNew = varNew./total_weight; varNew(end) = [];
         
     case {'node2side', 'node2edge'}  % Arithmetic mean at two endpoints
         varNew = mean(varRaw(Mobj.edg), 2, 'omitnan');
@@ -73,6 +71,7 @@ switch lower(conv_str)
 
     case {'elem2side', 'elem2edge'}
         error('not work yet!')
+        
     case {'side2elem', 'edge2elem'}
         error('not work yet!')
 end
