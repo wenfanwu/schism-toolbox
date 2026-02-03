@@ -37,7 +37,7 @@ function Mobj = mesh2schism(mesh_file, sname)
 %
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2021.
-% Last Updated on 04 Nov 2024.
+% Last Updated on 02 Feb 2026.
 % Email: wwu@vims.edu
 %
 % See also: add_grid_metrics and add_bnd_metrics
@@ -118,9 +118,14 @@ if any(ind_obc)
     for ii = 1:obc_counts
         loc = end_locs(ii)+1:end_locs(ii+1)-1;
 
-        obc_line = double(split(string(obc_part(loc,:))));
-        obc_line = obc_line(:, 2:end)'; obc_line = obc_line(:);
+        % all preceding lines are of equal length. 
+        % obc_line is typically an N×11 array, but can be empty or degenerate to a row vector in edge cases.
+        obc_line = double(split(string(obc_part(loc,:))));  
 
+        % remove nan values and concanate (with edge cases included)
+        obc_line = obc_line'; obc_line(isnan(obc_line)) = [];
+
+        % the length of the last line may vary.
         obc_end = double(split(string(obc_part(end_locs(ii+1),:))));
         obc_end = obc_end(2:end)'; 
         obc_end = abs(obc_end(1:find(obc_end<=0)));
