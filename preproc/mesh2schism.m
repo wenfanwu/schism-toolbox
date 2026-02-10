@@ -122,7 +122,7 @@ if any(ind_obc)
         % obc_line is typically an N×11 array, but can be empty or degenerate to a row vector in edge cases.
         obc_line = double(split(string(obc_part(loc,:))));  
 
-        % remove nan values and concanate (with edge cases included)
+        % remove nan values and concatenate (with edge cases included)
         obc_line = obc_line'; obc_line(isnan(obc_line)) = [];
 
         % the length of the last line may vary.

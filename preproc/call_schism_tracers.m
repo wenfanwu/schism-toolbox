@@ -8,7 +8,8 @@ function Mobj = call_schism_tracers(Mobj)
 %  Mobj = call_schism_tracers(Mobj) load the info of activated tracers.
 %
 %% Example
-% Mobj.use_cosine = 'yes';
+% Mobj.use_icm = 'yes';
+% Mobj.use_icm_ph = 'yes';
 % Mobj = call_schism_tracers(Mobj)
 %
 %% Input Arguments
@@ -21,7 +22,7 @@ function Mobj = call_schism_tracers(Mobj)
 % 
 %% Author Info
 % Created by Wenfan Wu, Virginia Institute of Marine Science in 2022.
-% Last Updated on 15 May 2025.
+% Last Updated on 10 Feb 2026.
 % Email: wwu@vims.edu
 % 
 % See also: mesh2schism
@@ -133,22 +134,48 @@ if strcmpi(Mobj.use_ecosim, 'yes')
     end
 end
 %% USE_ICM (index=7)
-if strcmpi(Mobj.use_icm, 'yes') || strcmpi(Mobj.use_icm_ph, 'yes')
+if strcmpi(Mobj.use_icm, 'yes')
     active_mods{7} = 'ICM';
     tracer_sheet(2, 7) = {'ON'};
 
-    tracer_counts(7) = 21;
-    used_tracers = {'ZB1'; 'ZB2'; 'PB1'; 'PB2'; 'PB3'; 'RPOC'; 'LPOC'; 'DOC'; 'RPON'; 'LPON'; 'DON'; 'NH4'; 'NO3'; 'RPOP'; 'LPOP'; 'DOP'; 'PO4'; 'SU'; 'SA'; 'COD'; 'DO'};
-    tracer_sheet(3:23,7) = used_tracers;
-    if strcmpi(Mobj.use_icm_ph, 'yes')
-        active_mods{7} = 'ICM_pH';
-        tracer_sheet{1, 7} = 'ICM_pH';
-        
-        tracer_counts(7) = 25;
-        used_tracers = {'ZB1'; 'ZB2'; 'PB1'; 'PB2'; 'PB3'; 'RPOC'; 'LPOC'; 'DOC'; 'RPON'; 'LPON'; 'DON'; 'NH4'; 'NO3'; 'RPOP'; 'LPOP'; 'DOP'; 'PO4'; 'SU'; 'SA'; 'COD'; 'DO'; ...
-            'TIC'; 'ALK'; 'CA'; 'CACO3'}; % additional variables of pH module 
-        tracer_sheet(3:27,7) = used_tracers;
+    % Basic 3D state variables in ICM
+    ntrs_icm = 17; 
+    used_tracers = {'PB1'; 'PB2'; 'PB3'; 'RPOC'; 'LPOC'; 'DOC'; 'RPON'; 'LPON'; 'DON'; 'NH4'; 'NO3'; 'RPOP'; 'LPOP'; 'DOP'; 'PO4'; 'COD'; 'DOX'};
+    
+    % iSilica = 1
+    if isfield(Mobj, 'use_icm_silica')
+        if strcmpi(Mobj.use_icm_silica, 'yes')
+            ntrs_icm = ntrs_icm +2;
+            used_tracers = [used_tracers; 'SU'; 'SA'];
+        end
     end
+
+    % iZB = 1
+    if isfield(Mobj, 'use_icm_zoo')
+        if strcmpi(Mobj.use_icm_zoo, 'yes')
+            ntrs_icm = ntrs_icm +2;
+            used_tracers = [used_tracers; 'ZB1'; 'ZB2'];
+        end
+    end
+    
+    % iPh = 1
+    if isfield(Mobj, 'use_icm_ph')
+        if strcmpi(Mobj.use_icm_ph, 'yes')
+            ntrs_icm = ntrs_icm +4;
+            used_tracers = [used_tracers; 'TIC'; 'ALK'; 'CA'; 'CACO3'];
+        end
+    end
+
+    % iSRM = 1
+    if isfield(Mobj, 'use_icm_srm')
+        if strcmpi(Mobj.use_icm_srm, 'yes')
+            ntrs_icm = ntrs_icm +4;
+            used_tracers = [used_tracers; 'SRPOC'; 'SRPON'; 'SRPOP'; 'PIP'];
+        end
+    end
+
+    tracer_counts(7) = ntrs_icm;
+    tracer_sheet(3:2+ntrs_icm,7) = used_tracers;
     active_tracers = [active_tracers(:); used_tracers(:)];
 end
 %% USE_COS (index=8)
