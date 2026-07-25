@@ -158,10 +158,11 @@ end
 %% Along-transect distance
 switch lower(Mobj.coord(1:3))
     case 'geo'
-        dist_pts = distance(y_pts(1), x_pts(1), y_pts, x_pts, [6378137 0.0818191910428158]); % meters
+        dist_seg = distance(y_pts(1:end-1), x_pts(1:end-1), y_pts(2:end), x_pts(2:end), [6378137 0.0818191910428158]); % segment distance
     case 'car'
-        dist_pts = hypot(x_pts-x_pts(1), y_pts-y_pts(1));
+        dist_seg = hypot(diff(x_pts), diff(y_pts)); % segment distance
 end
+dist_pts = [0; cumsum(dist_seg)];  % along-transect distance
 
 %% Along-tranect Tangent & Normal vectors
 [tvec, nvec] = transect_vector(x_pts, y_pts, 'left');
